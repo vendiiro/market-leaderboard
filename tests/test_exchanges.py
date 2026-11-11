@@ -10,3 +10,9 @@ def test_suffix_of():
     assert suffix_of("nokia.he") == ".HE"
 
 
+
+
+def test_london_trades_in_pence_and_unknown_suffix_is_none():
+    from engine.exchanges import exchange_for
+    assert exchange_for("SHEL.L").currency == "GBp"
+    assert exchange_for("AAPL").currency == "USD" and exchange_for("X.ZZ") is None

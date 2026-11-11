@@ -16,7 +16,7 @@ class Exchange:
     name: str
     tz: str                # IANA zone of the exchange
     close: time            # regular session end, local time (unverified)
-    currency: str | None   # trading currency; None = not settled (.L: pounds vs pence)
+    currency: str | None   # trading currency as Yahoo reports it (.L: GBp, pence)
     openbb: str | None     # OpenBB provider that serves the line, or None
     index: str | None      # Yahoo symbol of the country index, or None (falls back to the regional index)
 
@@ -39,7 +39,7 @@ EXCHANGES: dict[str, Exchange] = {e.suffix: e for e in (
     _x(".OL", "Oslo Bors", "Europe/Oslo", 16, 20, "NOK", index="OSEBX.OL"),
     _x(".BR", "Euronext Brussels", "Europe/Brussels", 17, 30, "EUR"),
     _x(".LS", "Euronext Lisbon", "Europe/Lisbon", 16, 30, "EUR"),
-    _x(".L", "London Stock Exchange", "Europe/London", 16, 30, None),
+    _x(".L", "London Stock Exchange", "Europe/London", 16, 30, "GBp"),   # market-leaderboard: prices in pence (docs/decisions.md)
 )}
 
 

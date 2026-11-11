@@ -1,6 +1,6 @@
 # Adapted from dip-dashboard scripts/verify_universe.py at commit f14d55c: the pure row check and the two Yahoo
 # calls. Changed here: expected currency comes from the exchange registry, the size check is optional (`under_cap`),
-# a minimum bar count is checked (`few_bars`), and the duplicate-name check and the CSV driver are not copied.
+# a minimum bar count is checked (`few_bars`), market cap is in EUR, and the duplicate-name check and the CSV driver are not copied.
 """Check one watchlist ticker against what Yahoo returns. `classify_row` is pure; the Yahoo calls are at the bottom.
 
 Statuses (several are joined by ';'): ok, no_bars, few_bars, stale, not_equity, name_mismatch, currency_mismatch,
@@ -14,11 +14,11 @@ import time
 from datetime import date
 
 from .exchanges import exchange_for
-from .fx import usd_value
+from .fx import PENCE, cap_currency, eur_value
 from .screen import trading_days_old
 
 COLUMNS = ["ticker", "csv_name", "yahoo_long_name", "name_score", "quote_type", "exchange", "currency",
-           "expected_currency", "first_bar", "last_bar", "bar_count", "market_cap_usd", "status", "detail"]
+           "expected_currency", "first_bar", "last_bar", "bar_count", "market_cap_eur", "status", "detail"]
 STATUSES = ["ok", "no_bars", "few_bars", "stale", "not_equity", "name_mismatch", "currency_mismatch", "under_cap",
             "fetch_error"]
 
@@ -44,10 +44,11 @@ def name_score(csv_name: str, yahoo_name: str | None) -> float:
 
 
 def classify_row(ticker: str, csv_name: str, info: dict | None, bars: dict | None, today: date, *,
-                 rates: dict[str, float], min_cap_usd: float | None = None, min_bars: int = 250,
+                 rates: dict[str, float], min_cap_eur: float | None = None, min_bars: int = 250,
                  max_stale: int = 4, name_threshold: float = 0.6) -> dict:
     """Pure: build one output row from fetched info and bar summary.
 
+    rates: USD per 1 unit of each currency (fx.fetch_fx_to_usd); market cap is reported in EUR.
     info: Yahoo info dict (longName, quoteType, exchange, currency, marketCap) or None if the fetch failed.
     bars: {"first": date, "last": date, "count": int} or None/empty count when no bars came back.
     """
@@ -81,17 +82,17 @@ def classify_row(ticker: str, csv_name: str, info: dict | None, bars: dict | Non
         if ex is None:
             flags.append("currency_mismatch")
             notes.append("exchange suffix not in the registry")
-        elif row["currency"] and expected and row["currency"] != expected:
+        elif row["currency"] and expected and row["currency"] != expected and not {row["currency"], expected} <= PENCE:
             flags.append("currency_mismatch")
             notes.append(f"{row['currency']} != {expected}")
-        cap = usd_value(info.get("marketCap"), row["currency"] or expected, rates)
+        cap = eur_value(info.get("marketCap"), cap_currency(row["currency"] or expected), rates)
         if cap is None:
             notes.append("market cap unavailable")
         else:
-            row["market_cap_usd"] = round(cap)
-            if min_cap_usd is not None and cap < min_cap_usd:
+            row["market_cap_eur"] = round(cap)
+            if min_cap_eur is not None and cap < min_cap_eur:
                 flags.append("under_cap")
-                notes.append(f"market cap {cap / 1e9:.1f}B USD")
+                notes.append(f"market cap {cap / 1e9:.1f}B EUR")
 
     if not bars or not bars.get("count"):
         flags.append("no_bars")
