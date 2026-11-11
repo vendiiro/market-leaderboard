@@ -11,3 +11,5 @@ web/dist/
 web/public/data/
 test-results/
 playwright-report/
+.ruff_cache/
+*.tsbuildinfo
