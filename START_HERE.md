@@ -44,3 +44,8 @@ Yahoo access (`python -m engine build --demo`); only the live checks in Tasks 2,
   schemas, demo fixtures in `web/src/fixtures/`. 386 tests pass. One live build: 58 of 58 tickers, 57 with risk
   data (GRK.HE has 83 of 104 weeks). Run during the European session, so that day's European bars were partial;
   the nightly run after the US close avoids this. Next: session 3 (Tasks 8-10).
+- 2026-11-11: session 3 done (Tasks 8-10) on branch `session-3`: web foundation (tokens from dip-dashboard, hash
+  router, typed data loading with generated types, formatting, sorting), leaderboard view (desktop table and
+  expanding phone rows) and overview view. 9 unit tests and 19 browser tests pass on the demo fixtures;
+  screenshots at 1280 and 390 px, light and dark, were looked at. Mix and Movers show a placeholder.
+  Next: session 4 (Tasks 11-14).

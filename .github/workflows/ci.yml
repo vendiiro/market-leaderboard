@@ -36,5 +36,7 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
+      - name: Generated types match schemas/
+        run: npm run gen:types && git diff --exit-code -- src/data/generated
       - run: npm test
       - run: npm run build
