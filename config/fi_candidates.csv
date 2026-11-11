@@ -1,0 +1,175 @@
+ticker,source_name,yahoo_name,market_cap_eur,median_traded_eur,kept,reason
+ACG1V.HE,Aspo,Aspocomp Group Oyj,47424652,17043,no,market cap 0.05B EUR is below 0.3B
+AFAGR.HE,Afarak Group,Afarak Group SE,58030868,6984,no,market cap 0.06B EUR is below 0.3B
+AKTIA.HE,Aktia Pankki,Aktia Pankki Oyj,885518272,362500,no,median traded value 0.36M EUR a day is under 0.5M
+ALISA.HE,Alisa Pankki,Alisa Pankki Oyj,16501924,4516,no,market cap 0.02B EUR is below 0.3B
+ALMA.HE,Alma Media,Alma Media Oyj,1134960768,82383,no,median traded value 0.08M EUR a day is under 0.5M
+ALTIA.HE,Altia Oy,,,,no,market cap unavailable
+AMEAS.HE,Amer Sports,,,,no,market cap unavailable
+ANORA.HE,Anora Group,Anora Group Oyj,306355680,135402,no,median traded value 0.14M EUR a day is under 0.5M
+APETIT.HE,Apetit,Apetit Oyj,73731216,11657,no,market cap 0.07B EUR is below 0.3B
+ASPO.HE,Aspo,Aspo Oyj,207462336,65971,no,market cap 0.21B EUR is below 0.3B
+ASUNTO.HE,Asuntosalkku,Asuntosalkku Oyj,69763320,6842,no,market cap 0.07B EUR is below 0.3B
+ATRAV.HE,Atria,Atria Oyj,446664224,60683,no,median traded value 0.06M EUR a day is under 0.5M
+AUROORA.HE,Auroora Yhtiöt,Auroora Yhtiöt Oyj,,220532,no,market cap unavailable
+BIOBV.HE,Biohit,Biohit Oyj,31627632,11625,no,market cap 0.03B EUR is below 0.3B
+BITTI.HE,Bittium,Bittium Oyj,1217487872,2132922,yes,
+BOREO.HE,Boreo,Boreo Oyj,69094736,12336,no,market cap 0.07B EUR is below 0.3B
+CAPMAN.HE,CapMan,CapMan Oyj,276751776,208359,no,market cap 0.28B EUR is below 0.3B
+CONSTI.HE,Consti,Consti Oyj,79691872,48064,no,market cap 0.08B EUR is below 0.3B
+CTH1V.HE,Componenta,Componenta Corporation,63277772,68309,no,market cap 0.06B EUR is below 0.3B
+CTL1V.HE,Comptel,,,,no,"no data from Yahoo (info, prices or volume)"
+CTY1S.HE,Citycon,Citycon Oyj,550707008,80856,no,median traded value 0.08M EUR a day is under 0.5M
+DIGIA.HE,Digia,Digia Oyj,132135888,45089,no,market cap 0.13B EUR is below 0.3B
+DIGIGR.HE,Digitalist Group,Digitalist Group Plc,4530251,1129,no,market cap 0.00B EUR is below 0.3B
+EABGB.HE,EAB Group,,,,no,market cap unavailable
+EASOR.HE,Easor,Easor Oyj,,41398,no,market cap unavailable
+EEZY.HE,Eezy,Eezy Oyj,20373856,25371,no,market cap 0.02B EUR is below 0.3B
+ELEAV.HE,Elecster,Elecster Oyj,8095931,2213,no,market cap 0.01B EUR is below 0.3B
+ELISA.HE,Elisa,Elisa Oyj,5433905152,15712383,no,market cap 5.43B EUR is above 5B
+ENENTO.HE,Enento Group,Enento Group Oyj,387802080,203927,no,median traded value 0.20M EUR a day is under 0.5M
+EQV1V.HE,eQ,eQ Oyj,324632448,126249,no,median traded value 0.13M EUR a day is under 0.5M
+ESENSE.HE,Enersense,Enersense International Oyj,68546360,158437,no,market cap 0.07B EUR is below 0.3B
+ETTE.HE,Etteplan,Etteplan Oyj,181294080,9295,no,market cap 0.18B EUR is below 0.3B
+EVI1V.HE,Evia,,,,no,"no data from Yahoo (info, prices or volume)"
+EVLI.HE,Evli,Evli Oyj,556182912,96368,no,median traded value 0.10M EUR a day is under 0.5M
+EXEL.HE,Exel Composites,Exel Composites Oyj,106047888,178785,no,market cap 0.11B EUR is below 0.3B
+FELLOW.HE,Alisa Pankki,,,,no,market cap unavailable
+FIA1S.HE,Finnair,Finnair Oyj,1158426624,706159,yes,
+FODELIA.HE,Fodelia,Fodelia Oyj,35023304,21969,no,market cap 0.04B EUR is below 0.3B
+FONDIA.HE,Fondia,Fondia Oyj,17423940,14105,no,market cap 0.02B EUR is below 0.3B
+FORTUM.HE,Fortum,Fortum Oyj,20933179392,20446329,no,market cap 20.93B EUR is above 5B
+FRAMERY.HE,Framery,Framery Group Oyj,584092288,228519,no,"only 234 daily bars, need 250"
+FSC1V.HE,F-Secure,,,,no,market cap unavailable
+FSECURE.HE,F-Secure,F-Secure Oyj,242209744,289222,no,market cap 0.24B EUR is below 0.3B
+FSKRS.HE,Fiskars,Fiskars Oyj Abp,1070271488,225027,no,median traded value 0.23M EUR a day is under 0.5M
+GLA1V.HE,Glaston,Glaston Oyj Abp,41204172,11460,no,market cap 0.04B EUR is below 0.3B
+GOFORE.HE,Gofore,Gofore Oyj,189323984,212819,no,market cap 0.19B EUR is below 0.3B
+GRK.HE,GRK,GRK Infra Oyj,848167552,1438533,yes,
+HARVIA.HE,Harvia,Harvia Oyj,776455616,886358,yes,
+HEALTH.HE,Nightingale Health,Nightingale Health Oyj,120118384,72606,no,market cap 0.12B EUR is below 0.3B
+HIAB.HE,Hiab,Hiab Oyj,3266277632,4241362,yes,
+HKFOODS.HE,HKFoods,HKFoods Oyj,159859456,47200,no,market cap 0.16B EUR is below 0.3B
+HONBS.HE,Honkarakenne,Honkarakenne Oyj,13783458,4830,no,market cap 0.01B EUR is below 0.3B
+HUH1V.HE,Huhtamäki,Huhtamäki Oyj,2786332928,6324327,yes,
+ICP1V.HE,Incap,Incap Oyj,266572496,240697,no,market cap 0.27B EUR is below 0.3B
+ILKKA.HE,Ilkka,Ilkka Oyj,97651488,20496,no,market cap 0.10B EUR is below 0.3B
+INVEST.HE,Investors House,Investors House Oyj,16256815,7923,no,market cap 0.02B EUR is below 0.3B
+IQMX.HE,IQM Quantum Computers,IQM Quantum Computers Oyj,3205672704,948618,no,"only 92 daily bars, need 250"
+KALMAR.HE,Kalmar,Kalmar Oyj,2440655616,1550158,yes,
+KAMUX.HE,Kamux,Kamux Oyj,49364904,40479,no,market cap 0.05B EUR is below 0.3B
+KCR.HE,Kone,Konecranes Plc,6985396224,8401761,no,market cap 6.99B EUR is above 5B
+KELAS.HE,Kesla,Kesla Oyj,12539741,6579,no,market cap 0.01B EUR is below 0.3B
+KEMIRA.HE,Kemira,Kemira Oyj,2258543104,2582666,yes,
+KEMPOWR.HE,Kempower,Kempower Oyj,321028832,523496,yes,
+KESKOA.HE,Kesko,Kesko Oyj,9976609792,505893,no,market cap 9.98B EUR is above 5B
+KESKOB.HE,Kesko,Kesko Oyj,10221462528,10503274,no,market cap 10.22B EUR is above 5B
+KHG.HE,KH Group,KH Group Oyj,43443016,40103,no,market cap 0.04B EUR is below 0.3B
+KNEBV.HE,Kone,KONE Oyj,29977526272,29885311,no,market cap 29.98B EUR is above 5B
+KOSKI.HE,Koskisen,Koskisen Oyj,173961904,8087,no,market cap 0.17B EUR is below 0.3B
+KREATE.HE,Kreate Group,Kreate Group Oyj,235711456,341662,no,market cap 0.24B EUR is below 0.3B
+KSL.HE,Keskisuomalainen,Keskisuomalainen Oyj,106071320,15700,no,market cap 0.11B EUR is below 0.3B
+KSLAV.HE,Keskisuomalainen,,,,no,market cap unavailable
+LAMOR.HE,Lamor,Lamor Corporation Oyj,14127026,6767,no,market cap 0.01B EUR is below 0.3B
+LASTIK.HE,Lassila & Tikanoja,Lassila & Tikanoja Plc,248346688,252656,no,"only 216 daily bars, need 250"
+LAT1V.HE,Lassila & Tikanoja,,,,no,"no data from Yahoo (info, prices or volume)"
+LINDEX.HE,Lindex Group,Lindex Group Oyj,412776064,163332,no,median traded value 0.16M EUR a day is under 0.5M
+LL1SPAC.HE,Lifeline SPAC I,,,,no,market cap unavailable
+LUMO.HE,Lumo Kodit,Lumo Kodit Oyj,1900019456,2637579,yes,
+LUOTEA.HE,Luotea,Luotea Oyj,77128816,61443,no,market cap 0.08B EUR is below 0.3B
+MANTA.HE,Mandatum,Mandatum Oyj,2933724672,5037607,yes,
+MARAS.HE,Martela,Martela Oyj,12045473,6109,no,market cap 0.01B EUR is below 0.3B
+MEKKO.HE,Marimekko,Marimekko Oyj,390392192,387102,no,median traded value 0.39M EUR a day is under 0.5M
+METSA.HE,Metsä Board,Metsä Board Oyj,1342474368,7981,no,median traded value 0.01M EUR a day is under 0.5M
+METSB.HE,Metsä Board,Metsä Board Oyj,1045567296,599582,yes,
+METSO.HE,Metso,Metso Oyj,14276675584,20033784,no,market cap 14.28B EUR is above 5B
+MUSTI.HE,Musti Group,Musti Group Oyj,485793792,5652,no,median traded value 0.01M EUR a day is under 0.5M
+NDA-FI.HE,Nordea Bank,Nordea Bank Abp,57727750144,67271406,no,market cap 57.73B EUR is above 5B
+NELES.HE,Neles,,,,no,market cap unavailable
+NESTE.HE,Neste,Neste Oyj,20766681088,37266442,no,market cap 20.77B EUR is above 5B
+NLG1V.HE,Nurminen Logistics,Nurminen Logistics Oyj,43211172,12979,no,market cap 0.04B EUR is below 0.3B
+NOHO.HE,NoHo Partners,NoHo Partners Oyj,151309264,44209,no,market cap 0.15B EUR is below 0.3B
+NOKIA.HE,Nokia,Nokia Oyj,42091163648,120038758,no,market cap 42.09B EUR is above 5B
+NXTGMS.HE,Next Games,,,,no,market cap unavailable
+OKDAV.HE,Oriola,,,,no,"no data from Yahoo (info, prices or volume)"
+OKDBV.HE,Oriola,,,,no,"no data from Yahoo (info, prices or volume)"
+OLVAS.HE,Olvi,Olvi Oyj,571590720,242188,no,median traded value 0.24M EUR a day is under 0.5M
+OMASP.HE,Oma Säästöpankki,Oma Säästöpankki Oyj,573744576,72789,no,median traded value 0.07M EUR a day is under 0.5M
+OPTOMED.HE,Optomed,Optomed Oyj,35618748,44998,no,market cap 0.04B EUR is below 0.3B
+ORIOLA.HE,Oriola,Oriola Oyj,141684496,119423,no,market cap 0.14B EUR is below 0.3B
+ORNAV.HE,Orion,Orion Oyj,14248497152,459685,no,market cap 14.25B EUR is above 5B
+ORNBV.HE,Orion,Orion Oyj,14303306752,11797533,no,market cap 14.30B EUR is above 5B
+ORTHEX.HE,Orthex,Orthex Oyj,83289024,24255,no,market cap 0.08B EUR is below 0.3B
+OUT1V.HE,Outokumpu,Outokumpu Oyj,1771437440,4859179,yes,
+OVARO.HE,Ovaro Kiinteistösijoitus,Ovaro Kiinteistösijoitus Oyj,21960408,8824,no,market cap 0.02B EUR is below 0.3B
+PAMPALO.HE,Endomines Finland,Endomines Finland Oyj,313737888,385182,no,median traded value 0.39M EUR a day is under 0.5M
+PIHLIS.HE,Pihlajalinna,Pihlajalinna Oyj,188234240,217172,no,market cap 0.19B EUR is below 0.3B
+PNA1V.HE,Panostaja,Panostaja Oyj,15848658,4910,no,market cap 0.02B EUR is below 0.3B
+PON1V.HE,Ponsse,Ponsse Oyj,533055104,82152,no,median traded value 0.08M EUR a day is under 0.5M
+POSTI.HE,Posti Group,Posti Group Oyj,490842592,426156,no,median traded value 0.43M EUR a day is under 0.5M
+PUUILO.HE,Puuilo,Puuilo Oyj,1569418112,1312979,yes,
+QPR1V.HE,QPR Software,QPR Software Oyj,10259818,1624,no,market cap 0.01B EUR is below 0.3B
+QTCOM.HE,Qt Group,Qt Group Oyj,768845888,1707583,yes,
+RAIKV.HE,Raisio,Raisio plc,348053856,11509,no,median traded value 0.01M EUR a day is under 0.5M
+RAIVV.HE,Raisio,Raisio plc,344937664,296086,no,median traded value 0.30M EUR a day is under 0.5M
+RAP1V.HE,Rapala VMC,Rapala VMC Corporation,58338656,52331,no,market cap 0.06B EUR is below 0.3B
+RAUTE.HE,Raute,Raute Oyj,81477504,37241,no,market cap 0.08B EUR is below 0.3B
+REAKTOR.HE,Reaktor,Reaktor Group Plc,172894976,38950,no,"only 104 daily bars, need 250"
+REBL.HE,Rebl Group,Rebl Group Oyj,12329600,1235,no,market cap 0.01B EUR is below 0.3B
+REG1V.HE,Revenio Group,Revenio Group Oyj,430223904,817098,yes,
+REG1VU0126.HE,Revenio Group,,,2207695,no,market cap unavailable
+REKA.HE,Reka Industrial,Reka Industrial Oyj,22893818,6178,no,market cap 0.02B EUR is below 0.3B
+RELAIS.HE,Relais Group,Relais Group Oyj,229960464,60804,no,market cap 0.23B EUR is below 0.3B
+REMEDY.HE,Remedy Entertainment,Remedy Entertainment Oyj,206846672,271955,no,market cap 0.21B EUR is below 0.3B
+ROBIT.HE,Robit,Robit Oyj,24953152,18592,no,market cap 0.02B EUR is below 0.3B
+ROVIO.HE,Q870095,,,,no,market cap unavailable
+SAGCV.HE,Saga Furs,Saga Furs Oyj,54645288,14860,no,market cap 0.05B EUR is below 0.3B
+SAMPO.HE,Sampo,Sampo Oyj,26084235264,31441809,no,market cap 26.08B EUR is above 5B
+SANOMA.HE,Sanoma,Sanoma Oyj,1416713472,576411,yes,
+SAVOX.HE,Savox,Savox Communications Oyj,,26475,no,market cap unavailable
+SCANFL.HE,Scanfil,Scanfil Oyj,785269952,72565,no,median traded value 0.07M EUR a day is under 0.5M
+SENSO.HE,Sensofusion,Sensofusion Oyj,1847869440,1873173,no,"only 22 daily bars, need 250"
+SIILI.HE,Siili Solutions,Siili Solutions Oyj,21568784,22788,no,market cap 0.02B EUR is below 0.3B
+SITOWS.HE,Sitowise,Sitowise Group Oyj,75992800,10289,no,market cap 0.08B EUR is below 0.3B
+SOLTEQ.HE,Solteq,Solteq Oyj,5062486,2834,no,market cap 0.01B EUR is below 0.3B
+SOSI1.HE,Sotkamo Silver,Sotkamo Silver AB (publ),89031064,620509,no,market cap 0.09B EUR is below 0.3B
+SRV1V.HE,SRV Yhtiöt,SRV Yhtiöt Oyj,125446816,175150,no,market cap 0.13B EUR is below 0.3B
+SSABAH.HE,SSAB,SSAB AB (publ),8491183104,132404,no,market cap 8.49B EUR is above 5B
+SSABBH.HE,SSAB,SSAB AB (publ),8600810496,1381178,no,market cap 8.60B EUR is above 5B
+SSH1V.HE,SSH Communications Security,SSH Communications Security Oyj,101794312,35969,no,market cap 0.10B EUR is below 0.3B
+STCAS.HE,Lindex Group,,,,no,market cap unavailable
+STCBV.HE,Lindex Group,,,,no,market cap unavailable
+STEAV.HE,Stora Enso,Stora Enso Oyj,7476116992,35426,no,market cap 7.48B EUR is above 5B
+STERV.HE,Stora Enso,Stora Enso Oyj,7458767872,13203736,no,market cap 7.46B EUR is above 5B
+SUY1V.HE,Suominen,Suominen Oyj,63584524,2422,no,market cap 0.06B EUR is below 0.3B
+TAALA.HE,Taaleri,Taaleri Oyj,201469808,123516,no,market cap 0.20B EUR is below 0.3B
+TALLINK.HE,AS Tallink Grupp,AS Tallink Grupp,491203200,22222,no,median traded value 0.02M EUR a day is under 0.5M
+TAM1V.HE,Takoma,,,,no,"no data from Yahoo (info, prices or volume)"
+TELIA1.HE,Telia Company,Telia Company AB (publ),17494575104,726587,no,market cap 17.49B EUR is above 5B
+TEM1V.HE,Tecnotree,Tecnotree Oyj,137319296,58551,no,market cap 0.14B EUR is below 0.3B
+TIETO.HE,Tieto,Tieto Oyj,1968860928,5007217,yes,
+TIK1V.HE,Tikkurila,,,,no,market cap unavailable
+TLT1V.HE,Teleste,Teleste Oyj,55177820,21631,no,market cap 0.06B EUR is below 0.3B
+TNOM.HE,Talenom,Talenom Oyj,51491656,55760,no,market cap 0.05B EUR is below 0.3B
+TOIVO.HE,Toivo Group,Toivo Group Oyj,47371496,7820,no,market cap 0.05B EUR is below 0.3B
+TOKMAN.HE,Tokmanni Group,Tokmanni Group Oyj,372282240,690154,yes,
+TRH1V.HE,Trainers' House,Trainers' House Oyj,4295652,448,no,market cap 0.00B EUR is below 0.3B
+TTALO.HE,Terveystalo,Terveystalo Oyj,781146304,1458649,yes,
+TULAV.HE,Tulikivi,Tulikivi Corporation,29216304,10253,no,market cap 0.03B EUR is below 0.3B
+TYRES.HE,Nokian Renkaat,Nokian Renkaat Oyj,1980645376,4211774,yes,
+UNITED.HE,United Bankers,United Bankers Oyj,249597136,27881,no,market cap 0.25B EUR is below 0.3B
+UPM.HE,UPM-Kymmene,UPM-Kymmene Oyj,11490391040,24593520,no,market cap 11.49B EUR is above 5B
+UPONOR.HE,Uponor,,,,no,market cap unavailable
+VAIAS.HE,Vaisala,Vaisala Oyj,2311621632,1204655,yes,
+VALMT.HE,Valmet,Valmet Oyj,5294833664,7916675,no,market cap 5.29B EUR is above 5B
+VERK.HE,Verkkokauppa.com,Verkkokauppa.com Oyj,151593552,154388,no,market cap 0.15B EUR is below 0.3B
+VIK1V.HE,Viking Line,Viking Line Abp,336960000,14579,no,median traded value 0.01M EUR a day is under 0.5M
+WETTERI.HE,Wetteri,Wetteri Oyj,23835912,3680,no,market cap 0.02B EUR is below 0.3B
+WISA.HE,WISA Group,WISA Group Oyj,278954400,7159469,no,"only 1 daily bars, need 250"
+WITH.HE,WithSecure,,,,no,"no data from Yahoo (info, prices or volume)"
+WRT1V.HE,Wärtsilä,Wärtsilä Oyj Abp,15187383296,28466576,no,market cap 15.19B EUR is above 5B
+WUF1V.HE,Wulff-Yhtiöt,Wulff-Yhtiöt Oyj,29358738,10607,no,market cap 0.03B EUR is below 0.3B
+YIT.HE,YIT,YIT Oyj,840969152,1131292,yes,
+,Dovre Group,,,,no,no Helsinki line found by Yahoo search or in Wikidata
+,Lehto Group,,,,no,no Helsinki line found by Yahoo search or in Wikidata
+,Ålandsbanken,,,,no,no Helsinki line found by Yahoo search or in Wikidata

@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Leaderboard",
+  "description": "One table per watchlist. Returns and vol_1y are in each stock's own currency. The dip flag and quality score are untested screen rules.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "asof", "periods", "lists"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "asof": { "$ref": "#/$defs/day" },
+    "periods": { "type": "array", "items": { "$ref": "#/$defs/period" } },
+    "lists": { "type": "array", "items": { "$ref": "#/$defs/watchlist" } }
+  },
+  "$defs": {
+    "day": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "period": { "enum": ["1d", "1w", "1m", "ytd", "1y"] },
+    "num": { "type": ["number", "null"] },
+    "text": { "type": ["string", "null"] },
+    "watchlist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "summary", "rows"],
+      "properties": {
+        "key": { "type": "string" },
+        "name": { "type": "string" },
+        "summary": { "$ref": "#/$defs/summary" },
+        "rows": { "type": "array", "items": { "$ref": "#/$defs/row" } }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["periods", "count", "stale", "flags"],
+      "properties": {
+        "periods": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["1d", "1w", "1m", "ytd", "1y"],
+          "properties": {
+            "1d": { "$ref": "#/$defs/periodSummary" },
+            "1w": { "$ref": "#/$defs/periodSummary" },
+            "1m": { "$ref": "#/$defs/periodSummary" },
+            "ytd": { "$ref": "#/$defs/periodSummary" },
+            "1y": { "$ref": "#/$defs/periodSummary" }
+          }
+        },
+        "count": { "type": "integer" },
+        "stale": { "type": "integer" },
+        "flags": { "type": "integer" }
+      }
+    },
+    "periodSummary": {
+      "description": "Equal-weight mean return of the list's fresh rows, each in its own currency.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mean", "n", "top", "bottom"],
+      "properties": {
+        "mean": { "$ref": "#/$defs/num" },
+        "n": { "type": "integer" },
+        "top": { "$ref": "#/$defs/text" },
+        "bottom": { "$ref": "#/$defs/text" }
+      }
+    },
+    "rank": {
+      "description": "rank 1 = highest return in the list for the period; rank_delta = rank_prev - rank (positive = moved up).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rank", "rank_prev", "rank_delta"],
+      "properties": {
+        "rank": { "type": ["integer", "null"] },
+        "rank_prev": { "type": ["integer", "null"] },
+        "rank_delta": { "type": ["integer", "null"] }
+      }
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ticker", "name", "lists", "currency", "sector", "country", "last_bar", "stale", "stale_reason", "price",
+                   "ret_1d", "ret_1w", "ret_1m", "ret_ytd", "ret_1y", "vol_1y", "dd52", "q_score", "q_passed", "q_scored",
+                   "dip", "dip_reasons", "spark", "rank"],
+      "properties": {
+        "ticker": { "type": "string" },
+        "name": { "type": "string" },
+        "lists": { "type": "array", "items": { "type": "string" } },
+        "currency": { "$ref": "#/$defs/text" },
+        "sector": { "$ref": "#/$defs/text" },
+        "country": { "$ref": "#/$defs/text" },
+        "last_bar": { "$ref": "#/$defs/day" },
+        "stale": { "type": "boolean" },
+        "stale_reason": { "$ref": "#/$defs/text" },
+        "price": { "$ref": "#/$defs/num" },
+        "ret_1d": { "$ref": "#/$defs/num" },
+        "ret_1w": { "$ref": "#/$defs/num" },
+        "ret_1m": { "$ref": "#/$defs/num" },
+        "ret_ytd": { "$ref": "#/$defs/num" },
+        "ret_1y": { "$ref": "#/$defs/num" },
+        "vol_1y": { "$ref": "#/$defs/num" },
+        "dd52": { "$ref": "#/$defs/num" },
+        "q_score": { "type": ["integer", "null"] },
+        "q_passed": { "type": "integer" },
+        "q_scored": { "type": "integer" },
+        "dip": { "type": "boolean" },
+        "dip_reasons": { "type": "array", "items": { "type": "string" } },
+        "spark": { "type": "array", "items": { "type": "number" } },
+        "rank": {
+          "description": "null for a stale row.",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["1d", "1w", "1m", "ytd", "1y"],
+              "properties": {
+                "1d": { "$ref": "#/$defs/rank" },
+                "1w": { "$ref": "#/$defs/rank" },
+                "1m": { "$ref": "#/$defs/rank" },
+                "ytd": { "$ref": "#/$defs/rank" },
+                "1y": { "$ref": "#/$defs/rank" }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

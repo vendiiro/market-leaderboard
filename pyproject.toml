@@ -1,0 +1,29 @@
+[project]
+name = "market-leaderboard"
+version = "0.1.0"
+description = "Data engine for the market leaderboard dashboard (educational research tool, not advice)."
+requires-python = ">=3.11"
+dependencies = [
+    "jsonschema>=4.26.0",
+    "numpy>=2.4.6",
+    "pandas>=3.1.1",
+    "yfinance>=1.8.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "--basetemp=.pytest_tmp"  # the default temp root is not writable on the owner's PC
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ["web"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]  # correctness rules only: copied modules stay byte-identical to their source

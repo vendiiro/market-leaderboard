@@ -1,0 +1,30 @@
+# Thresholds are untested defaults until the backtest supports them.
+
+[dip]
+drop_1d = 0.04          # 1-day fall
+drop_5d = 0.07          # 5-day fall
+drawdown_20d = 0.12     # below 20-day high
+
+[quality]
+min_score = 60
+roe_min = 0.12
+margin_min = 0.08
+debt_to_equity_max = 150
+market_cap_min = 1_000_000_000   # in USD; other currencies are converted. dip-dashboard used 20B (global large caps); these lists hold companies that are large at home and small globally, so 1B (owner, 2026-11-11)
+must_pass = ["net_margin_positive"]   # named rules; a failure blocks the "Quality dip" label (definition, not a tested filter)
+distorted_roe_above = 1.0             # ROE above 100% is flagged as distorted
+
+[falling_knife]
+below_200d_falling = true
+drawdown_52w = 0.35
+
+[news]
+fetch_if_5d_drop = 0.05
+
+[data]
+max_stale_trading_days = 4   # skip a ticker whose last bar is older than this
+min_screened_fraction = 0.9   # a run that screens fewer than this share of the universe fails and keeps yesterday's files 
+# The next three are run-health thresholds (when to report a data problem), not screening rules; they never change which stocks are flagged.
+min_fundamentals_share = 0.8  # run-health: below this share of screened stocks with fundamentals, the run reports an error (it still publishes)
+min_bars_share = 0.8          # run-health: an exchange with bars for fewer than this share of its tickers gets a warning
+min_earnings_share = 0.5      # run-health: earnings dates known for fewer than this share of an exchange gets an info line
