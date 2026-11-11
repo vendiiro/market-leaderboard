@@ -1,7 +1,7 @@
 # Start here
 
 This repo starts empty on purpose: it holds the approved design (`docs/spec.md`) and the step-by-step plan
-(`docs/plan.md`) for a market leaderboard dashboard. The code is built in three sessions, using
+(`docs/plan.md`) for a market leaderboard dashboard. The code is built in four sessions, using
 https://github.com/vendiiro/dip-dashboard as the reference for the data code.
 
 ## What you need
@@ -18,16 +18,19 @@ https://github.com/vendiiro/dip-dashboard as the reference for the data code.
 Clone https://github.com/vendiiro/market-leaderboard and work in it.
 Read CLAUDE.md, START_HERE.md, docs/spec.md and docs/plan.md first.
 Then execute Session 1 of docs/plan.md (Tasks 0-3) with superpowers:subagent-driven-development:
-clone the reference repo read-only as described in Task 0, copy the engine code, build and verify the
-watchlists, and build the leaderboard engine. Stop after Task 3 with a summary of what changed, what was
-verified and what was not.
+clone the reference repo read-only as described in Task 0, set up the scaffold and CI, copy the engine code,
+add EUR conversion and the UK pence rule, and build and verify the watchlists. Stop after Task 3 with a
+summary of what changed, what was verified and what was not.
 ```
 
-## Sessions 2 and 3
+## Sessions 2, 3 and 4
 
-Same prompt, with "Session 2 (Tasks 4-7)" or "Session 3 (Tasks 8-11)". Each session ends with the tests passing
-and a short status note added to the bottom of this file.
+Same prompt, with "Session 2 (Tasks 4-7)", "Session 3 (Tasks 8-10)" or "Session 4 (Tasks 11-14)". Each session
+ends with the tests passing and a short status note added to the bottom of this file. Sessions 2-4 work without
+Yahoo access (`python -m engine build --demo`); only the live checks in Tasks 2, 3 and 7 need it.
 
 ## Status
 
 - 2026-11-11: repo created with spec and plan; no code yet.
+- 2026-11-11: spec and plan revised after a review against dip-dashboard `f14d55c` (spec revision 2: weekly EUR
+  covariance, UK listings included, overview page, risk contribution, four sessions); still no code.

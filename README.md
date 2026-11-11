@@ -4,7 +4,8 @@ A planned local dashboard that ranks hand-picked watchlists like a leaderboard a
 risk across sectors, countries and currencies:
 
 - US big tech
-- European defence and energy
+- European defence
+- European energy
 - Nordic energy
 - Finnish smaller companies (about 0.3-5 billion EUR market cap)
 
