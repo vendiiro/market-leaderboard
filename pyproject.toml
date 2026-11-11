@@ -13,6 +13,7 @@ dependencies = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+addopts = "--basetemp=.pytest_tmp"  # the default temp root is not writable on the owner's PC
 
 [tool.ruff]
 line-length = 120
@@ -23,3 +24,6 @@ dev = [
     "pytest>=9.2.0",
     "ruff>=0.17.4",
 ]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]  # correctness rules only: copied modules stay byte-identical to their source
