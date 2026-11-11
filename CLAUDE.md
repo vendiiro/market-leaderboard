@@ -29,7 +29,8 @@ Output wording: "screen results", "candidates", "exposure", "flagged because ...
   ruff, type hints, small functions, pandas/numpy. Tests run offline on synthetic data; `python -m engine build
   --demo` gives a full data set without network.
 - TypeScript strict mode, React function components, a plain sortable table (`web/src/lib/sort.ts`, no table
-  library), ECharts (modular imports) for bars and the heatmap only; sparklines are inline SVG. Types are generated from `schemas/`, never hand-edited.
+  library) and no chart library: sparklines are inline SVG, bars and the correlation heatmap are HTML and CSS
+  with the value printed on every mark. Types are generated from `schemas/`, never hand-edited.
 - Layout: `engine/` Python package, `schemas/` data contract, `web/src/{data,lib,components,views,styles}`.
   Colours and fonts come from `web/src/styles/tokens.css` only; direction is never shown by colour alone.
 - Do not add dependencies without saying why. Do not commit `.env`, `data/` or live JSON in `web/public/data/`.

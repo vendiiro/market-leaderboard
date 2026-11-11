@@ -49,3 +49,8 @@ Yahoo access (`python -m engine build --demo`); only the live checks in Tasks 2,
   expanding phone rows) and overview view. 9 unit tests and 19 browser tests pass on the demo fixtures;
   screenshots at 1280 and 390 px, light and dark, were looked at. Mix and Movers show a placeholder.
   Next: session 4 (Tasks 11-14).
+- 2026-11-11: session 4 done (Tasks 11-14) on branch `session-4`: mix view (formulas tested against the Python
+  fixture), movers view, contrast test of the colour tokens, browser tests of every view and state at 1280 and
+  390 px in light and dark, `scripts/run_nightly.bat`, `scripts/install_task.ps1`, `scripts/open_dashboard.bat`,
+  README. The build is complete; how to run it is in `README.md`. Not done: the scheduled task has not been
+  registered (run `install_task.ps1` yourself), and no screen reader test.

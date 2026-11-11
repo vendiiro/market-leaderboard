@@ -13,7 +13,6 @@
     "gen:types": "json2ts -i \"../schemas/*.json\" -o src/data/generated/ --additionalProperties false --bannerComment \"/* Generated from schemas/ by npm run gen:types. Do not edit. */\""
   },
   "dependencies": {
-    "echarts": "^6.1.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

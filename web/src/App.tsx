@@ -4,6 +4,8 @@ import { loadAll, type Data } from './data/load'
 import { weekdaysBetween } from './lib/format'
 import { formatHash, useRoute, type View } from './router'
 import Leaderboard from './views/Leaderboard'
+import MixView from './views/Mix'
+import MoversView from './views/Movers'
 import Overview from './views/Overview'
 
 type Load = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; data: Data }
@@ -64,11 +66,8 @@ export default function App() {
         )}
         {data && route.view === 'overview' && <Overview data={data} route={route} />}
         {data && route.view === 'list' && <Leaderboard data={data} route={route} />}
-        {data && (route.view === 'mix' || route.view === 'movers') && (
-          <State title="This view is not built yet">
-            <p>It is part of the next build session.</p>
-          </State>
-        )}
+        {data && route.view === 'mix' && <MixView data={data} />}
+        {data && route.view === 'movers' && <MoversView data={data} />}
         {data && route.view === 'notfound' && (
           <State title="Page not found">
             <p><a href="#/">Go to the overview</a></p>
