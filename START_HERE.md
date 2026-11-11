@@ -34,3 +34,8 @@ Yahoo access (`python -m engine build --demo`); only the live checks in Tasks 2,
 - 2026-11-11: repo created with spec and plan; no code yet.
 - 2026-11-11: spec and plan revised after a review against dip-dashboard `f14d55c` (spec revision 2: weekly EUR
   covariance, UK listings included, overview page, risk contribution, four sessions); still no code.
+- 2026-11-11: session 1 done (Tasks 0-3) on branch `session-1`: scaffold + CI, engine copied from dip-dashboard
+  `f14d55c` (347 tests pass), EUR conversion and the UK pence rule (`docs/decisions.md`), five watchlists with
+  58 tickers, all `ok` in `config/watchlists_verified.csv` (live Yahoo check 2026-11-11). Finnish list: 23 names
+  built by rule; three Wikipedia names had no ticker match (Dovre Group, Lehto Group, Ålandsbanken), see
+  `config/fi_candidates.csv`. Next: session 2 (Tasks 4-7).
