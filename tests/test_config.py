@@ -9,12 +9,14 @@ from engine.config import Settings, load_settings
 def test_real_settings_file_loads_with_expected_values():
     s = load_settings()
     assert s.dip.drop_1d == 0.04 and s.dip.drop_5d == 0.07 and s.dip.drawdown_20d == 0.12
-    assert s.quality.market_cap_min == 20_000_000_000
+    assert s.quality.market_cap_min == 1_000_000_000      # lowered from the copied 20B for these watchlists
     assert s.data.max_stale_trading_days == 4
 
 
 def test_code_defaults_match_the_settings_file():
-    assert Settings() == load_settings()
+    from dataclasses import replace
+    file = load_settings()                                # only the size threshold differs from the copied defaults
+    assert Settings() == replace(file, quality=replace(file.quality, market_cap_min=20_000_000_000))
 
 
 def test_run_health_thresholds_in_toml_equal_dataclass_defaults():

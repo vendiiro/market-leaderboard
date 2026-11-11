@@ -2,6 +2,16 @@
 
 Newest first. Each entry says what was checked, the numbers, and what follows for the code.
 
+## 2026-11-11: Size check of the quality score lowered from 20B to 1B USD
+
+The copied quality score has a size check, "market cap at least 20B USD", made for dip-dashboard's universe of
+global large caps. On these watchlists it failed every Finnish smaller company by construction (the list is capped
+at 5B EUR), so the check said nothing. The owner chose to lower it: `config/settings.toml` now has
+`market_cap_min = 1_000_000_000` (USD, one threshold for all lists). Effect: US, defence and energy names are
+unchanged (all far above both limits); on the Finnish list the check now separates companies above and below
+about 1B USD (Finnair passes). The code default in `engine/config.py` stays at the copied 20B; the settings file
+overrides it. Still an untested screen rule.
+
 ## 2026-11-11: Yahoo market cap for London listings is in pounds, the price is in pence
 
 Checked live with yfinance 1.8.0 (`Ticker.info`), comparing `marketCap` with `sharesOutstanding` times the price:

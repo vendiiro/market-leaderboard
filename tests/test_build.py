@@ -7,7 +7,6 @@ import pytest
 
 from engine import build as B
 from engine import demo
-from engine.config import Settings
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "web" / "src" / "fixtures"
@@ -22,7 +21,7 @@ def read(folder, stem):
 
 @pytest.fixture()
 def out(tmp_path):
-    assert B.build(tmp_path, is_demo=True, settings=Settings()) == 0
+    assert B.build(tmp_path, is_demo=True) == 0
     return tmp_path
 
 
@@ -54,7 +53,7 @@ def test_demo_is_deterministic_and_the_committed_fixtures_are_current(out, tmp_p
     """web/src/fixtures/*.json must equal the demo build; regenerate with
     uv run python -m engine build --demo --out web/src/fixtures"""
     again = tmp_path_factory.mktemp("again")
-    B.build(again, is_demo=True, settings=Settings())
+    B.build(again, is_demo=True)
     for stem in B.FILES:
         assert (out / f"{stem}.json").read_bytes() == (again / f"{stem}.json").read_bytes()
         assert read(FIXTURES, stem) == read(out, stem), f"fixture {stem}.json is out of date"
@@ -104,7 +103,7 @@ def test_an_error_while_writing_leaves_the_previous_files_intact(out, monkeypatc
     inputs = demo.inputs()
     inputs["prices"]["DEMA"][0].iloc[-1] *= 1.5                       # new data that must not reach the folder
     with pytest.raises(OSError):
-        B.build(out, is_demo=True, inputs=inputs, settings=Settings())
+        B.build(out, is_demo=True, inputs=inputs)
     assert {stem: (out / f"{stem}.json").read_bytes() for stem in B.FILES} == before
     assert not list(out.glob("*.tmp"))
 
@@ -114,7 +113,7 @@ def test_too_few_usable_tickers_keeps_the_previous_files(out, capsys):
     inputs = demo.inputs()
     for t in ("DEMA", "DEMB"):                                        # 13 of 16 usable: under 90%
         del inputs["prices"][t]
-    assert B.build(out, is_demo=True, inputs=inputs, settings=Settings()) == 2
+    assert B.build(out, is_demo=True, inputs=inputs) == 2
     assert "previous files kept" in capsys.readouterr().out
     assert {stem: (out / f"{stem}.json").read_bytes() for stem in B.FILES} == before
 
