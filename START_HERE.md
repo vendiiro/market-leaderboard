@@ -39,3 +39,8 @@ Yahoo access (`python -m engine build --demo`); only the live checks in Tasks 2,
   58 tickers, all `ok` in `config/watchlists_verified.csv` (live Yahoo check 2026-11-11). Finnish list: 23 names
   built by rule; three Wikipedia names had no ticker match (Dovre Group, Lehto Group, Ålandsbanken), see
   `config/fi_candidates.csv`. Next: session 2 (Tasks 4-7).
+- 2026-11-11: session 2 done (Tasks 4-7) on branch `session-2`: returns, ranks and list summaries, weekly EUR
+  covariance and the mix formulas, movers and alerts, `python -m engine build` (live and `--demo`), four JSON
+  schemas, demo fixtures in `web/src/fixtures/`. 386 tests pass. One live build: 58 of 58 tickers, 57 with risk
+  data (GRK.HE has 83 of 104 weeks). Run during the European session, so that day's European bars were partial;
+  the nightly run after the US close avoids this. Next: session 3 (Tasks 8-10).

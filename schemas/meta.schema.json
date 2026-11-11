@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Meta",
+  "description": "State of the build: data date, counts, tickers without data and the data limits shown on the page.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "asof", "built_at", "demo", "tickers", "usable", "lists", "failures", "notes"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "asof": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "built_at": { "type": "string" },
+    "demo": { "type": "boolean" },
+    "tickers": { "type": "integer" },
+    "usable": { "type": "integer" },
+    "lists": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "name", "count", "usable"],
+        "properties": {
+          "key": { "type": "string" },
+          "name": { "type": "string" },
+          "count": { "type": "integer" },
+          "usable": { "type": "integer" }
+        }
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ticker", "name", "lists", "reason"],
+        "properties": {
+          "ticker": { "type": "string" },
+          "name": { "type": "string" },
+          "lists": { "type": "array", "items": { "type": "string" } },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  }
+}
