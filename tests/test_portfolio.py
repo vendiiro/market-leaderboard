@@ -101,4 +101,11 @@ def test_exposure_sums_to_one_and_a_two_list_name_counts_on_both():
 def test_the_typescript_fixture_is_current():
     """web/src/fixtures/mix_reference.json must equal reference_mixes(); regenerate with
     uv run python -c "import json; from engine.portfolio import reference_mixes; print(json.dumps(reference_mixes(), indent=1))" """
-    assert json.loads(FIXTURE.read_text(encoding="utf-8")) == json.loads(json.dumps(reference_mixes()))
+    def same(x, y):                      # floats differ in the last bit between machines (linear algebra library)
+        if isinstance(x, dict):
+            return isinstance(y, dict) and x.keys() == y.keys() and all(same(x[k], y[k]) for k in x)
+        if isinstance(x, list):
+            return isinstance(y, list) and len(x) == len(y) and all(same(i, j) for i, j in zip(x, y))
+        return x == pytest.approx(y, abs=1e-12) if isinstance(x, float) else x == y
+
+    assert same(json.loads(FIXTURE.read_text(encoding="utf-8")), json.loads(json.dumps(reference_mixes())))
