@@ -1,0 +1,143 @@
+{
+ "tickers": [
+  "AAA",
+  "BBB",
+  "CCC"
+ ],
+ "meta": {
+  "AAA": {
+   "sector": "Technology",
+   "country": "United States",
+   "currency": "USD",
+   "lists": [
+    "us_big_tech"
+   ]
+  },
+  "BBB": {
+   "sector": "Energy",
+   "country": "Norway",
+   "currency": "NOK",
+   "lists": [
+    "eu_energy",
+    "nordic_energy"
+   ]
+  },
+  "CCC": {
+   "sector": "Energy",
+   "country": "Finland",
+   "currency": "EUR",
+   "lists": [
+    "nordic_energy"
+   ]
+  }
+ },
+ "cov": [
+  [
+   0.09,
+   0.03,
+   0.015
+  ],
+  [
+   0.03,
+   0.04000000000000001,
+   -0.005000000000000001
+  ],
+  [
+   0.015,
+   -0.005000000000000001,
+   0.0625
+  ]
+ ],
+ "mixes": [
+  {
+   "weights": {
+    "AAA": 0.6,
+    "BBB": 0.4
+   },
+   "vol": 0.23065125189341593,
+   "risk_contribution": {
+    "AAA": 0.7443609022556391,
+    "BBB": 0.2556390977443609
+   },
+   "effective_n": 1.923076923076923,
+   "exposure": {
+    "sector": {
+     "Technology": 0.6,
+     "Energy": 0.4
+    },
+    "country": {
+     "United States": 0.6,
+     "Norway": 0.4
+    },
+    "currency": {
+     "USD": 0.6,
+     "NOK": 0.4
+    },
+    "lists": {
+     "us_big_tech": 0.6,
+     "eu_energy": 0.4,
+     "nordic_energy": 0.4
+    }
+   }
+  },
+  {
+   "weights": {
+    "AAA": 50,
+    "BBB": 30,
+    "CCC": 20
+   },
+   "vol": 0.2,
+   "risk_contribution": {
+    "AAA": 0.7125,
+    "BBB": 0.195,
+    "CCC": 0.0925
+   },
+   "effective_n": 2.6315789473684212,
+   "exposure": {
+    "sector": {
+     "Technology": 0.5,
+     "Energy": 0.5
+    },
+    "country": {
+     "United States": 0.5,
+     "Norway": 0.3,
+     "Finland": 0.2
+    },
+    "currency": {
+     "USD": 0.5,
+     "NOK": 0.3,
+     "EUR": 0.2
+    },
+    "lists": {
+     "us_big_tech": 0.5,
+     "eu_energy": 0.3,
+     "nordic_energy": 0.5
+    }
+   }
+  },
+  {
+   "weights": {
+    "CCC": 1
+   },
+   "vol": 0.25,
+   "risk_contribution": {
+    "CCC": 1.0
+   },
+   "effective_n": 1.0,
+   "exposure": {
+    "sector": {
+     "Energy": 1.0
+    },
+    "country": {
+     "Finland": 1.0
+    },
+    "currency": {
+     "EUR": 1.0
+    },
+    "lists": {
+     "nordic_energy": 1.0
+    }
+   }
+  }
+ ]
+}

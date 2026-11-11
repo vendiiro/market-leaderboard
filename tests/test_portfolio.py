@@ -46,7 +46,7 @@ def test_fx_gaps_are_filled_for_at_most_three_days():
 
 
 def test_short_history_missing_fx_and_the_current_partial_week():
-    prices = {"OK": walk(), "SHORT": walk(n=104 * 5 + 2), "NOFX": walk()}
+    prices = {"OK": walk(), "SHORT": walk(n=103 * 5 + 2), "NOFX": walk()}
     weekly, reasons = weekly_eur_returns(prices, {"OK": "EUR", "SHORT": "EUR", "NOFX": "SEK"}, {}, ASOF)
     assert list(weekly.columns) == ["OK"]
     assert "103 of 104 weekly returns" in reasons["SHORT"] and "SEK" in reasons["NOFX"]
