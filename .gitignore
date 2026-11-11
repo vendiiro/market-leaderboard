@@ -4,8 +4,8 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .pytest_tmp*/
-data/
-output/
+/data/
+/output/
 node_modules/
 web/dist/
 web/public/data/
