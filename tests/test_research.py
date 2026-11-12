@@ -52,6 +52,8 @@ def test_a_dollar_reporter_trading_in_kroner_is_converted_not_read_as_cheap():
     fx = {"USD": flat(0.9), "NOK": flat(0.09)}                            # EUR per unit: 1 USD = 10 NOK
     out = R.year_end_pes(close, {"2025-12-31": 3.0}, "NOK", "USD", fx)    # 3 USD = 30 NOK per share
     assert out == [{"year": 2025, "pe": 10.0}]                            # unconverted it would read 100
+    zoned = {k: s.tz_localize("Europe/London") for k, s in fx.items()}    # what Yahoo's rate history looks like
+    assert R.year_end_pes(close, {"2025-12-31": 3.0}, "NOK", "USD", zoned) == out
     assert R.year_end_pes(close, {"2025-12-31": 3.0}, "NOK", "USD", {"NOK": flat(0.09)}) == []   # no rate: no figure, never a guess
 
 

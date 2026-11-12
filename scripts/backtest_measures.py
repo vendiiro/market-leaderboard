@@ -32,8 +32,11 @@ def sentence(name: str, v: dict) -> str:
     return (f"Tested on these companies' own price history ({v['months']} month-ends, {v['first']} to {v['last']}): the third ranked "
             f"highest by {name} returned {pct(v['mean'])} compared with the lowest third over the following 12 months, with a 90% "
             f"interval of {pct(v['lo'])} to {pct(v['hi'])}. "
-            + ("The interval is above zero. " if v["status"] == "supported" else "The interval includes zero or lies below it: no reliable difference. ")
-            + "The companies are today's survivors, which flatters the past.")
+            + ("The interval is above zero. " if v["status"] == "supported"
+               else "The whole interval is below zero: on these companies the highest third did worse, the opposite of what the measure assumes. " if v["hi"] < 0
+               else "The interval includes zero: no reliable difference. ")
+            + "The companies are today's survivors: volatile companies that did well are among them and those that failed are not, "
+              "which flatters the past and works against steadier companies in this test.")
 
 
 def main() -> int:

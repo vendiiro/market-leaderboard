@@ -40,6 +40,8 @@ def _eur_per(ccy: str, day: pd.Timestamp, fx: dict[str, pd.Series]) -> float | N
     s = fx.get(ccy)
     if s is None:
         return None
+    if s.index.tz is not None:                      # Yahoo's rate history carries a time zone; compare by date
+        s = s.set_axis(s.index.tz_localize(None).normalize())
     s = s[s.index <= day]
     return float(s.iloc[-1]) if len(s) and (day - s.index[-1]).days <= 10 else None
 
@@ -116,6 +118,7 @@ def facts(ticker: str, fund: dict, stmt: dict, close: pd.Series, raw_close: pd.S
     vs_own = pe / own_mid - 1 if pe and own_mid and "pe" not in bad else None
     if vs_own is not None and not -0.8 <= vs_own <= 4.0:
         bad.append("vs_own")
+        vs_own = None                               # a data problem must never read as "low for it"
     eps = [v for _, v in sorted(stmt.get("eps", {}).items()) if v]
     return {
         "pe": pe, "fwd_pe": fwd, "ev_ebitda": f["enterpriseToEbitda"], "pb": f["priceToBook"], "margin": f["profitMargins"],
