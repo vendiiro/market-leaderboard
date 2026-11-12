@@ -19,12 +19,12 @@ from pathlib import Path
 import numpy as np
 from jsonschema import Draft202012Validator
 
-from . import demo, leaderboard, movers, portfolio, watchlists
+from . import demo, leaderboard, movers, portfolio, research, watchlists
 from .config import ROOT, Settings, load_settings
 from .returns import PERIODS
 
-SCHEMA_VERSION = 1
-FILES = ("leaderboard", "movers", "portfolio", "meta")        # meta last: it is the file the page reads first
+SCHEMA_VERSION = 2
+FILES = ("leaderboard", "movers", "portfolio", "research", "meta")        # meta last: it is the file the page reads first
 SCHEMAS = ROOT / "schemas"
 DEFAULT_OUT = ROOT / "web" / "public" / "data"
 NOTES = [
@@ -33,12 +33,15 @@ NOTES = [
     "Returns and 1-year volatility are in each stock's own currency.",
     "Mix risk numbers use weekly returns in EUR over the last 104 complete weeks; they are estimates, not forecasts.",
     "The dip flag and the quality score are untested screen rules.",
+    "Candidates are picked by four published measures (value, business quality, long-term trend, steadiness). They are not shown to work on these companies; see the evidence note on the Candidates page.",
+    "Headlines are Yahoo's text, shown as received.",
 ]
 
 
 def live_inputs(root: Path = ROOT) -> dict:
     """Fetch everything the build needs from Yahoo. Only tickers that passed verification are used."""
     from .data import fetch_fundamentals, fetch_prices, pull_prices
+    from .fetch import fetch_headlines, fetch_indices, fetch_raw_closes, fetch_statements
     from .fx import fetch_fx_to_usd, fx_history_eur
 
     cfg = watchlists.read(root / "config" / "watchlists.toml")
@@ -57,15 +60,17 @@ def live_inputs(root: Path = ROOT) -> dict:
     ok = [t for t in meta if t not in reasons]
     prices, _ = pull_prices(ok, lambda batch: fetch_prices(batch, period="3y"), reasons=reasons)
     fund = fetch_fundamentals(ok, root / "data" / "fundamentals.json")
-    ccys = {meta[t]["currency"] for t in ok}
-    start = str(date.today() - timedelta(days=3 * 366))
+    ccys = {meta[t]["currency"] for t in ok} | {f.get("financialCurrency") for f in fund.values()} - {None}
+    start = str(date.today() - timedelta(days=6 * 366))      # year-end P/Es need rates back to the oldest statement
     return {"cfg": cfg, "meta": meta, "prices": {t: prices[t] for t in ok if t in prices}, "fund": fund,
-            "rates_usd": fetch_fx_to_usd(ccys | {"EUR"}), "fx": fx_history_eur(ccys, start), "reasons": reasons}
+            "rates_usd": fetch_fx_to_usd(ccys | {"EUR"}), "fx": fx_history_eur(ccys, start), "reasons": reasons,
+            "statements": fetch_statements(ok, root / "data" / "statements.json"), "raw_closes": fetch_raw_closes(ok),
+            "indices": fetch_indices(["^GSPC", "^STOXX"]), "headlines": fetch_headlines}
 
 
 def compute(inp: dict, settings: Settings, asof: date | None = None, built_at: str | None = None,
             is_demo: bool = False) -> dict[str, dict]:
-    """{file stem: payload} for the four output files."""
+    """{file stem: payload} for the five output files."""
     prices = inp["prices"]
     last_bars = [p[0].dropna().index[-1].date() for p in prices.values() if len(p[0].dropna())]
     if not last_bars:
@@ -81,9 +86,22 @@ def compute(inp: dict, settings: Settings, asof: date | None = None, built_at: s
                                                    {t: inp["meta"][t]["currency"] for t in live}, inp["fx"], asof)
     cov = portfolio.covariance(weekly)
     vol = {t: math.sqrt(cov.loc[t, t]) for t in cov.index}
+    mv = movers.movers(rows)
+    evidence_file = ROOT / "config" / "measure_evidence.json"
+    evidence = json.loads(evidence_file.read_text(encoding="utf-8")) if evidence_file.exists() else {}
+
+    def study(headlines: dict) -> dict:
+        return research.build(rows, inp["fund"], inp.get("statements", {}), prices, inp.get("raw_closes", {}), inp["fx"],
+                              inp.get("indices", {}), headlines, evidence, asof, settings.dip.drop_1d)
+
+    news = inp.get("headlines", {})
+    if callable(news):       # live: fetch only for tonight's candidates and movers (about 30 calls)
+        wanted = study({})["shortlist"] + [m["ticker"] for k in ("gainers", "losers", "alerts") for m in mv[k]]
+        news = news(list(dict.fromkeys(wanted)), asof)
     out = {
         "leaderboard": head | {"periods": list(PERIODS), "lists": leaderboard.lists(rows, inp["cfg"])},
-        "movers": head | movers.movers(rows),
+        "movers": head | mv,
+        "research": head | study(news),
         "portfolio": head | {
             "window": {"start": str(weekly.index[0].date()) if len(weekly) else None,
                        "end": str(weekly.index[-1].date()) if len(weekly) else None, "weeks": len(weekly)},

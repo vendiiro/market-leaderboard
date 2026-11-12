@@ -1,0 +1,22 @@
+{
+  "written": "2026-11-12, before any result was computed or seen",
+  "question": "On the companies of the current watchlists, did the third ranked highest by a measure return more over the following 12 months than the third ranked lowest?",
+  "measures": {
+    "trend": "close 21 bars ago divided by close 252 bars ago, minus 1 (adjusted closes, own currency); higher is better",
+    "steady": "minus the number of days in the last 756 bars with an absolute move of 5% or more while the region index (S&P 500 for tickers without a suffix, STOXX 600 otherwise) moved less than 2%; higher is better"
+  },
+  "universe": "every ticker in config/watchlists.toml on the day of the run; a company enters a month once it has 756 bars of history",
+  "data": "Yahoo adjusted daily closes, longest history available",
+  "formation": "the last trading day of each calendar month",
+  "outcome": "return over the next 252 bars",
+  "statistic": "per formation month, mean outcome of the top third minus mean outcome of the bottom third; months with fewer than 12 companies having both values are left out; the reported number is the mean over months",
+  "interval": "90% moving-block bootstrap of the monthly series, blocks of 12 months, 5000 draws, seed 20261112",
+  "verdict": "supported if the whole interval is above zero; otherwise not supported",
+  "runs": "one run per measure; no parameter is changed after the result is seen; the result is shown on the page whatever it is",
+  "known_limits": [
+    "survivorship: the universe is today's companies, so failures and delistings are missing and past returns look better than they were for an investor at the time",
+    "about 58 companies and overlapping 12-month outcomes: few independent observations, low power to detect a small effect",
+    "the companies were hand-picked into themed lists, not sampled",
+    "value and business quality cannot be tested: free data has no past fundamentals"
+  ]
+}
