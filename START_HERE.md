@@ -54,3 +54,8 @@ Yahoo access (`python -m engine build --demo`); only the live checks in Tasks 2,
   390 px in light and dark, `scripts/run_nightly.bat`, `scripts/install_task.ps1`, `scripts/open_dashboard.bat`,
   README. The build is complete; how to run it is in `README.md`. Not done: the scheduled task has not been
   registered (run `install_task.ps1` yourself), and no screen reader test.
+- 2026-11-12: research workstation on branch `session-5` (design:
+  `docs/superpowers/specs/2026-11-12-research-workstation-design.md`): Candidates, Screener, research panel,
+  Mix map and sliders, warm paper theme, data-driven watchlists, valuation data with currency conversion, four
+  measures with a pre-registered test of the two price-based ones (`docs/backtests/`). Range of outcomes was
+  removed by the owner. No new markets were added yet.

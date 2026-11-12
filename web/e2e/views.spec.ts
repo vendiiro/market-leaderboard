@@ -6,7 +6,7 @@ const SIZES = [
 ] as const
 const SCHEMES = ['light', 'dark'] as const
 const PAGES = [
-  { name: 'overview', hash: '#/' },
+  { name: 'watchlists', hash: '#/list' },
   { name: 'leaderboard', hash: '#/list/fi_small' },
   { name: 'leaderboard-us', hash: '#/list/us_big_tech?period=1d' },
 ]
@@ -96,12 +96,14 @@ test.describe('leaderboard behaviour', () => {
   })
 })
 
-test('overview links to a list and shows the data state', async ({ page }) => {
-  await open(page, '#/')
-  await expect(page.getByText('15 of 16 companies have prices')).toBeVisible()
+test('watchlists index links to a list, and the data page shows the state of the build', async ({ page }) => {
+  await open(page, '#/list')
   await expect(page.getByText('Demo data')).toBeVisible()
   await page.getByRole('link', { name: 'Nordic energy' }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Nordic energy')
+  await page.getByRole('link', { name: /Data as of/ }).click()
+  await expect(page.getByText('15 of 16 companies have prices')).toBeVisible()
+  await expect(page.getByText('Demo Housing (FIND.HE)')).toBeVisible()
 })
 
 test('a schema mismatch is an error message, not a blank page', async ({ page }) => {

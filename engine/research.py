@@ -68,7 +68,9 @@ def year_end_pes(raw_close: pd.Series, eps: dict[str, float | None], trade_ccy: 
             if not a or not b:
                 continue
             rate = a / b
-        out.append({"year": day.year, "pe": round(float(before.iloc[-1]) / (e * rate * (100 if trade_ccy in PENCE else 1)), 2)})
+        pe = float(before.iloc[-1]) / (e * rate * (100 if trade_ccy in PENCE else 1))
+        if pe <= 300:                               # a near-zero profit year gives a P/E in the hundreds: not a usable mark
+            out.append({"year": day.year, "pe": round(pe, 2)})
     return out
 
 
@@ -175,7 +177,10 @@ def measures(all_facts: dict[str, dict], sector: dict[str, str | None]) -> dict[
              "quality": _mean([r_roe.get(t), r_margin.get(t), r_debt.get(t)]),
              "trend": r_trend.get(t), "steady": r_steady.get(t)}
         have = [v for v in m.values() if v is not None]
-        out[t] = m | {"score": sum(have) / len(have) if len(have) >= 3 else None, "vs_sector": vs_sector[t],
+        parts = {"value": {"vs_own": r_own.get(t), "vs_sector": r_sec.get(t), "ev": r_ev.get(t)},
+                 "quality": {"roe": r_roe.get(t), "margin": r_margin.get(t), "debt": r_debt.get(t)},
+                 "trend": {"trend": r_trend.get(t)}, "steady": {"steady": r_steady.get(t)}}
+        out[t] = m | {"parts": parts, "score": sum(have) / len(have) if len(have) >= 3 else None, "vs_sector": vs_sector[t],
                       "sector_mid": mids[t], "sector_marks": marks[t]}
     return out
 
@@ -192,34 +197,41 @@ def _pos(values: dict[str, float | None], t: str, low_is_good: bool = False) -> 
     return f"{have.index(t) + 1} of {len(have)}"
 
 
-def sentence(measure: str, t: str, all_facts: dict[str, dict], ms: dict[str, dict]) -> str | None:
-    """One fixed-template sentence stating the fact behind a measure. Facts only: no judgement words."""
+def sentence(measure: str, t: str, all_facts: dict[str, dict], ms: dict[str, dict], strong: bool = True) -> str | None:
+    """One fixed-template sentence stating a fact behind a measure. Facts only: no judgement words.
+    A measure with several parts (value, quality) is described by its best-ranked part when it is given as a reason
+    to look closer and by its worst-ranked part when it argues against, so the fact always points the same way as
+    the heading it stands under."""
     f, m = all_facts[t], ms[t]
-    if measure == "value":
-        if f["vs_own"] is not None:
-            return f"P/E {f['pe']:.1f} against a middle of {f['own_mid']:.1f} over its last {len(f['own_pes'])} fiscal year-ends"
-        if m["vs_sector"] is not None:
-            return f"Forward P/E {f['fwd_pe']:.1f} against a middle of {m['sector_mid']:.1f} for comparable companies"
-        if f["ev_ebitda"] and f["ev_ebitda"] > 0:
-            return f"EV/EBITDA {f['ev_ebitda']:.1f}"
-    if measure == "quality" and f["margin"] is not None:
-        return f"Profit margin {pct(f['margin'], 0, sign=False)}, place {_pos({k: v['margin'] for k, v in all_facts.items()}, t)}"
-    if measure == "trend" and f["momentum"] is not None:
-        return (f"{pct(f['momentum'], 0)} over 12 months excluding the latest month, "
-                f"place {_pos({k: v['momentum'] for k, v in all_facts.items()}, t)}")
-    if measure == "steady" and f["big_days"] is not None:
-        return (f"{f['big_days']} days in three years with a move of 5% or more while its market index was calm, "
-                f"place {_pos({k: v['big_days'] for k, v in all_facts.items()}, t, low_is_good=True)}")
-    return None
+    col = lambda k: {x: v[k] for x, v in all_facts.items()}                                    # noqa: E731
+    templates = {
+        "vs_own": lambda: f"P/E {f['pe']:.1f} against a middle of {f['own_mid']:.1f} over its last {len(f['own_pes'])} fiscal year-ends",
+        "vs_sector": lambda: f"Forward P/E {f['fwd_pe']:.1f} against a middle of {m['sector_mid']:.1f} for comparable companies",
+        "ev": lambda: f"EV/EBITDA {f['ev_ebitda']:.1f}, place {_pos(col('ev_ebitda'), t, low_is_good=True)} counting from the lowest",
+        "margin": lambda: f"Profit margin {pct(f['margin'], 0, sign=False)}, place {_pos(col('margin'), t)}",
+        "roe": lambda: f"Return on equity {pct(f['roe'], 0, sign=False)}, place {_pos(col('roe'), t)}",
+        "debt": lambda: f"Debt to equity {f['debt_equity']:.0f}, place {_pos(col('debt_equity'), t, low_is_good=True)} counting from the lowest",
+        "trend": lambda: (f"{pct(f['momentum'], 0)} over 12 months excluding the latest month, place {_pos(col('momentum'), t)}"),
+        "steady": lambda: (f"{f['big_days']} day{'' if f['big_days'] == 1 else 's'} in three years with a move of 5% or more while its market index was calm, "
+                           f"place {_pos(col('big_days'), t, low_is_good=True)}"),
+    }
+    parts = {k: r for k, r in m["parts"][measure].items() if r is not None}
+    if not parts:
+        return None
+    key = (max if strong else min)(parts, key=lambda k: parts[k])      # ties: the part listed first (own past before peers)
+    if (parts[key] >= 0.5) != strong:           # even its best part is in the lower half (or its worst in the upper): say nothing
+        return None
+    return templates[key]()
 
 
 def case(t: str, all_facts: dict[str, dict], ms: dict[str, dict]) -> tuple[list[str], list[str]]:
     """(why look closer, what argues against): the two highest measures at or above the middle and the two lowest
-    below it, each as its sentence."""
+    below it, each as a sentence about a part that points the same way."""
     ranked = sorted((k for k in MEASURES if ms[t][k] is not None), key=lambda k: -ms[t][k])
     strong = [k for k in ranked if ms[t][k] >= 0.5][:2]
     weak = [k for k in reversed(ranked) if ms[t][k] < 0.5][:2]
-    return ([s for k in strong if (s := sentence(k, t, all_facts, ms))], [s for k in weak if (s := sentence(k, t, all_facts, ms))])
+    return ([s for k in strong if (s := sentence(k, t, all_facts, ms, True))],
+            [s for k in weak if (s := sentence(k, t, all_facts, ms, False))])
 
 
 def caveats(f: dict, trade_ccy: str | None) -> list[str]:

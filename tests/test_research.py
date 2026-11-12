@@ -44,6 +44,7 @@ def test_year_end_pe_uses_the_price_on_the_last_trading_day_of_the_fiscal_year()
     close = pd.Series(np.linspace(50, 150, len(DAYS)), index=DAYS)
     out = R.year_end_pes(close, {"2025-12-31": 5.0, "2024-12-31": 4.0, "2023-12-31": -1.0, "2010-12-31": 2.0}, "EUR", "EUR", {})
     assert [x["year"] for x in out] == [2025, 2024]                       # a loss year and a year without prices are left out
+    assert R.year_end_pes(close, {"2025-12-31": 0.01}, "EUR", "EUR", {}) == []   # a near-zero profit: P/E in the thousands
     assert out[0]["pe"] == pytest.approx(float(close[close.index <= "2025-12-31"].iloc[-1]) / 5.0, abs=0.01)
 
 
@@ -168,6 +169,20 @@ def test_the_case_states_facts_from_the_strongest_and_weakest_measures():
     why, against = R.case("T19", facts, ms)
     assert why == [] and len(against) == 2 and any("place 20 of 20" in s for s in against)
     assert R.sentence("value", "T00", facts, ms) == "P/E 10.0 against a middle of 25.0 over its last 4 fiscal year-ends"
+
+
+def test_a_fact_always_points_the_same_way_as_its_heading():
+    """A good overall quality rank built on low debt must not list a poor profit margin as a reason to look closer."""
+    facts, sector = universe()
+    facts["T10"] |= {"margin": -0.02, "roe": 0.5, "debt_equity": 1.0}          # worst margin, best return on equity and debt
+    ms = R.measures(facts, sector)
+    assert ms["T10"]["quality"] > 0.5
+    good, bad = R.sentence("quality", "T10", facts, ms, True), R.sentence("quality", "T10", facts, ms, False)
+    assert good.startswith(("Return on equity", "Debt to equity")) and "place 1 of 20" in good
+    assert bad == "Profit margin \u22122%, place 20 of 20"
+    assert R.sentence("trend", "T00", facts, ms, False) is None and R.sentence("trend", "T19", facts, ms, True) is None
+    why, against = R.case("T10", facts, ms)
+    assert not any("Profit margin" in s for s in why)
 
 
 def test_caveats_follow_their_rules():
