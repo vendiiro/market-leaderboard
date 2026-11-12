@@ -1,6 +1,6 @@
 # Research workstation: design
 
-Date: 2026-11-12. Status: draft for the owner's approval. Builds on `docs/spec.md` (revision 2), which stays valid
+Date: 2026-11-12. Status: approved by the owner on 2026-11-12 with one change (range of outcomes removed). Builds on `docs/spec.md` (revision 2), which stays valid
 for everything this document does not change. Educational research tool: it shows screen results and exposure
 views, never investment advice.
 
@@ -23,8 +23,7 @@ wrong". He stated this himself: the output is something to research further, wit
   The arrangement in "Screens" below was shown as a mockup and accepted.
 - **Map:** used for combined assets in the Mix view (tile size = weight), not as a market overview.
 - **Research panel:** content and layout as in the mockup (four measures, why look closer, what argues against,
-  what this cannot tell you, cheap-or-expensive strips, the usual numbers each with a guide, range of outcomes,
-  headlines). Each term is explained on the page.
+  what this cannot tell you, cheap-or-expensive strips, the usual numbers each with a guide, headlines). Each term is explained on the page.
 - **Background:** warm paper. Softer and less clinical than the current cool grey; not a dark terminal look.
 - **Map colours:** not five shades of one colour.
 - **Universe:** refreshed over time, kept to good companies. Open to widening from Finland to the Nordics or
@@ -33,8 +32,8 @@ wrong". He stated this himself: the output is something to research further, wit
 - **Candidate rule:** left to the designer, as a quant would do it. The worked Nvidia example (four measures,
   place 14 of 40, reasons for and against, caveats) was accepted as the kind of analysis wanted.
 - **Problems found in the test run must be fixed:** the currency error in the value measure and the blunt gate.
-- **Range of outcomes:** a simulated one-year range per stock is wanted. The owner was told it cannot be checked
-  against history at a one-year horizon and accepted it as shown: an illustration with a growth assumption he sets.
+- **Range of outcomes:** removed by the owner on 2026-11-12 after seeing the mockup. No simulated price range
+  anywhere on the page.
 
 ## Goals
 
@@ -63,7 +62,7 @@ wrong". He stated this himself: the output is something to research further, wit
 - "Cheap" produced by a data error. A valuation figure that fails a consistency check is marked and left out of
   the ranking, not shown as a bargain.
 - Text that reads as advice. Card sentences are generated from fixed templates that pass the wording check.
-- A range of outcomes that reads as a forecast.
+- Any simulated or projected price range (removed by the owner).
 
 ## Constraints (from the data, checked 2026-11-12 on 8 and then 58 tickers)
 
@@ -116,8 +115,7 @@ Navigation, left to right: **Candidates, Screener, Watchlists, Mix, Movers.**
    P/E now against the companies of its sector in the universe (each company a mark, sector middle labelled).
 7. **The usual numbers,** each with a one-line guide in plain words: P/E, forward P/E, EV/EBITDA, P/B, profit
    margin, return on equity, debt to equity, revenue growth, earnings growth.
-8. **Range of outcomes after one year,** labelled as an illustration (see below).
-9. **Headlines** where Yahoo has ones from the last 14 days; otherwise the section says there are none.
+8. **Headlines** where Yahoo has ones from the last 14 days; otherwise the section says there are none.
 
 ## The candidate rule (designer's call, accepted in principle by the owner)
 
@@ -183,26 +181,13 @@ published record on large samples. None is tested on this universe. Before the p
   page whatever it is. A result of "no detectable effect" is a valid outcome and is displayed as such.
   Pre-stated design (designer's call): at each month-end with at least 756 bars of history, rank the companies by
   the measure; compare the mean return over the next 252 bars of the top third with the bottom third; report the
-  difference with a 90 % interval from a bootstrap that resamples whole formation months. "Supported" = the
+  difference with a 90 % interval from a moving-block bootstrap over formation months (blocks of 12, because the 12-month outcome windows of
+  neighbouring months overlap). "Supported" = the
   interval lies above zero. One run per measure, no tuning afterwards. The spec is written to a file and
   committed before the run. `backtest.py` in dip-dashboard (same commit as the other copies) may be reused.
 - Value and quality are labelled untested, with the reason (no past fundamentals in free data).
 - The universe holds companies chosen today, so any backtest on it flatters the past; the page says so.
 
-## Range of outcomes (illustration)
-
-Per company: a one-year range drawn as a fan with 50 % and 80 % bands and three figures: the chance of ending
-more than 30 % lower, lower than today, and more than 30 % higher. Model: lognormal, volatility = the 1-year
-daily volatility already computed (sigma), growth assumption g set by the owner (default 0 %, stepper from
--10 % to +20 %). The one-year log return is normal with mean ln(1 + g) - sigma^2 / 2 and standard deviation
-sigma, so g is the expected simple return. Label, always visible: "Illustration from past volatility and the growth you set. Not checked against
-history; not a forecast." No claim of calibration is made; none is possible at this horizon with about 15
-separate years of data.
-
-Worked check (Nvidia, 2026-11-12): volatility 38.6 %, growth 0 % gives 23 % / 58 % / 19 %.
-
-This is the fifth formula the browser is allowed to compute (normal distribution function on engine numbers).
-It gets a Python reference and a fixture test like the four mix formulas.
 
 ## Data additions
 
@@ -255,7 +240,7 @@ Which markets and lists to add first is the owner's choice (open question 1).
 - Engine: unit tests on synthetic data for every measure, the gate, the currency conversion, the consistency
   checks and the sentence templates; schema tests; wording check on generated sentences.
 - The backtest of trend and steadiness, pre-registered, result committed under `docs/`.
-- Web: unit tests for the range formula against the Python fixture; browser tests and screenshots (1280 and
+- Web: browser tests and screenshots (1280 and
   390 px, light and dark) for Candidates, Screener, the panel and the Mix map; contrast test on the warm tokens.
 - One live build, with the candidate list read by eye for obvious data errors before it is called done.
 
