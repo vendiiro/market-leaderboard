@@ -54,7 +54,7 @@ export default function Candidates({ data, route }: { data: Data; route: Route }
         <summary>How these are picked, and what has been tested</summary>
         <p>
           A company must show a profit in its latest fiscal year and in at least 3 of its last 4. Every company is then ranked on
-          four measures, and the highest average ranks are listed here. The measures come from published research on large
+          four measures; the highest average of value, business quality and long-term trend is listed here (steadiness is shown but not averaged). The measures come from published research on large
           samples of shares; on these companies they are tested or untested as follows.
         </p>
         <dl className="evidence">

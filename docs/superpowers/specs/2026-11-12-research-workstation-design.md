@@ -143,7 +143,7 @@ fiscal years do. Fewer than 3 years of statements: "not enough history", not a c
   600 (`^STOXX`) for all others; stored as a new `region_index` field in the exchange registry, separate from
   the existing country `index`. Fewer is better. Needs 500 bars. (Designer's call.)
 
-**Shortlist.** Score = mean of the available measures (at least 3 of 4 required). Tonight's candidates are the
+**Shortlist.** Score = mean of the available value, quality and trend measures (at least 2 of 3 required). *Amended 2026-11-13: steadiness is shown but no longer averaged, see `docs/decisions.md`.* Tonight's candidates are the
 highest scores among companies that pass the gate: 15 of them, or one fifth of the gate-passers if that is
 fewer (with today's 58 companies, 40 pass the gate, so 8 are shown). Both numbers are settings. A shortlist that
 holds a third of the universe would not be a shortlist; it grows to 15 as the universe grows. (Designer's call.)

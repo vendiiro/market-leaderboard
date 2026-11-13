@@ -59,3 +59,4 @@ Yahoo access (`python -m engine build --demo`); only the live checks in Tasks 2,
   Mix map and sliders, warm paper theme, data-driven watchlists, valuation data with currency conversion, four
   measures with a pre-registered test of the two price-based ones (`docs/backtests/`). Range of outcomes was
   removed by the owner. No new markets were added yet.
+- 2026-11-13: steadiness removed from the shortlist score (`docs/decisions.md`); plan and spec carry a note that the research workstation spec wins. 420 tests pass.

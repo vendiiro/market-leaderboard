@@ -33,7 +33,7 @@ NOTES = [
     "Returns and 1-year volatility are in each stock's own currency.",
     "Mix risk numbers use weekly returns in EUR over the last 104 complete weeks; they are estimates, not forecasts.",
     "The dip flag and the quality score are untested screen rules.",
-    "Candidates are picked by four published measures (value, business quality, long-term trend, steadiness). They are not shown to work on these companies; see the evidence note on the Candidates page.",
+    "Candidates are picked by three published measures (value, business quality, long-term trend); steadiness is shown but not used. They are not shown to work on these companies; see the evidence note on the Candidates page.",
     "Headlines are Yahoo's text, shown as received.",
 ]
 

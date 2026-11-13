@@ -15,6 +15,7 @@ from .fx import PENCE
 from .quality import NOT_APPLICABLE
 
 MEASURES = ("value", "quality", "trend", "steady")
+SCORED = ("value", "quality", "trend")        # steadiness is shown but not in the shortlist score: its backtest went the wrong way (docs/decisions.md)
 LABELS = {"value": "Value", "quality": "Business quality", "trend": "Long-term trend", "steady": "Steadiness"}
 SHORTLIST_MAX, SHORTLIST_SHARE = 15, 0.2
 BIG_MOVE, CALM_INDEX, STEADY_BARS, STEADY_MIN_BARS = 0.05, 0.02, 756, 500
@@ -176,11 +177,11 @@ def measures(all_facts: dict[str, dict], sector: dict[str, str | None]) -> dict[
         m = {"value": _mean([r_own.get(t), r_sec.get(t), r_ev.get(t)]),
              "quality": _mean([r_roe.get(t), r_margin.get(t), r_debt.get(t)]),
              "trend": r_trend.get(t), "steady": r_steady.get(t)}
-        have = [v for v in m.values() if v is not None]
+        have = [m[k] for k in SCORED if m[k] is not None]
         parts = {"value": {"vs_own": r_own.get(t), "vs_sector": r_sec.get(t), "ev": r_ev.get(t)},
                  "quality": {"roe": r_roe.get(t), "margin": r_margin.get(t), "debt": r_debt.get(t)},
                  "trend": {"trend": r_trend.get(t)}, "steady": {"steady": r_steady.get(t)}}
-        out[t] = m | {"parts": parts, "score": sum(have) / len(have) if len(have) >= 3 else None, "vs_sector": vs_sector[t],
+        out[t] = m | {"parts": parts, "score": sum(have) / len(have) if len(have) >= 2 else None, "vs_sector": vs_sector[t],
                       "sector_mid": mids[t], "sector_marks": marks[t]}
     return out
 
@@ -227,7 +228,7 @@ def sentence(measure: str, t: str, all_facts: dict[str, dict], ms: dict[str, dic
 def case(t: str, all_facts: dict[str, dict], ms: dict[str, dict]) -> tuple[list[str], list[str]]:
     """(why look closer, what argues against): the two highest measures at or above the middle and the two lowest
     below it, each as a sentence about a part that points the same way."""
-    ranked = sorted((k for k in MEASURES if ms[t][k] is not None), key=lambda k: -ms[t][k])
+    ranked = sorted((k for k in SCORED if ms[t][k] is not None), key=lambda k: -ms[t][k])
     strong = [k for k in ranked if ms[t][k] >= 0.5][:2]
     weak = [k for k in reversed(ranked) if ms[t][k] < 0.5][:2]
     return ([s for k in strong if (s := sentence(k, t, all_facts, ms, True))],

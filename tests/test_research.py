@@ -142,13 +142,21 @@ def test_ranks_run_from_best_to_worst_and_the_shortlist_is_a_fifth_of_the_gate_p
     assert len(R.shortlist(big, R.measures(big, bs))) == 15                          # never more than 15
 
 
-def test_a_company_with_fewer_than_three_measures_has_no_score_and_small_sectors_use_everyone():
+def test_a_company_with_fewer_than_two_scored_measures_has_no_score_and_small_sectors_use_everyone():
     facts, sector = universe()
-    facts["T05"] |= {"momentum": None, "big_days": None}
+    facts["T05"] |= {"momentum": None, "roe": None, "margin": None, "debt_equity": None}
     sector["T19"] = "Utilities"                                                      # alone in its sector
     ms = R.measures(facts, sector)
     assert ms["T05"]["score"] is None and "T05" not in R.shortlist(facts, ms)
     assert len(ms["T19"]["sector_marks"]) == 20
+
+
+def test_steadiness_is_shown_but_does_not_change_the_score():
+    facts, sector = universe()
+    before = R.measures(facts, sector)["T10"]["score"]
+    facts["T10"]["big_days"] = 99
+    after = R.measures(facts, sector)["T10"]
+    assert after["steady"] < 0.1 and after["score"] == pytest.approx(before)
 
 
 def test_roe_above_100_percent_is_left_out_of_quality_and_named():
