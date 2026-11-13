@@ -20,6 +20,8 @@ from .exchanges import suffix_of
 FUND_KEYS = [
     "returnOnEquity", "profitMargins", "debtToEquity", "freeCashflow",
     "revenueGrowth", "marketCap", "forwardPE", "trailingPE", "currency",
+    # added in market-leaderboard for the research view (same Yahoo info call):
+    "enterpriseToEbitda", "priceToBook", "operatingMargins", "earningsGrowth", "financialCurrency",
 ]
 
 

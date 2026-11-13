@@ -57,6 +57,16 @@ name = "Nordic energy"
 "ORSTED.CO" = "Ørsted"
 "VAR.OL" = "Vår Energi"
 
+[ai_chain]
+name = "AI supply chain"
+[ai_chain.tickers]
+TSM = "Taiwan Semiconductor Manufacturing"
+"ASML.AS" = "ASML Holding"
+MU = "Micron Technology"
+ANET = "Arista Networks"
+VRT = "Vertiv Holdings"
+SNPS = "Synopsys"
+
 [fi_small]
 name = "Finnish smaller companies"
 [fi_small.tickers]

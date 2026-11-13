@@ -48,11 +48,21 @@ def rows(prices: dict, fund: dict, meta: dict[str, dict], settings: Settings, as
             "stale_reason": f"last bar is {trading_days_old(last_bar, asof)} weekdays old" if stale else None,
             "price": metrics["price"], **windows(close), "dd52": metrics["dd52"],
             "q_score": q.score, "q_passed": q.passed, "q_scored": q.scored,
+            "pe": _positive(f.get("trailingPE")), "fwd_pe": _positive(f.get("forwardPE")),
             "dip": bool(reasons), "dip_reasons": reasons,
             "spark": [round(float(x) / float(spark.iloc[0]) * 100, 2) for x in spark],
             "_prev": windows(close.iloc[:-1]),
         })
     return out, failures
+
+
+def _positive(v) -> float | None:
+    """A P/E as Yahoo gives it, or None when missing or not above zero (a loss has no P/E)."""
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return None
+    return round(x, 2) if x == x and 0 < x < float("inf") else None
 
 
 def ranked(all_rows: list[dict], members: list[str]) -> dict[str, dict]:

@@ -10,25 +10,21 @@ from .config import CONFIG_DIR
 from .fx import cap_currency, eur_value
 from .verify import normalize_name
 
-LIST_KEYS = ("us_big_tech", "eu_defence", "eu_energy", "nordic_energy", "fi_small")
-
-
 def read(path: Path | str | None = None) -> dict[str, dict]:
-    """{list key: {"name": display name, "tickers": {ticker: company name}}} in LIST_KEYS order.
-    The company name is what verification compares with Yahoo's name, so a wrong ticker is caught."""
+    """{list key: {"name": display name, "tickers": {ticker: company name}}} in file order.
+    Every [key] block is a list: adding one needs no code change. The company name is what verification compares
+    with Yahoo's name, so a wrong ticker is caught."""
     p = Path(path) if path else CONFIG_DIR / "watchlists.toml"
     raw = tomllib.loads(p.read_text(encoding="utf-8"))
-    if unknown := set(raw) - set(LIST_KEYS):
-        raise ValueError(f"{p.name}: unknown list(s) {sorted(unknown)}; expected {list(LIST_KEYS)}")
-    if missing := set(LIST_KEYS) - set(raw):
-        raise ValueError(f"{p.name}: missing list(s) {sorted(missing)}")
-    for k in LIST_KEYS:
-        if not raw[k].get("name") or not isinstance(raw[k].get("tickers", {}), dict):
+    if not raw:
+        raise ValueError(f"{p.name}: no lists")
+    for k, v in raw.items():
+        if not isinstance(v, dict) or not v.get("name") or not isinstance(v.get("tickers", {}), dict):
             raise ValueError(f"{p.name} [{k}]: needs a name and a [{k}.tickers] table")
-        for t, company in raw[k].get("tickers", {}).items():
+        for t, company in v.get("tickers", {}).items():
             if not isinstance(company, str) or not company.strip():
                 raise ValueError(f"{p.name} [{k}]: {t} needs a company name")
-    return {k: {"name": raw[k]["name"], "tickers": dict(raw[k].get("tickers", {}))} for k in LIST_KEYS}
+    return {k: {"name": v["name"], "tickers": dict(v.get("tickers", {}))} for k, v in raw.items()}
 
 
 def load_watchlists(path: Path | str | None = None) -> dict[str, list[str]]:

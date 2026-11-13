@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "asof", "periods", "lists"],
   "properties": {
-    "schema_version": { "const": 1 },
+    "schema_version": { "const": 2 },
     "asof": { "$ref": "#/$defs/day" },
     "periods": { "type": "array", "items": { "$ref": "#/$defs/period" } },
     "lists": { "type": "array", "items": { "$ref": "#/$defs/watchlist" } }
@@ -76,7 +76,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["ticker", "name", "lists", "currency", "sector", "country", "last_bar", "stale", "stale_reason", "price",
-                   "ret_1d", "ret_1w", "ret_1m", "ret_ytd", "ret_1y", "vol_1y", "dd52", "q_score", "q_passed", "q_scored",
+                   "ret_1d", "ret_1w", "ret_1m", "ret_ytd", "ret_1y", "vol_1y", "dd52", "q_score", "q_passed", "q_scored", "pe", "fwd_pe",
                    "dip", "dip_reasons", "spark", "rank"],
       "properties": {
         "ticker": { "type": "string" },
@@ -99,6 +99,8 @@
         "q_score": { "type": ["integer", "null"] },
         "q_passed": { "type": "integer" },
         "q_scored": { "type": "integer" },
+        "pe": { "$ref": "#/$defs/num" },
+        "fwd_pe": { "$ref": "#/$defs/num" },
         "dip": { "type": "boolean" },
         "dip_reasons": { "type": "array", "items": { "type": "string" } },
         "spark": { "type": "array", "items": { "type": "number" } },
