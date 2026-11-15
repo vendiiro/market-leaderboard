@@ -19,12 +19,13 @@ from pathlib import Path
 import numpy as np
 from jsonschema import Draft202012Validator
 
-from . import demo, leaderboard, movers, portfolio, research, watchlists
+from . import demo, history, holdings, leaderboard, movers, portfolio, research, watchlists
 from .config import ROOT, Settings, load_settings
+from .metrics import MIN_BARS
 from .returns import PERIODS
 
-SCHEMA_VERSION = 2
-FILES = ("leaderboard", "movers", "portfolio", "research", "meta")        # meta last: it is the file the page reads first
+SCHEMA_VERSION = 3
+FILES = ("leaderboard", "movers", "portfolio", "research", "holdings", "meta")        # meta last: it is the file the page reads first
 SCHEMAS = ROOT / "schemas"
 DEFAULT_OUT = ROOT / "web" / "public" / "data"
 NOTES = [
@@ -35,6 +36,7 @@ NOTES = [
     "The dip flag and the quality score are untested screen rules.",
     "Candidates are picked by three published measures (value, business quality, long-term trend); steadiness is shown but not used. They are not shown to work on these companies; see the evidence note on the Candidates page.",
     "Headlines are Yahoo's text, shown as received.",
+    "Portfolio values use Yahoo closes converted to EUR and can differ slightly from the broker's report; risk figures are estimates.",
 ]
 
 
@@ -76,14 +78,21 @@ def compute(inp: dict, settings: Settings, asof: date | None = None, built_at: s
     if not last_bars:
         raise RuntimeError("no price data at all")
     asof = asof or max(last_bars)
+    stock_cfg, etf_cfg = watchlists.split_by_kind(inp["cfg"])      # ETF lists never reach the share views
     rows, failures = leaderboard.rows(prices, inp["fund"], inp["meta"], settings, asof, inp["rates_usd"])
     for f in failures:
         f["reason"] = inp["reasons"].get(f["ticker"], f["reason"])
     head = {"schema_version": SCHEMA_VERSION, "asof": str(asof)}
 
     live = {r["ticker"] for r in rows}
-    weekly, no_risk = portfolio.weekly_eur_returns({t: prices[t][0] for t in live},
-                                                   {t: inp["meta"][t]["currency"] for t in live}, inp["fx"], asof)
+    owned = inp.get("holdings")
+    held = {x.ticker for x in owned.holdings if x.ticker} if owned else set()
+    # Holdings and ETF candidates that are not on a watchlist ("extras") join the covariance matrix when they have prices.
+    extra = {t: m for t, m in (inp.get("extra") or {}).items()
+             if t not in inp["meta"] and t in prices and len(prices[t][0].dropna()) >= MIN_BARS}
+    currency = {t: inp["meta"][t]["currency"] for t in live} | {t: m["currency"] for t, m in extra.items()}
+    weekly, no_risk = portfolio.weekly_eur_returns({t: prices[t][0] for t in sorted(live | set(extra))}, currency,
+                                                   inp["fx"], asof)
     cov = portfolio.covariance(weekly)
     vol = {t: math.sqrt(cov.loc[t, t]) for t in cov.index}
     mv = movers.movers(rows)
@@ -98,25 +107,39 @@ def compute(inp: dict, settings: Settings, asof: date | None = None, built_at: s
     if callable(news):       # live: fetch only for tonight's candidates and movers (about 30 calls)
         wanted = study({})["shortlist"] + [m["ticker"] for k in ("gainers", "losers", "alerts") for m in mv[k]]
         news = news(list(dict.fromkeys(wanted)), asof)
+    sector = {r["ticker"]: r["sector"] for r in rows} | {t: m.get("sector") for t, m in (inp.get("extra") or {}).items()}
+    held_currency = currency | {t: m.get("currency") for t, m in (inp.get("extra") or {}).items()}
+    positions = (holdings.position_rows(owned, {t: p[0] for t, p in prices.items()}, held_currency, sector, inp["fx"],
+                                        set(cov.index)) if owned else [])
+    pts = inp.get("history")
     out = {
-        "leaderboard": head | {"periods": list(PERIODS), "lists": leaderboard.lists(rows, inp["cfg"])},
+        "leaderboard": head | {"periods": list(PERIODS), "lists": leaderboard.lists(rows, stock_cfg)},
         "movers": head | mv,
         "research": head | study(news),
         "portfolio": head | {
             "window": {"start": str(weekly.index[0].date()) if len(weekly) else None,
                        "end": str(weekly.index[-1].date()) if len(weekly) else None, "weeks": len(weekly)},
             "tickers": [{k: r[k] for k in ("ticker", "name", "lists", "sector", "country", "currency")}
-                        | {"vol_eur": round(vol[r["ticker"]], 4) if r["ticker"] in vol else None} for r in rows],
+                        | {"vol_eur": round(vol[r["ticker"]], 4) if r["ticker"] in vol else None} for r in rows]
+                       + [{"ticker": t, "name": m["name"], "lists": list(m["lists"]) + (["holdings"] if t in held else []),
+                           "sector": m.get("sector"), "country": m.get("country"), "currency": m.get("currency"),
+                           "vol_eur": round(vol[t], 4) if t in vol else None} for t, m in sorted(extra.items())],
             "risk_tickers": list(cov.index),
             "cov": np.round(cov.to_numpy(), 8).tolist(),
             "corr": np.round(portfolio.correlation(cov).to_numpy(), 4).tolist(),
             "no_risk_data": [{"ticker": t, "reason": why} for t, why in sorted(no_risk.items())],
         },
+        "holdings": head | {
+            "label": owned.label if owned else "Portfolio", "positions": positions, "totals": holdings.totals(positions),
+            "history": {"points": pts, "summary": history.summarise(pts, str(asof))} if pts else None,
+            "history_note": None if pts else inp.get("history_note"),
+            "etfs": holdings.etf_rows(etf_cfg, prices, {t: m.get("currency") for t, m in (inp.get("extra") or {}).items()}),
+        },
         "meta": head | {
             "built_at": built_at or datetime.now(timezone.utc).isoformat(timespec="seconds"), "demo": is_demo,
             "tickers": len(inp["meta"]), "usable": len(rows),
             "lists": [{"key": k, "name": v["name"], "count": len(v["tickers"]),
-                       "usable": sum(t in live for t in v["tickers"])} for k, v in inp["cfg"].items()],
+                       "usable": sum(t in live for t in v["tickers"])} for k, v in stock_cfg.items()],
             "failures": failures, "notes": NOTES,
         },
     }

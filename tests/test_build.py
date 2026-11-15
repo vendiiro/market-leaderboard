@@ -25,11 +25,11 @@ def out(tmp_path):
     return tmp_path
 
 
-def test_demo_build_writes_five_files_that_match_their_schemas(out):
+def test_demo_build_writes_six_files_that_match_their_schemas(out):
     payloads = {stem: read(out, stem) for stem in B.FILES}
     B.validate(payloads)                                              # raises on a mismatch
-    assert sorted(p.name for p in out.iterdir()) == ["leaderboard.json", "meta.json", "movers.json", "portfolio.json", "research.json"]
-    assert all(p["schema_version"] == 2 and p["asof"] == demo.END for p in payloads.values())
+    assert sorted(p.name for p in out.iterdir()) == ["holdings.json", "leaderboard.json", "meta.json", "movers.json", "portfolio.json", "research.json"]
+    assert all(p["schema_version"] == 3 and p["asof"] == demo.END for p in payloads.values())
 
 
 def test_validation_names_the_place_that_is_wrong(out):
@@ -68,7 +68,7 @@ def test_demo_contains_every_state_the_page_must_handle(out):
     assert stale["stale"] and stale["rank"] is None and stale["stale_reason"]
     assert rows[("eu_energy", "ENGA.OL")]["lists"] == ["eu_energy", "nordic_energy"] and ("nordic_energy", "ENGA.OL") in rows
     assert [a["ticker"] for a in mv["alerts"]] == ["DEMD"] and mv["losers"][0]["ticker"] == "DEMD"
-    assert [x["ticker"] for x in pf["no_risk_data"]] == ["DEFC.PA", "FINB.HE"]
+    assert [x["ticker"] for x in pf["no_risk_data"]] == ["DEFC.PA", "DEMETG.DE", "FINB.HE"]   # DEMETG.DE: an ETF candidate with a short history
     assert rows[("eu_defence", "DEFC.PA")]["ret_1y"] is not None                     # still ranked on the leaderboard
     assert rows[("fi_small", "FINC.HE")]["q_score"] is None                           # thin fundamentals: no score
 
@@ -76,11 +76,11 @@ def test_demo_contains_every_state_the_page_must_handle(out):
 def test_portfolio_matrices_line_up(out):
     pf = read(out, "portfolio")
     n = len(pf["risk_tickers"])
-    assert n == 13 and pf["window"]["weeks"] == 104 and pf["window"]["end"] == "2026-11-06"
+    assert n == 14 and pf["window"]["weeks"] == 104 and pf["window"]["end"] == "2026-11-06"
     cov = np.array(pf["cov"])
     assert cov.shape == (n, n) and np.allclose(cov, cov.T) and np.linalg.eigvalsh(cov).min() > -1e-7
     vols = {t["ticker"]: t["vol_eur"] for t in pf["tickers"]}
-    assert len(vols) == 15 and vols["DEFC.PA"] is None
+    assert len(vols) == 17 and vols["DEFC.PA"] is None        # 15 shares plus 2 ETF candidates with prices
     assert vols[pf["risk_tickers"][0]] == pytest.approx(cov[0, 0] ** 0.5, abs=1e-4)
     assert np.allclose(np.diag(np.array(pf["corr"])), 1)
 

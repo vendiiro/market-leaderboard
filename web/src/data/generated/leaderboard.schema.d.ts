@@ -9,7 +9,7 @@ export type Text = string | null;
  * One table per watchlist. Returns and vol_1y are in each stock's own currency. The dip flag and quality score are untested screen rules.
  */
 export interface Leaderboard {
-  schema_version: 2;
+  schema_version: 3;
   asof: Day;
   periods: Period[];
   lists: Watchlist[];

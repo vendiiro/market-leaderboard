@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Holdings",
+  "description": "The owner's own holdings (private; the file is generated into a gitignored folder), the ETF candidates and the broker's weekly history. Value and result are in EUR from Yahoo closes and may differ slightly from the broker's report. Estimates, not advice.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "asof", "label", "positions", "totals", "history", "history_note", "etfs"],
+  "properties": {
+    "schema_version": { "const": 3 },
+    "asof": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "label": { "type": "string" },
+    "positions": { "type": "array", "items": { "$ref": "#/$defs/Position" } },
+    "totals": { "$ref": "#/$defs/Totals" },
+    "history": {
+      "description": "Weekly points from the broker's export, or null when there is no history file or it could not be read (see history_note).",
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/History" }]
+    },
+    "history_note": { "type": ["string", "null"] },
+    "etfs": { "type": "array", "items": { "$ref": "#/$defs/EtfRow" } }
+  },
+  "$defs": {
+    "Position": {
+      "description": "One holding. value_eur is null for a holding without a price tonight (note says why); it is then left out of weights and totals. A fund without a Yahoo ticker has a hand-typed value and no cost, result, return or risk data.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "ticker", "name", "kind", "group", "currency", "sector", "quantity", "price", "value_eur", "cost_eur", "cost_approx", "result_eur", "return_local", "weight", "has_risk", "note"],
+      "properties": {
+        "key": { "type": "string" },
+        "ticker": { "type": ["string", "null"] },
+        "name": { "type": "string" },
+        "kind": { "enum": ["stock", "etf", "etn", "fund"] },
+        "group": { "type": ["string", "null"] },
+        "currency": { "type": ["string", "null"] },
+        "sector": { "type": ["string", "null"] },
+        "quantity": { "type": ["number", "null"] },
+        "price": { "type": ["number", "null"] },
+        "value_eur": { "type": ["number", "null"] },
+        "cost_eur": { "type": ["number", "null"] },
+        "cost_approx": { "type": "boolean" },
+        "result_eur": { "type": ["number", "null"] },
+        "return_local": { "type": ["number", "null"] },
+        "weight": { "type": ["number", "null"] },
+        "has_risk": { "type": "boolean" },
+        "note": { "type": ["string", "null"] }
+      }
+    },
+    "Totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value_eur", "result_eur", "result_complete", "top3_share", "tech_share", "risk_covered", "unpriced"],
+      "properties": {
+        "value_eur": { "type": "number" },
+        "result_eur": { "type": ["number", "null"] },
+        "result_complete": { "type": "boolean" },
+        "top3_share": { "type": "number" },
+        "tech_share": { "type": "number" },
+        "risk_covered": { "type": "number" },
+        "unpriced": { "type": "integer" }
+      }
+    },
+    "EtfRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ticker", "name", "list", "group", "currency", "price", "ret_1y", "dd52", "vol_1y"],
+      "properties": {
+        "ticker": { "type": "string" },
+        "name": { "type": "string" },
+        "list": { "type": "string" },
+        "group": { "type": ["string", "null"] },
+        "currency": { "type": ["string", "null"] },
+        "price": { "type": ["number", "null"] },
+        "ret_1y": { "type": ["number", "null"] },
+        "dd52": { "type": ["number", "null"] },
+        "vol_1y": { "type": ["number", "null"] }
+      }
+    },
+    "History": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["points", "summary"],
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["date", "value", "cum", "net_deposits"],
+            "properties": {
+              "date": { "type": "string" },
+              "value": { "type": "number" },
+              "cum": { "description": "Accumulated time-weighted return as a fraction.", "type": "number" },
+              "net_deposits": { "type": "number" }
+            }
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["since_start", "month", "ytd", "max_drawdown", "drawdown_from", "drawdown_to", "lowest", "highest"],
+          "properties": {
+            "since_start": { "type": "number" },
+            "month": { "type": ["number", "null"] },
+            "ytd": { "type": ["number", "null"] },
+            "max_drawdown": { "type": "number" },
+            "drawdown_from": { "type": "string" },
+            "drawdown_to": { "type": "string" },
+            "lowest": { "$ref": "#/$defs/Extreme" },
+            "highest": { "$ref": "#/$defs/Extreme" }
+          }
+        }
+      }
+    },
+    "Extreme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "cum"],
+      "properties": { "date": { "type": "string" }, "cum": { "type": "number" } }
+    }
+  }
+}
