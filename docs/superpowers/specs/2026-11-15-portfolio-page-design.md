@@ -44,8 +44,8 @@ the candidates, because he understands what such an addition does and wants to s
    before and after: total value, weights of the largest holdings, share of the three largest, share in the
    technology-heavy group, portfolio volatility, largest risk contribution, and each added item's correlation to
    the current portfolio.
-5. **ETFs as universe members:** an ETF is a ticker with `kind = "etf"` in `config/watchlists.toml`; the engine
-   treats its prices like any other ticker's.
+5. **ETFs as universe members:** an ETF belongs to a list marked `kind = "etf"` in `config/watchlists.toml` (an
+   entry may carry a `group` tag); the engine treats its prices like any other ticker's.
 6. Adding companies, ETFs and lists stays a data change, not a code change.
 
 ## Non-goals
