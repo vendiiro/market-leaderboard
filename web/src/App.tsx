@@ -10,11 +10,13 @@ import Leaderboard from './views/Leaderboard'
 import MixView from './views/Mix'
 import MoversView from './views/Movers'
 import Overview from './views/Overview'
+import Portfolio from './views/Portfolio'
 import Screener from './views/Screener'
 
 type Load = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; data: Data }
 
 const NAV: { view: View; label: string }[] = [
+  { view: 'portfolio', label: 'Portfolio' },
   { view: 'candidates', label: 'Candidates' },
   { view: 'screener', label: 'Screener' },
   { view: 'list', label: 'Watchlists' },
@@ -40,6 +42,7 @@ export default function App() {
   const panel = data && company ? <ResearchPanel c={company} data={data} route={route} /> : null
   const view = data && (
     <>
+      {route.view === 'portfolio' && <Portfolio data={data} route={route} />}
       {route.view === 'candidates' && <Candidates data={data} route={route} />}
       {route.view === 'screener' && <Screener data={data} route={route} />}
       {route.view === 'list' && (route.id ? <Leaderboard data={data} route={route} /> : <Overview data={data} route={route} />)}
@@ -48,7 +51,7 @@ export default function App() {
       {route.view === 'data' && <DataState data={data} />}
       {route.view === 'notfound' && (
         <State title="Page not found">
-          <p><a href="#/">Go to Candidates</a></p>
+          <p><a href="#/">Go to Portfolio</a></p>
         </State>
       )}
     </>

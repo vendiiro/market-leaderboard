@@ -76,8 +76,8 @@ describe('router', () => {
   })
 
   it('knows the other routes and rejects unknown ones', () => {
-    expect(parseHash('').view).toBe('candidates')
-    expect(parseHash('#/').view).toBe('candidates')
+    expect(parseHash('').view).toBe('portfolio')
+    expect(parseHash('#/').view).toBe('portfolio')
     expect(parseHash('#/screener?sector=Energy')).toEqual({ view: 'screener', params: { sector: 'Energy' } })
     expect(parseHash('#/list')).toEqual({ view: 'list', id: undefined, params: {} })
     expect(parseHash('#/data').view).toBe('data')
@@ -85,7 +85,9 @@ describe('router', () => {
     expect(parseHash('#/movers?x=1')).toEqual({ view: 'movers', params: { x: '1' } })
     expect(parseHash('#/list/a/b').view).toBe('notfound')
     expect(parseHash('#/nothing/here').view).toBe('notfound')
-    expect(formatHash({ view: 'candidates', params: { period: undefined } })).toBe('#/')
+    expect(formatHash({ view: 'candidates', params: { period: undefined } })).toBe('#/candidates')
+    expect(formatHash({ view: 'portfolio' })).toBe('#/')
+    expect(parseHash('#/candidates').view).toBe('candidates')
     expect(formatHash({ view: 'list' })).toBe('#/list')
   })
 })

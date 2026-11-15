@@ -1,0 +1,37 @@
+/* Portfolio view (2026-11-15). Colours and fonts come from tokens.css only. */
+.sechead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px}
+.sechead h2{font-size:1.05rem}
+.pf-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+.pf-side{display:grid;gap:18px;min-width:0}
+.pf-kpis dd.small{margin-top:0;font-size:.72rem;font-weight:400}
+.pf-kpis dd.num{white-space:nowrap}
+.pf-table .rowbtn{min-height:36px}
+.pf-table .rowbtn b{display:block}
+.pf-table .rowbtn span{font-size:.8rem;color:var(--ink-2)}
+.pf-table th.name{max-width:260px}
+.tag{display:inline-block;border:1px solid var(--line-strong);border-radius:4px;padding:0 5px;font-size:.7rem;line-height:1.4;color:var(--ink-2)}
+.wbar{display:inline-block;width:46px;height:8px;background:var(--sunken);border-radius:4px;margin-right:6px;vertical-align:middle;overflow:hidden}
+.wbar i{display:block;height:100%;background:var(--bar);border-radius:4px}
+.cmd{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.cmd [role=status]{position:absolute;margin-top:76px}
+.cmd input{font:400 .9rem var(--f-data);color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px;min-height:40px;width:260px;min-width:0}
+.cmd span[aria-hidden]{font:600 1.1rem var(--f-data);color:var(--accent)}
+.chartbox{padding:10px 12px}
+.linechart{width:100%;height:auto;display:block}
+.linechart .line{stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.linechart .zero{stroke:var(--line-strong);stroke-dasharray:4 4}
+.linechart .lowdot{fill:var(--down)} .linechart .highdot{fill:var(--up)} .linechart .nowdot{fill:var(--accent)}
+.linechart .chartlabel{font:400 12.5px var(--f-data);fill:var(--ink-2)}
+.pf-cap{margin:6px 0 0}
+.tallscroll{max-height:260px;overflow-y:auto}
+.pf-groups{margin-top:0}
+.detail dl div{min-width:0}
+@media (max-width:900px){
+  .pf-grid{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .pf-table .rowbtn{min-height:44px}
+  .pf-table td,.pf-table th{padding:8px 6px}
+  .wbar{width:30px}
+  .cmd{width:100%} .cmd input{flex:1;width:auto}
+}

@@ -129,7 +129,7 @@ test.describe('movers and page states', () => {
   })
 
   test('every view can be reached and used with the keyboard alone', async ({ page }) => {
-    await open(page, '#/')
+    await open(page, '#/candidates')
     for (const name of ['Screener', 'Watchlists', 'Mix', 'Movers', 'Candidates']) {
       await page.getByRole('link', { name, exact: true }).focus()
       await page.keyboard.press('Enter')

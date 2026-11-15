@@ -17,10 +17,10 @@ for (const size of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'phon
     test.describe(`${size.name} ${scheme}`, () => {
       test.use({ viewport: { width: size.width, height: size.height }, colorScheme: scheme, deviceScaleFactor: 1 })
       for (const [name, hash] of [
-        ['candidates', '#/'],
+        ['candidates', '#/candidates'],
         ['screener', '#/screener'],
         ['screener-panel', '#/screener?c=DEMA'],
-        ['candidates-panel', '#/?c=ENGA.OL'],
+        ['candidates-panel', '#/candidates?c=ENGA.OL'],
         ['data', '#/data'],
       ] as const) {
         test(`${name}: renders without errors or sideways scroll`, async ({ page }) => {
@@ -37,7 +37,7 @@ for (const size of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'phon
 
 test.describe('candidates', () => {
   test('cards give the case for and against, and the evidence is one click away', async ({ page }) => {
-    await open(page, '#/')
+    await open(page, '#/candidates')
     const cards = page.locator('article.cand')
     await expect(cards).toHaveCount(2)
     await expect(cards.first().getByText('Why look closer')).toBeVisible()
@@ -48,7 +48,7 @@ test.describe('candidates', () => {
   })
 
   test('a filter narrows the cards and lives in the address', async ({ page }) => {
-    await open(page, '#/')
+    await open(page, '#/candidates')
     await page.getByLabel('Watchlist').selectOption('us_big_tech')
     expect(page.url()).toContain('list=us_big_tech')
     await expect(page.getByText('No candidate matches these filters')).toBeVisible()
@@ -121,7 +121,7 @@ test.describe('screener', () => {
 
 test('on a phone the panel is the page and closing returns to the list', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await open(page, '#/')
+  await open(page, '#/candidates')
   await page.locator('article.cand h2 a').first().click()
   await expect(page.locator('.rpanel')).toBeVisible()
   await expect(page.locator('article.cand')).toHaveCount(0)
