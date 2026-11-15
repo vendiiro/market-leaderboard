@@ -1,0 +1,55 @@
+# Example holdings file with INVENTED values (used by the tests and by `python -m engine build --demo`).
+# Your own file is config/portfolio.toml: copy this one there and edit it. That file is private and listed in
+# .gitignore, because this repository is public. Never commit it.
+#
+# Per holding:
+#   ticker          Yahoo ticker (leave out only for a fund that has none; then give value_eur)
+#   name            display name
+#   kind            "stock", "etf", "etn" or "fund"
+#   quantity        number of units
+#   cost_price      what one unit cost, in the currency the ticker trades in
+#   cost_eur_total  optional: total cost in EUR from your broker's report (value minus result);
+#                   without it the result is shown as approximate
+#   group           optional free-text tag; "technology" feeds the technology-heavy share
+#   value_eur       fund without a Yahoo ticker only: its current value in EUR, edited by hand at each update
+#
+# history_csv: optional path to the broker's "daily development" export (Nordnet: UTF-16, tab-separated).
+
+label = "Demo account"
+# history_csv = "C:/path/to/export.csv"
+
+[[holding]]
+ticker = "DEMA"
+name = "Demo Chips"
+kind = "stock"
+quantity = 12
+cost_price = 41.0
+cost_eur_total = 470.0
+group = "technology"
+
+[[holding]]
+ticker = "DEFA.DE"
+name = "Demo Armour"
+kind = "stock"
+quantity = 8
+cost_price = 52.5
+
+[[holding]]
+ticker = "DEMETF.DE"
+name = "Demo Index ETF"
+kind = "etf"
+quantity = 30
+cost_price = 21.0
+group = "technology"
+
+[[holding]]
+name = "Demo Balanced Fund"
+kind = "fund"
+value_eur = 300.0
+
+[[holding]]
+ticker = "DEMX.HE"
+name = "Demo Delisted"
+kind = "stock"
+quantity = 5
+cost_price = 10.0
