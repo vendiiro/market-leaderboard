@@ -1,6 +1,7 @@
-// Pieces of the Portfolio view: key strip, holdings table, history chart, group bars and the command field.
-// Numbers come from holdings.json and the engine's covariance matrix (lib/basket.ts); nothing is invented here.
-import { useState, type FormEvent } from 'react'
+// Pieces of the Portfolio view: key strip, holdings table, holding details (inline row or bottom sheet), history chart,
+// group bars, view options and the command field. Numbers come from holdings.json and the engine's covariance matrix
+// (lib/basket.ts); nothing is invented here.
+import { useEffect, useRef, useState, type FormEvent, type PointerEvent } from 'react'
 import type { Data, History, Position } from '../data/load'
 import { evaluate } from '../lib/basket'
 import { DASH, direction, pct } from '../lib/format'
@@ -55,21 +56,69 @@ export function KeyStrip({ data }: { data: Data }) {
 
 const KIND_TAG: Record<Position['kind'], string> = { stock: 'share', etf: 'ETF', etn: 'ETN', fund: 'fund' }
 
-export function HoldingsTable({ data, route }: { data: Data; route: Route }) {
-  const [more, setMore] = useState(false)
+function HoldingDetails({ p, data, route }: { p: Position; data: Data; route: Route }) {
+  const researchable = data.research.companies.some((c) => c.ticker === p.ticker)
+  return (
+    <>
+      <dl>
+        <div><dt>Price</dt><dd className="num">{p.price == null ? DASH : `${p.price} ${p.currency ?? ''}`}</dd></div>
+        <div><dt>Units</dt><dd className="num">{p.quantity ?? DASH}</dd></div>
+        <div><dt>Cost</dt><dd className="num">{money(p.cost_eur)}{p.cost_approx ? ' (approximate)' : ''}</dd></div>
+        <div><dt>Result</dt><dd className={`num ${direction(p.result_eur)}`}>{p.result_eur == null ? DASH : `${eur(p.result_eur, 0, true)} €`}</dd></div>
+        <div><dt>Return</dt><dd><Pct value={p.return_local} /></dd></div>
+        <div><dt>Group</dt><dd>{groupLabel(p)}{p.sector ? ` · ${p.sector}` : ''}</dd></div>
+        {p.note && <div><dt>Note</dt><dd>{p.note}</dd></div>}
+        {!p.has_risk && p.value_eur != null && <div><dt>Risk data</dt><dd>none: left out of volatility</dd></div>}
+      </dl>
+      {p.ticker && researchable && <p className="small"><CompanyLink c={{ ticker: p.ticker, name: p.name }} route={route}>Open research panel</CompanyLink></p>}
+    </>
+  )
+}
+
+/** The phone's version of a row's details: a sheet from the bottom. Drag the handle down, tap outside or press Esc to close. */
+function HoldingSheet({ p, data, route, onClose }: { p: Position; data: Data; route: Route; onClose: () => void }) {
+  const grab = useRef<HTMLButtonElement>(null)
+  const sheet = useRef<HTMLDivElement>(null)
+  const start = useRef<number | null>(null)
+  useEffect(() => {
+    grab.current?.focus()
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+  const down = (e: PointerEvent) => { start.current = e.clientY }
+  const move = (e: PointerEvent) => {
+    if (start.current != null && sheet.current) sheet.current.style.transform = `translateY(${Math.max(0, e.clientY - start.current)}px)`
+  }
+  const up = (e: PointerEvent) => {
+    if (start.current == null) return
+    const d = e.clientY - start.current
+    start.current = null
+    if (d > 70) onClose()
+    else if (sheet.current) sheet.current.style.transform = ''
+  }
+  return (
+    <>
+      <div className="scrim" onClick={onClose} aria-hidden="true" />
+      <div ref={sheet} className="sheet" role="dialog" aria-modal="true" aria-label={`${p.name}: details`}>
+        <button ref={grab} type="button" className="grab" aria-label="Close details" onClick={onClose} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} />
+        <div className="rhead"><div><h2>{p.name}</h2><p className="muted small">{p.ticker ? `${p.ticker} · ` : ''}{KIND_TAG[p.kind]}</p></div><span className="num">{p.weight == null ? DASH : pct(p.weight, 1, false)}</span></div>
+        <div className="detail sheetbody"><HoldingDetails p={p} data={data} route={route} /></div>
+      </div>
+    </>
+  )
+}
+
+export function HoldingsTable({ data, route, more, phone }: { data: Data; route: Route; more: boolean; phone: boolean }) {
   const [open, setOpen] = useState<string | null>(null)
   const rows = sortBy(data.holdings.positions, (p) => p.weight, 'desc')
   const maxW = Math.max(0.0001, ...rows.map((p) => p.weight ?? 0))
-  const researchable = new Set(data.research.companies.map((c) => c.ticker))
   const span = 6 + (more ? 3 : 0)
+  const sheet = phone ? rows.find((p) => p.key === open) : undefined
   return (
     <section aria-labelledby="holdings-h">
       <div className="sechead">
         <h2 id="holdings-h">Holdings <span className="muted small">{rows.length} positions</span></h2>
-        <div className="seg" role="group" aria-label="Columns">
-          <button type="button" aria-pressed={!more} onClick={() => setMore(false)}>Summary</button>
-          <button type="button" aria-pressed={more} onClick={() => setMore(true)}>More columns</button>
-        </div>
       </div>
       <div className="card scrollx">
         <table className="board dense pf-table">
@@ -91,7 +140,7 @@ export function HoldingsTable({ data, route }: { data: Data; route: Route }) {
               return [
                 <tr key={p.key} className={isOpen ? 'selrow' : p.value_eur == null ? 'stale' : undefined}>
                   <th scope="row" className="l name">
-                    <button type="button" className="rowbtn" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : p.key)}>
+                    <button type="button" className="rowbtn" aria-expanded={isOpen} aria-haspopup={phone ? 'dialog' : undefined} onClick={() => setOpen(isOpen ? null : p.key)}>
                       <b>{p.name}</b>
                       <span>{p.ticker ? `${p.ticker} · ` : ''}<span className="tag">{KIND_TAG[p.kind]}</span></span>
                     </button>
@@ -109,21 +158,9 @@ export function HoldingsTable({ data, route }: { data: Data; route: Route }) {
                     {p.weight == null ? DASH : <><span className="wbar" aria-hidden="true"><i style={{ width: `${(p.weight / maxW) * 100}%` }} /></span>{pct(p.weight, 1, false)}</>}
                   </td>
                 </tr>,
-                isOpen && (
+                isOpen && !phone && (
                   <tr key={`${p.key}-d`} className="detail">
-                    <td colSpan={span}>
-                      <dl>
-                        <div><dt>Price</dt><dd className="num">{p.price == null ? DASH : `${p.price} ${p.currency ?? ''}`}</dd></div>
-                        <div><dt>Units</dt><dd className="num">{p.quantity ?? DASH}</dd></div>
-                        <div><dt>Cost</dt><dd className="num">{money(p.cost_eur)}{p.cost_approx ? ' (approximate)' : ''}</dd></div>
-                        <div><dt>Result</dt><dd className={`num ${direction(p.result_eur)}`}>{p.result_eur == null ? DASH : `${eur(p.result_eur, 0, true)} €`}</dd></div>
-                        <div><dt>Return</dt><dd><Pct value={p.return_local} /></dd></div>
-                        <div><dt>Group</dt><dd>{groupLabel(p)}{p.sector ? ` · ${p.sector}` : ''}</dd></div>
-                        {p.note && <div><dt>Note</dt><dd>{p.note}</dd></div>}
-                        {!p.has_risk && p.value_eur != null && <div><dt>Risk data</dt><dd>none: left out of volatility</dd></div>}
-                      </dl>
-                      {p.ticker && researchable.has(p.ticker) && <p className="small"><CompanyLink c={{ ticker: p.ticker, name: p.name }} route={route}>Open research panel</CompanyLink></p>}
-                    </td>
+                    <td colSpan={span}><HoldingDetails p={p} data={data} route={route} /></td>
                   </tr>
                 ),
               ]
@@ -135,6 +172,7 @@ export function HoldingsTable({ data, route }: { data: Data; route: Route }) {
         Values are Yahoo closes converted to EUR; they can differ slightly from the broker’s report. A holding without a price tonight stays in
         the list but not in the totals.
       </p>
+      {sheet && <HoldingSheet p={sheet} data={data} route={route} onClose={() => setOpen(null)} />}
     </section>
   )
 }
@@ -226,6 +264,38 @@ export function GroupBars({ data }: { data: Data }) {
         <p className="small muted">Groups are your own tags from the holdings file; untagged holdings are grouped by type.</p>
       </div>
     </section>
+  )
+}
+
+export interface ViewOptionsState { chart: boolean; groups: boolean; columns: boolean }
+export const DEFAULT_VIEW: ViewOptionsState = { chart: true, groups: true, columns: false }
+
+/** "View" button: choose what the page shows. Dense columns and secondary panels are opt-in. */
+export function ViewOptions({ value, onChange }: { value: ViewOptionsState; onChange: (v: ViewOptionsState) => void }) {
+  const [open, setOpen] = useState(false)
+  const box = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    const onDown = (e: Event) => box.current && !box.current.contains(e.target as Node) && setOpen(false)
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('pointerdown', onDown)
+    return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('pointerdown', onDown) }
+  }, [open])
+  const row = (k: keyof ViewOptionsState, label: string) => (
+    <label key={k}><input type="checkbox" checked={value[k]} onChange={(e) => onChange({ ...value, [k]: e.target.checked })} /> {label}</label>
+  )
+  return (
+    <div className="viewopts" ref={box}>
+      <button type="button" className="btn small" aria-expanded={open} aria-controls="viewopts-pop" onClick={() => setOpen(!open)}>View ▾</button>
+      {open && (
+        <div id="viewopts-pop" className="opts" role="group" aria-label="View options">
+          {row('chart', 'History chart')}
+          {row('groups', 'Where the money sits')}
+          {row('columns', 'Extra columns (price, units, cost)')}
+        </div>
+      )}
+    </div>
   )
 }
 

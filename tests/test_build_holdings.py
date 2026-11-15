@@ -83,3 +83,17 @@ def test_basket_reference_fixture_is_current():
     uv run python -m engine.holdings"""
     fixture = json.loads((ROOT / "web" / "src" / "fixtures" / "basket_reference.json").read_text(encoding="utf-8"))
     assert fixture == json.loads(json.dumps(H.reference_baskets()))
+
+
+def test_etf_and_holding_prices_do_not_change_the_share_research():
+    """ETFs and holding-only tickers must never act as peers: the share views must equal a build without them."""
+    from datetime import date
+    from engine.config import load_settings
+    full, bare = demo.inputs(), demo.inputs()
+    for t in ("DEMETF.DE", "DEMETG.DE"):
+        del bare["prices"][t]
+    bare["extra"], bare["holdings"], bare["history"] = {}, None, None
+    a = B.compute(full, load_settings(), date.fromisoformat(demo.END), built_at="x", is_demo=True)
+    b = B.compute(bare, load_settings(), date.fromisoformat(demo.END), built_at="x", is_demo=True)
+    for stem in ("research", "leaderboard", "movers"):
+        assert a[stem] == b[stem], stem

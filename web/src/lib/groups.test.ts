@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Data, Position } from '../data/load'
 import holdings from '../fixtures/holdings.json'
 import leaderboard from '../fixtures/leaderboard.json'
-import { eur, groupLabel, techTickers } from './groups'
+import { candidatesOf, eur, groupLabel, median, sectorCards, techTickers } from './groups'
 
 const data = { holdings, leaderboard } as unknown as Data
 
@@ -33,5 +33,42 @@ describe('eur', () => {
     expect(eur(-123.45, 2, true)).toBe('−123.45')
     expect(eur(1234.56, 0, true)).toBe('+1,235')
     expect(eur(null)).toBe('—')
+  })
+})
+
+describe('median and sectorCards', () => {
+  it('median handles odd, even and empty lists', () => {
+    expect(median([3, 1, 2])).toBe(2)
+    expect(median([1, 2, 3, 4])).toBe(2.5)
+    expect(median([])).toBeNull()
+  })
+
+  const demo = { holdings, leaderboard } as unknown as Data
+  it('one card per sector, each share only once, with the portfolio share of that sector', () => {
+    const cards = sectorCards(demo)
+    const by = Object.fromEntries(cards.map((c) => [c.sector, c]))
+    expect(by.Industrials.count).toBe(4) // DEFA.DE, DEFB.L, DEFC.PA, NRDB.CO
+    expect(by.Energy.count).toBe(3) // ENGA.OL is on two lists but counted once
+    expect(by.Industrials.share).toBeCloseTo(0.3675, 3) // the one Industrials holding
+    expect(by.Energy.share).toBe(0)
+    expect(cards[0].share).toBe(0) // sectors with nothing in the portfolio come first
+  })
+
+  it('leaves inconsistent forward P/E out of the median', () => {
+    const rows = [10, 20, 400, -5].map((fwd_pe, i) => ({ ticker: `X${i}`, sector: 'S', fwd_pe, lists: ['l'] }))
+    const d = { holdings: { positions: [], etfs: [] }, leaderboard: { lists: [{ key: 'l', rows }] } } as unknown as Data
+    expect(sectorCards(d)[0].medianFwdPe).toBe(15) // 400 and -5 are not used
+  })
+})
+
+describe('candidatesOf', () => {
+  it('lists every share once with all its lists, then the ETFs', () => {
+    const c = candidatesOf({ holdings, leaderboard } as unknown as Data)
+    const enga = c.filter((x) => x.ticker === 'ENGA.OL')
+    expect(enga).toHaveLength(1)
+    expect(enga[0].origin).toContain('European energy')
+    expect(enga[0].origin).toContain('Nordic energy')
+    expect(c.filter((x) => x.kind === 'ETF').map((x) => x.ticker).sort()).toEqual(['DEMETF.DE', 'DEMETG.DE'])
+    expect(c.find((x) => x.ticker === 'DEMETG.DE')?.pe).toBeNull()
   })
 })

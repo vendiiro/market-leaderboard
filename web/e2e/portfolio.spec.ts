@@ -42,7 +42,7 @@ test.describe('portfolio behaviour', () => {
 
   test('lists every demo position, with the unpriced one left out of the weights', async ({ page }) => {
     await open(page)
-    const rows = page.locator('.pf-table tbody tr:not(.detail)')
+    const rows = page.locator('[aria-labelledby="holdings-h"] .pf-table tbody tr:not(.detail)')
     await expect(rows).toHaveCount(5)
     const unpriced = rows.filter({ hasText: 'Demo Delisted' })
     await expect(unpriced).toContainText('no price')
@@ -52,7 +52,7 @@ test.describe('portfolio behaviour', () => {
   test('a row opens its details and the research panel link for a share in the universe', async ({ page }) => {
     await open(page)
     await page.getByRole('button', { name: /Demo Chips/ }).click()
-    const detail = page.locator('.pf-table tr.detail')
+    const detail = page.locator('[aria-labelledby="holdings-h"] .pf-table tr.detail')
     await expect(detail).toContainText('Cost')
     await detail.getByRole('link', { name: 'Open research panel' }).click()
     await expect(page.getByRole('complementary', { name: /Research: Demo Chips/ })).toBeVisible()
@@ -60,10 +60,11 @@ test.describe('portfolio behaviour', () => {
     await expect(page.getByRole('complementary')).toHaveCount(0)
   })
 
-  test('more columns adds price, units and cost', async ({ page }) => {
+  test('the View menu adds price, units and cost', async ({ page }) => {
     await open(page)
     await expect(page.getByRole('columnheader', { name: 'Units' })).toHaveCount(0)
-    await page.getByRole('button', { name: 'More columns' }).click()
+    await page.getByRole('button', { name: /View/ }).click()
+    await page.getByLabel('Extra columns (price, units, cost)').check()
     await expect(page.getByRole('columnheader', { name: 'Units' })).toBeVisible()
   })
 

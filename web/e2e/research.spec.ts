@@ -49,8 +49,8 @@ test.describe('candidates', () => {
 
   test('a filter narrows the cards and lives in the address', async ({ page }) => {
     await open(page, '#/candidates')
-    await page.getByLabel('Watchlist').selectOption('us_big_tech')
-    expect(page.url()).toContain('list=us_big_tech')
+    await page.getByLabel('Watchlist').selectOption('nordic_energy')
+    expect(page.url()).toContain('list=nordic_energy')
     await expect(page.getByText('No candidate matches these filters')).toBeVisible()
     await page.getByLabel('Watchlist').selectOption('')
     await expect(page.locator('article.cand')).toHaveCount(2)
