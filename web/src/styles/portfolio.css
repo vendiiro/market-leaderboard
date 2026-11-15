@@ -81,3 +81,5 @@
   .bi-amount{grid-template-columns:minmax(0,1fr) 5.5em auto}
 }
 @media (prefers-reduced-motion:no-preference){.sheet{animation:sheetin .22s ease-out}@keyframes sheetin{from{transform:translateY(100%)}}}
+
+.btn.small{white-space:nowrap}

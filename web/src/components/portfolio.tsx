@@ -66,7 +66,7 @@ function HoldingDetails({ p, data, route }: { p: Position; data: Data; route: Ro
         <div><dt>Cost</dt><dd className="num">{money(p.cost_eur)}{p.cost_approx ? ' (approximate)' : ''}</dd></div>
         <div><dt>Result</dt><dd className={`num ${direction(p.result_eur)}`}>{p.result_eur == null ? DASH : `${eur(p.result_eur, 0, true)} €`}</dd></div>
         <div><dt>Return</dt><dd><Pct value={p.return_local} /></dd></div>
-        <div><dt>Group</dt><dd>{groupLabel(p)}{p.sector ? ` · ${p.sector}` : ''}</dd></div>
+        <div><dt>Group</dt><dd>{groupLabel(p)}{p.sector && p.sector.toLowerCase() !== groupLabel(p).toLowerCase() ? ` · ${p.sector}` : ''}</dd></div>
         {p.note && <div><dt>Note</dt><dd>{p.note}</dd></div>}
         {!p.has_risk && p.value_eur != null && <div><dt>Risk data</dt><dd>none: left out of volatility</dd></div>}
       </dl>

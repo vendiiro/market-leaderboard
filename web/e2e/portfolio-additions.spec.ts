@@ -110,6 +110,7 @@ test.describe('phone', () => {
     const sheet = page.getByRole('dialog', { name: /Demo Chips: details/ })
     await expect(sheet).toBeVisible()
     await expect(sheet).toContainText('Units')
+    await page.waitForTimeout(400) // let the slide-in finish
     await page.screenshot({ path: 'e2e/shots/portfolio-sheet-phone-light.png' })
     await page.keyboard.press('Escape')
     await expect(sheet).toHaveCount(0)
