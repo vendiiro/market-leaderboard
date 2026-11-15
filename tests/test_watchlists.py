@@ -132,3 +132,44 @@ def test_wikidata_rows_become_yahoo_tickers_and_ended_listings_are_skipped():
             {"itemLabel": {"value": "Gone"}, "ticker": {"value": "GONE"}, "end": {"value": "2020-01-01"}},
             {"itemLabel": {"value": "Spaced"}, "ticker": {"value": "ab c"}}, {"itemLabel": {"value": "No ticker"}}]
     assert _script().wikidata_lines(rows) == {"HUH1V.HE": "Huhtamäki", "AB-C.HE": "Spaced"}
+
+
+# ---- ETF lists and entry groups (portfolio page) ------------------------------------------------------------
+
+MIXED = """
+[a]
+name = "Shares"
+[a.tickers]
+X = "Plain"
+Y = { name = "Tagged", group = "technology" }
+
+[b]
+name = "Funds"
+kind = "etf"
+[b.tickers]
+"ZZ.DE" = { name = "Index fund", group = "technology" }
+"WW.DE" = "Other fund"
+"""
+
+
+def test_read_defaults_kind_to_stock_and_accepts_inline_tables(tmp_path):
+    cfg = read(write(tmp_path, MIXED))
+    assert cfg["a"]["kind"] == "stock" and cfg["b"]["kind"] == "etf"
+    assert cfg["a"]["tickers"] == {"X": "Plain", "Y": "Tagged"} and cfg["a"]["groups"] == {"Y": "technology"}
+    assert cfg["b"]["groups"] == {"ZZ.DE": "technology"}
+
+
+def test_read_rejects_unknown_kind(tmp_path):
+    with pytest.raises(ValueError, match="kind"):
+        read(write(tmp_path, '[a]\nname = "A"\nkind = "bond"\n[a.tickers]\nX = "Plain"\n'))
+
+
+def test_inline_table_needs_a_name(tmp_path):
+    with pytest.raises(ValueError, match="needs a company name"):
+        read(write(tmp_path, '[a]\nname = "A"\n[a.tickers]\nX = { group = "technology" }\n'))
+
+
+def test_split_by_kind(tmp_path):
+    from engine.watchlists import split_by_kind
+    stock, etf = split_by_kind(read(write(tmp_path, MIXED)))
+    assert list(stock) == ["a"] and list(etf) == ["b"]

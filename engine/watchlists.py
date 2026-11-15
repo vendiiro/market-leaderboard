@@ -11,20 +11,38 @@ from .fx import cap_currency, eur_value
 from .verify import normalize_name
 
 def read(path: Path | str | None = None) -> dict[str, dict]:
-    """{list key: {"name": display name, "tickers": {ticker: company name}}} in file order.
+    """{list key: {"name": display name, "kind": "stock" | "etf", "tickers": {ticker: company name},
+    "groups": {ticker: group tag}}} in file order.
     Every [key] block is a list: adding one needs no code change. The company name is what verification compares
-    with Yahoo's name, so a wrong ticker is caught."""
+    with Yahoo's name, so a wrong ticker is caught. An entry is `TICKER = "name"` or
+    `TICKER = { name = "...", group = "technology" }`; a list marked `kind = "etf"` holds funds, not shares."""
     p = Path(path) if path else CONFIG_DIR / "watchlists.toml"
     raw = tomllib.loads(p.read_text(encoding="utf-8"))
     if not raw:
         raise ValueError(f"{p.name}: no lists")
+    out: dict[str, dict] = {}
     for k, v in raw.items():
         if not isinstance(v, dict) or not v.get("name") or not isinstance(v.get("tickers", {}), dict):
             raise ValueError(f"{p.name} [{k}]: needs a name and a [{k}.tickers] table")
-        for t, company in v.get("tickers", {}).items():
+        kind = v.get("kind", "stock")
+        if kind not in ("stock", "etf"):
+            raise ValueError(f"{p.name} [{k}]: kind must be \"stock\" or \"etf\", got {kind!r}")
+        names, groups = {}, {}
+        for t, entry in v.get("tickers", {}).items():
+            company = entry.get("name") if isinstance(entry, dict) else entry
             if not isinstance(company, str) or not company.strip():
                 raise ValueError(f"{p.name} [{k}]: {t} needs a company name")
-    return {k: {"name": v["name"], "tickers": dict(v.get("tickers", {}))} for k, v in raw.items()}
+            names[t] = company
+            if isinstance(entry, dict) and entry.get("group"):
+                groups[t] = str(entry["group"])
+        out[k] = {"name": v["name"], "kind": kind, "tickers": names, "groups": groups}
+    return out
+
+
+def split_by_kind(cfg: dict[str, dict]) -> tuple[dict[str, dict], dict[str, dict]]:
+    """(stock lists, ETF lists), each with the same shape as `cfg`."""
+    return ({k: v for k, v in cfg.items() if v.get("kind", "stock") == "stock"},
+            {k: v for k, v in cfg.items() if v.get("kind") == "etf"})
 
 
 def load_watchlists(path: Path | str | None = None) -> dict[str, list[str]]:

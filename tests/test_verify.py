@@ -76,3 +76,17 @@ def test_market_cap_is_reported_in_eur():
     assert r["market_cap_eur"] == 100_000_000_000          # 110B USD at 1.1 USD per EUR
     assert classify("SAP.DE", "SAP", {**OK_INFO, "longName": "SAP SE", "currency": "EUR", "marketCap": 15e9})["market_cap_eur"] == 15e9
     assert "under_cap" in classify(info={**OK_INFO, "marketCap": 110e9}, min_cap_eur=200e9)["status"]
+
+
+def test_etf_quote_type_is_accepted_for_etf_kind():
+    r = classify(ticker="DEMETF.DE", name="Demo Index ETF", info={**OK_INFO, "longName": "Demo Index ETF", "quoteType": "ETF", "currency": "EUR"}, kind="etf")
+    assert r["status"] == "ok"
+
+
+def test_equity_is_not_an_etf_for_etf_kind():
+    r = classify(ticker="DEMETF.DE", name="Demo Index ETF", info={**OK_INFO, "longName": "Demo Index ETF", "currency": "EUR"}, kind="etf")
+    assert "not_equity" in r["status"].split(";") and "ETF" in r["detail"]
+
+
+def test_etf_is_not_equity_for_stock_kind():
+    assert "not_equity" in classify(info={**OK_INFO, "quoteType": "ETF"})["status"]
