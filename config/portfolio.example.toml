@@ -12,6 +12,7 @@
 #                   without it the result is shown as approximate
 #   group           optional free-text tag; "technology" feeds the technology-heavy share
 #   value_eur       fund without a Yahoo ticker only: its current value in EUR, edited by hand at each update
+#                   (give cost_eur_total too and the fund gets a result like any other holding)
 #
 # history_csv: optional path to the broker's "daily development" export (Nordnet: UTF-16, tab-separated).
 
@@ -46,6 +47,7 @@ group = "technology"
 name = "Demo Balanced Fund"
 kind = "fund"
 value_eur = 300.0
+cost_eur_total = 280.0
 
 [[holding]]
 ticker = "DEMX.HE"

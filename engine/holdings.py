@@ -121,7 +121,9 @@ def position_rows(h: Holdings, prices: dict[str, pd.Series], currency: dict[str,
     rows = []
     for x in h.holdings:
         if x.ticker is None:                       # a fund without a Yahoo ticker: value typed by hand
-            rows.append(_empty_position(x, f"fund:{x.name}", currency="EUR", value_eur=x.value_eur))
+            cost = x.cost_eur_total
+            rows.append(_empty_position(x, f"fund:{x.name}", currency="EUR", value_eur=x.value_eur, cost_eur=cost,
+                                        result_eur=None if cost is None else x.value_eur - cost))
             continue
         close = prices.get(x.ticker)
         close = close.dropna() if close is not None else None
@@ -148,14 +150,14 @@ def position_rows(h: Holdings, prices: dict[str, pd.Series], currency: dict[str,
 
 
 def totals(positions: list[dict], tech_group: str = "technology") -> dict:
-    """Sums over priced positions. result_complete is False when any non-fund position has no result (for example
-    an unpriced one), because the summed result then leaves it out."""
+    """Sums over priced positions. result_complete is False when any position has no result (an unpriced holding, or a fund
+    typed in by hand without a cost), because the summed result then leaves it out."""
     priced = [p for p in positions if p["value_eur"] is not None]
     total = sum(p["value_eur"] for p in priced)
     w = (lambda p: p["value_eur"] / total) if total > 0 else (lambda p: 0.0)
     results = [p["result_eur"] for p in priced if p["result_eur"] is not None]
     return {"value_eur": total, "result_eur": sum(results) if results else None,
-            "result_complete": all(p["result_eur"] is not None for p in positions if p["kind"] != "fund"),
+            "result_complete": all(p["result_eur"] is not None for p in positions),
             "top3_share": sum(sorted((w(p) for p in priced), reverse=True)[:3]),
             "tech_share": sum(w(p) for p in priced if p["group"] == tech_group),
             "risk_covered": sum(w(p) for p in priced if p["has_risk"]),

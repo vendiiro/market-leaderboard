@@ -46,10 +46,14 @@ def live_inputs(root: Path = ROOT) -> dict:
     from .fetch import fetch_headlines, fetch_indices, fetch_raw_closes, fetch_statements
     from .fx import fetch_fx_to_usd, fx_history_eur
 
+    from .exchanges import exchange_for
+    from .verify import yahoo_info
+
     cfg = watchlists.read(root / "config" / "watchlists.toml")
-    lists = {k: list(v["tickers"]) for k, v in cfg.items()}
+    stock_cfg, etf_cfg = watchlists.split_by_kind(cfg)             # ETF lists are candidates for the portfolio page only
+    lists = {k: list(v["tickers"]) for k, v in stock_cfg.items()}
     member = watchlists.membership(lists)
-    names = {t: n for v in cfg.values() for t, n in v["tickers"].items()}
+    names = {t: n for v in stock_cfg.values() for t, n in v["tickers"].items()}
     with (root / "config" / "watchlists_verified.csv").open(encoding="utf-8", newline="") as fh:
         verified = {r["ticker"]: r for r in csv.DictReader(fh)}
     meta, reasons = {}, {}
@@ -60,14 +64,46 @@ def live_inputs(root: Path = ROOT) -> dict:
         if not v or v["status"] != "ok":
             reasons[t] = "not verified against Yahoo (run scripts/verify_watchlists.py)"
     ok = [t for t in meta if t not in reasons]
-    prices, _ = pull_prices(ok, lambda batch: fetch_prices(batch, period="3y"), reasons=reasons)
+
+    # The owner's holdings and the ETF candidates that are not on a share list ("extras"): priced like any ticker, kept
+    # out of the share views, added to the covariance matrix. An unverified ETF is skipped with a reason.
+    holdings_file = root / "config" / "portfolio.toml"
+    owned = holdings.read_holdings(holdings_file) if holdings_file.exists() else None
+    extra: dict[str, dict] = {}
+    for key, v in etf_cfg.items():
+        for t, name in v["tickers"].items():
+            row = verified.get(t)
+            if not row or row["status"] != "ok":
+                reasons[t] = "not verified against Yahoo (run scripts/verify_watchlists.py)"
+                continue
+            extra.setdefault(t, {"name": name, "lists": [], "currency": row.get("currency") or None, "sector": None, "country": None})["lists"].append(key)
+    for x in (owned.holdings if owned else []):
+        if x.ticker and x.ticker not in meta and x.ticker not in extra:
+            info = yahoo_info(x.ticker) or {}
+            ex = exchange_for(x.ticker)
+            extra[x.ticker] = {"name": x.name, "lists": [], "currency": info.get("currency") or (ex.currency if ex else None),
+                               "sector": info.get("sector") or None, "country": info.get("country") or None}
+    priced = ok + [t for t in extra if t not in ok]
+    prices, _ = pull_prices(priced, lambda batch: fetch_prices(batch, period="3y"), reasons=reasons)
     fund = fetch_fundamentals(ok, root / "data" / "fundamentals.json")
-    ccys = {meta[t]["currency"] for t in ok} | {f.get("financialCurrency") for f in fund.values()} - {None}
+    ccys = ({meta[t]["currency"] for t in ok} | {m["currency"] for m in extra.values()}
+            | {f.get("financialCurrency") for f in fund.values()}) - {None}
     start = str(date.today() - timedelta(days=6 * 366))      # year-end P/Es need rates back to the oldest statement
-    return {"cfg": cfg, "meta": meta, "prices": {t: prices[t] for t in ok if t in prices}, "fund": fund,
+
+    points, history_note = None, None
+    if owned and owned.history_csv:
+        try:
+            points = history.read_nordnet_csv(owned.history_csv)
+        except ValueError as e:                              # a bad history file never fails the build
+            history_note = str(e)
+            print(f"warning: {e}")
+    elif owned:
+        history_note = "history_csv is not set in config/portfolio.toml"
+    return {"cfg": cfg, "meta": meta, "prices": {t: prices[t] for t in priced if t in prices}, "fund": fund,
             "rates_usd": fetch_fx_to_usd(ccys | {"EUR"}), "fx": fx_history_eur(ccys, start), "reasons": reasons,
             "statements": fetch_statements(ok, root / "data" / "statements.json"), "raw_closes": fetch_raw_closes(ok),
-            "indices": fetch_indices(["^GSPC", "^STOXX"]), "headlines": fetch_headlines}
+            "indices": fetch_indices(["^GSPC", "^STOXX"]), "headlines": fetch_headlines,
+            "extra": extra, "holdings": owned, "history": points, "history_note": history_note}
 
 
 def compute(inp: dict, settings: Settings, asof: date | None = None, built_at: str | None = None,

@@ -178,3 +178,18 @@ def test_reference_baskets_are_self_consistent():
     # one risky name only: its vol equals its own volatility (AAA 0.30)
     solo = H.evaluate_basket([{"key": "AAA", "ticker": "AAA", "value_eur": 100.0, "group": None}], {}, H._reference_cov(), set())
     assert solo["vol"] == pytest.approx(0.30)
+
+
+def test_fund_with_manual_value_and_cost_has_a_result():
+    fund = hold(name="Fund", kind="fund", ticker=None, quantity=None, cost_price=None, value_eur=300.0, cost_eur_total=250.0)
+    [r] = rows_for([fund], {}, {}, {})
+    assert r["cost_eur"] == 250.0 and r["cost_approx"] is False and r["result_eur"] == pytest.approx(50.0)
+    assert r["return_local"] is None                                   # no price in a quote currency
+    t = H.totals([r])
+    assert t["result_eur"] == pytest.approx(50.0) and t["result_complete"] is True
+
+
+def test_a_fund_without_cost_makes_the_result_incomplete():
+    fund = hold(name="Fund", kind="fund", ticker=None, quantity=None, cost_price=None, value_eur=300.0)
+    [r] = rows_for([fund], {}, {}, {})
+    assert H.totals([r])["result_complete"] is False
