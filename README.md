@@ -17,7 +17,13 @@ Data code is adapted from [dip-dashboard](https://github.com/vendiiro/dip-dashbo
 
 ## Views
 
-- **Candidates** (landing page): tonight's shortlist as cards, each with its P/E against its own past, the case
+- **Portfolio** (landing page): your own holdings (value, result, weights, a history chart from the broker's weekly
+  export), sector cards that show where the dashboard's lists cover ground your portfolio does not, a candidate
+  table of shares and ETFs with correlation to your portfolio, and a research basket: add amounts of new money and
+  see how weights, concentration and volatility would change. Current holdings stay as they are. On a phone it
+  has three tabs (Holdings, Additions, Basket) and a bottom sheet for a holding's details. The **View** button
+  chooses what is shown.
+- **Candidates:** tonight's shortlist as cards, each with its P/E against its own past, the case
   for a closer look and what argues against it. Picked by four measures; what has been tested is on the page.
 - **Screener:** every company once in a dense sortable table with valuation figures and filters.
 - **Research panel:** click any company name: measures, reasons for and against, caveats, cheap-or-expensive
@@ -52,6 +58,24 @@ Run the data build every night after the US close:
 ```
 powershell -ExecutionPolicy Bypass -File scripts\install_task.ps1
 ```
+
+## Your portfolio
+
+The Portfolio view reads two private files that stay on your machine. This repository is public, so
+`config/portfolio.toml` is listed in `.gitignore`; never commit it.
+
+1. Copy `config/portfolio.example.toml` to `config/portfolio.toml` and put your holdings in it (the comments in the
+   example explain each key). A fund without a Yahoo ticker takes a hand-typed `value_eur`; give it
+   `cost_eur_total` as well to get a result.
+2. Optional history: set `history_csv` to the broker's "daily development" export (Nordnet: UTF-16, tab-separated). It
+   gives the chart, the return since the first deposit and the largest fall. Without it those items are hidden.
+3. Run `scripts\run_nightly.bat` (or `uv run python -m engine build`). Without `config/portfolio.toml` the page says so.
+
+Values are Yahoo closes converted to EUR and can differ slightly from the broker's report. Volatility and correlation are
+estimates from two years of weekly returns, only for holdings with a Yahoo ticker. Educational, not advice.
+
+ETF candidates live in two lists marked `kind = "etf"` in `config/watchlists.toml`. After adding a ticker run
+`uv run python scripts/verify_watchlists.py`.
 
 The page must be opened through `open_dashboard.bat`: opening `web\dist\index.html` as a file does not work.
 After changing code under `web/`, run `npm --prefix web run build` again; the nightly run only refreshes data.
