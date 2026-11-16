@@ -76,6 +76,18 @@ kind = "etf"
 "IWDA.AS" = "iShares Core MSCI World UCITS ETF USD (Acc)"
 "VWCE.DE" = "Vanguard FTSE All-World UCITS ETF USD Accumulation"
 
+# Broad ETFs for other markets (euro-listed or priced in euros, so the currency rule needs no exception).
+[etf_regions]
+name = "Other regions (ETFs)"
+kind = "etf"
+[etf_regions.tickers]
+"IMEU.AS" = "iShares Core MSCI Europe UCITS ETF EUR (Dist)"
+"SXRT.DE" = "iShares VII PLC - iShares Core EURO STOXX 50 ETF EUR Acc"
+"IJPA.AS" = "iShares Core MSCI Japan IMI UCITS ETF USD (Acc)"
+"SXR1.DE" = "iShares VII PLC - iShares Core MSCI Pac ex-Jpn ETF USD Acc"
+"IS3N.DE" = "iShares Core MSCI EM IMI UCITS ETF USD (Acc)"
+"XCS6.DE" = "Xtrackers MSCI China UCITS ETF 1C"
+
 # Chosen by past return (highest 3-year return among a small pool of well-known UCITS ETFs looked up on 2026-11-16).
 # Backward-looking by construction: the page labels these rows and never uses them to rank or suggest.
 [etf_winners]

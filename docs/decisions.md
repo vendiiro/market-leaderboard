@@ -19,6 +19,12 @@ Calls made while building it, each open to the owner's change:
   VVSM.DE (+195 %), QDVE.DE (+98 %), ISPY.L (+98 %). The pool was not exhaustive and DFNS.L (+122 %) was left out because
   it trades in USD on the London exchange, which the pence rule does not cover. The list is chosen by past return, so it
   is backward-looking and labelled so. Whether Nordnet sells each ETF is not checked here.
+- **`etf_regions` (added 2026-11-16, all `ok` against Yahoo):** IMEU.AS (Europe), SXRT.DE (Euro Stoxx 50), IJPA.AS (Japan),
+  SXR1.DE (Asia Pacific ex-Japan), IS3N.DE (emerging markets), XCS6.DE (China). The MSCI India and China lines on London and
+  Amsterdam (NDIA.L, ICHN.AS) were left out: they trade in USD, which the exchange registry does not allow for those suffixes.
+- **Proxy tickers for broker products:** a holding the owner cannot match to an exact Yahoo listing may be tracked with a
+  general Yahoo ticker of the same index. Its quantity is then "proxy units" (report value divided by the proxy's close on the
+  report date), so the value matches the report on that date and follows the proxy afterwards. The cost stays the broker's.
 - **Result of a hand-valued fund** is value minus `cost_eur_total` when that is given; the page flags the summed result as
   incomplete whenever any holding has none (an unpriced holding, or a fund without a cost).
 - **Yahoo listings of ETFs bought through a broker can differ** from the listing the broker prices (another exchange or share

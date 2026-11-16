@@ -76,7 +76,7 @@ The Portfolio view reads two private files that stay on your machine. This repos
 Values are Yahoo closes converted to EUR and can differ slightly from the broker's report. Volatility and correlation are
 estimates from two years of weekly returns, only for holdings with a Yahoo ticker. Educational, not advice.
 
-ETF candidates live in two lists marked `kind = "etf"` in `config/watchlists.toml`. After adding a ticker run
+ETF candidates live in lists marked `kind = "etf"` in `config/watchlists.toml`. After adding a ticker run
 `uv run python scripts/verify_watchlists.py`.
 
 The page must be opened through `open_dashboard.bat`: opening `web\dist\index.html` as a file does not work.
