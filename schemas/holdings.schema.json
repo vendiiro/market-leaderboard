@@ -61,11 +61,12 @@
     "EtfRow": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ticker", "name", "list", "group", "currency", "price", "ret_1y", "dd52", "vol_1y"],
+      "required": ["ticker", "name", "list", "list_name", "group", "currency", "price", "ret_1y", "dd52", "vol_1y"],
       "properties": {
         "ticker": { "type": "string" },
         "name": { "type": "string" },
         "list": { "type": "string" },
+        "list_name": { "description": "Display name of the ETF list; a list chosen by past return says so in its name.", "type": "string" },
         "group": { "type": ["string", "null"] },
         "currency": { "type": ["string", "null"] },
         "price": { "type": ["number", "null"] },

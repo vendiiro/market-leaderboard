@@ -7,6 +7,8 @@ The accumulated return in percent is time-weighted (deposits do not distort it);
 so the two can disagree in sign. This module uses the percent column only. Weekly points, not daily ones."""
 from __future__ import annotations
 
+import math
+
 from datetime import date
 from pathlib import Path
 
@@ -21,9 +23,12 @@ def _fail(why: str) -> ValueError:
 def _num(text: str, row: int, what: str) -> float:
     t = text.strip().replace("%", "").replace(" ", "").replace(" ", "").replace(",", ".").replace("−", "-")
     try:
-        return float(t)
+        x = float(t)
     except ValueError:
         raise _fail(f"row {row}: {what} {text!r} is not a number") from None
+    if not math.isfinite(x):
+        raise _fail(f"row {row}: {what} {text!r} is not a finite number")
+    return x
 
 
 def read_nordnet_csv(path: Path | str) -> list[dict]:
@@ -38,6 +43,8 @@ def read_nordnet_csv(path: Path | str) -> list[dict]:
     if not raw.startswith(_BOMS):
         raise _fail(f"{p.name} is not UTF-16 (the export has a byte order mark); open the original export, do not re-save it")
     lines = [ln for ln in raw.decode("utf-16").splitlines() if ln.strip()]
+    if not lines:
+        raise _fail(f"{p.name} has no rows")
     if len(lines[0].split("\t")) != COLUMNS:
         raise _fail(f"expected {COLUMNS} tab-separated columns, got {len(lines[0].split(chr(9)))}")
     out = []

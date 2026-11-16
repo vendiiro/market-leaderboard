@@ -33,11 +33,12 @@ export default function Portfolio({ data, route }: { data: Data; route: Route })
 
   if (h.positions.length === 0) {
     return (
-      <State title="No portfolio file found">
+      <State title="No holdings to show">
         <p>
           Copy <code>config/portfolio.example.toml</code> to <code>config/portfolio.toml</code>, put your holdings in it and run the
           data build again. The file is private and ignored by git.
         </p>
+        {h.history_note && <p className="small" role="status">{h.history_note}</p>}
       </State>
     )
   }

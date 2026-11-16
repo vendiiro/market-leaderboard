@@ -41,9 +41,10 @@ def test_etf_rows_are_in_holdings_json_and_not_in_the_share_files(out):
     etfs = {e["ticker"]: e for e in h["etfs"]}
     assert set(etfs) == {"DEMETF.DE", "DEMETG.DE"} and etfs["DEMETF.DE"]["group"] == "technology"
     assert etfs["DEMETF.DE"]["ret_1y"] is not None and etfs["DEMETG.DE"]["vol_1y"] is not None
-    shares = json.dumps([read(out, "leaderboard"), read(out, "research"), read(out, "movers"), read(out, "meta")])
+    shares = json.dumps([read(out, "leaderboard"), read(out, "research"), read(out, "movers")])
     for t in ("DEMETF.DE", "DEMETG.DE", "DEMX.HE"):
         assert t not in shares, t
+    assert "DEMETF.DE" not in json.dumps(read(out, "meta"))                  # ETFs never reach the data page either
     assert [x["key"] for x in read(out, "leaderboard")["lists"]] == list(demo.LISTS)
 
 
@@ -97,3 +98,43 @@ def test_etf_and_holding_prices_do_not_change_the_share_research():
     b = B.compute(bare, load_settings(), date.fromisoformat(demo.END), built_at="x", is_demo=True)
     for stem in ("research", "leaderboard", "movers"):
         assert a[stem] == b[stem], stem
+
+
+# ---- fixes from the final review ----------------------------------------------------------------------------
+
+def test_a_bad_history_file_gives_a_note_never_an_exception(tmp_path):
+    bom_only = tmp_path / "bom.csv"
+    bom_only.write_bytes(b"\xff\xfe")
+    points, note = B.load_history(bom_only)
+    assert points is None and "history" in note
+    points, note = B.load_history(tmp_path / "missing.csv")
+    assert points is None and "history" in note
+
+
+def test_a_bad_holdings_file_gives_a_note_never_an_exception(tmp_path):
+    assert B.load_holdings(tmp_path / "none.toml") == (None, None)               # no file: simply no portfolio
+    bad = tmp_path / "portfolio.toml"
+    bad.write_text('[[holding]]\nticker = "A"\nname = "A"\nkind = "bond"\n', encoding="utf-8")
+    owned, note = B.load_holdings(bad)
+    assert owned is None and "portfolio.toml" in note and "kind" in note
+    broken = tmp_path / "broken.toml"
+    broken.write_text("this is = = not toml", encoding="utf-8")
+    owned, note = B.load_holdings(broken)
+    assert owned is None and "could not be read" in note
+
+
+def test_technology_share_counts_holdings_by_their_tag_only():
+    cov = H._reference_cov()
+    untagged = [{"key": "AAA", "ticker": "AAA", "value_eur": 100.0, "group": None}]
+    assert H.evaluate_basket(untagged, {}, cov, {"AAA"})["tech"] == 0.0            # untagged: not technology-heavy
+    assert H.evaluate_basket(untagged, {"CCC": 100.0}, cov, {"AAA", "CCC"})["tech"] == pytest.approx(0.5)  # new basket ticker: by set
+
+
+def test_etf_rows_carry_the_display_name_of_their_list():
+    rows = H.etf_rows({"x": {"name": "Core", "kind": "etf", "tickers": {"E1": "One"}, "groups": {}}}, {}, {})
+    assert {r["list_name"] for r in rows} == {"Core"}
+
+
+def test_holdings_without_prices_are_reported_as_failures(out):
+    failures = read(out, "meta")["failures"]
+    assert any(f["ticker"] == "DEMX.HE" and "holdings" in f["lists"] for f in failures)

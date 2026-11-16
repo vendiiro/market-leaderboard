@@ -63,7 +63,7 @@ def test_demo_contains_every_state_the_page_must_handle(out):
     meta, lb, mv, pf = (read(out, s) for s in ("meta", "leaderboard", "movers", "portfolio"))
     rows = {(x["key"], r["ticker"]): r for x in lb["lists"] for r in x["rows"]}
     assert meta["demo"] is True and meta["tickers"] == 16 and meta["usable"] == 15
-    assert [f["ticker"] for f in meta["failures"]] == ["FIND.HE"] and "no rows" in meta["failures"][0]["reason"]
+    assert [f["ticker"] for f in meta["failures"]] == ["FIND.HE", "DEMX.HE"] and "no rows" in meta["failures"][0]["reason"]   # DEMX.HE: a holding
     stale = rows[("fi_small", "FINB.HE")]
     assert stale["stale"] and stale["rank"] is None and stale["stale_reason"]
     assert rows[("eu_energy", "ENGA.OL")]["lists"] == ["eu_energy", "nordic_energy"] and ("nordic_energy", "ENGA.OL") in rows

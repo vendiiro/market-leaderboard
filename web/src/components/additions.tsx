@@ -39,7 +39,7 @@ export function CandidateTable({ data, card, basket, onAdd, route }: { data: Dat
   const all = useMemo(() => candidatesOf(data), [data])
   const rows = useMemo(() => {
     const inCard = all.filter((c) => (card === ETF_CARD ? c.kind === 'ETF' : c.kind === 'share' && c.sector === card))
-    return card === ETF_CARD ? sortBy(inCard, (c) => c.ret_1y, 'desc') : sortBy(inCard, (c) => (usablePe(c.fwd_pe) ? c.fwd_pe : null), 'asc')
+    return card === ETF_CARD ? sortBy(inCard, (c) => c.name, 'asc') : sortBy(inCard, (c) => (usablePe(c.fwd_pe) ? c.fwd_pe : null), 'asc')
   }, [all, card])
   const inBasket = new Set(basket.map((b) => b.ticker))
   const held = new Set(data.holdings.positions.map((p) => p.ticker))
@@ -93,6 +93,11 @@ export function CandidateTable({ data, card, basket, onAdd, route }: { data: Dat
   )
 }
 
+function corrText(ticker: string, data: Data): string {
+  const c = corrToPortfolio(ticker, data.holdings, data.portfolio)
+  return c.value == null ? `correlation: ${DASH} (${c.reason})` : `correlation ${c.value.toFixed(2).replace('-', '−')}`
+}
+
 export const newItem = (ticker: string): BasketItem => ({ ticker, amountEur: DEFAULT_AMOUNT })
 
 export function BasketPanel({ data, basket, setBasket }: { data: Data; basket: BasketItem[]; setBasket: (b: BasketItem[]) => void }) {
@@ -133,6 +138,7 @@ export function BasketPanel({ data, basket, setBasket }: { data: Data; basket: B
                 <li key={b.ticker}>
                   <div className="bi-head">
                     <b>{names.get(b.ticker) ?? b.ticker}</b>
+                    <span className="small muted bi-corr">{corrText(b.ticker, data)}</span>
                     <button type="button" className="btn icon" aria-label={`Remove ${names.get(b.ticker) ?? b.ticker}`} onClick={() => setBasket(basket.filter((x) => x.ticker !== b.ticker))}>×</button>
                   </div>
                   <div className="bi-amount">

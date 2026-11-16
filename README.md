@@ -69,6 +69,8 @@ The Portfolio view reads two private files that stay on your machine. This repos
    `cost_eur_total` as well to get a result.
 2. Optional history: set `history_csv` to the broker's "daily development" export (Nordnet: UTF-16, tab-separated). It
    gives the chart, the return since the first deposit and the largest fall. Without it those items are hidden.
+   The export holds your account values: keep it outside this folder, under `data/`, or name it `*.private.csv` in `config/`
+   (all of those are ignored by git).
 3. Run `scripts\run_nightly.bat` (or `uv run python -m engine build`). Without `config/portfolio.toml` the page says so.
 
 Values are Yahoo closes converted to EUR and can differ slightly from the broker's report. Volatility and correlation are

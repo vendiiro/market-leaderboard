@@ -23,6 +23,7 @@ export interface Evaluation {
 export function evaluate(h: Holdings, basket: BasketItem[], portfolio: Portfolio, techTickers: ReadonlySet<string>): Evaluation {
   const values = new Map<string, number>()
   const info = new Map<string, { ticker: string | null; group: string | null }>()
+  const added = new Set<string>() // basket tickers that are not holdings: tagged through the technology set
   for (const p of h.positions) {
     if (p.value_eur == null) continue
     values.set(p.key, p.value_eur)
@@ -37,7 +38,10 @@ export function evaluate(h: Holdings, basket: BasketItem[], portfolio: Portfolio
       ignored.push({ ticker: b.ticker, reason: 'no data for this ticker tonight' })
     } else {
       values.set(b.ticker, (values.get(b.ticker) ?? 0) + b.amountEur)
-      if (!info.has(b.ticker)) info.set(b.ticker, { ticker: b.ticker, group: null })
+      if (!info.has(b.ticker)) {
+        info.set(b.ticker, { ticker: b.ticker, group: null })
+        added.add(b.ticker)
+      }
     }
   }
   const total = [...values.values()].reduce((s, v) => s + v, 0)
@@ -48,7 +52,8 @@ export function evaluate(h: Holdings, basket: BasketItem[], portfolio: Portfolio
   const top3 = Object.values(weights).sort((a, b) => b - a).slice(0, 3).reduce((s, w) => s + w, 0)
   const tech = [...values].reduce((s, [k, v]) => {
     const i = info.get(k)!
-    return i.group === 'technology' || (i.ticker != null && techTickers.has(i.ticker)) ? s + v / total : s
+    // a holding counts by its own tag only; a new basket ticker counts when it is in the technology set
+    return i.group === 'technology' || (added.has(k) && i.ticker != null && techTickers.has(i.ticker)) ? s + v / total : s
   }, 0)
 
   const risky = new Set(portfolio.risk_tickers)

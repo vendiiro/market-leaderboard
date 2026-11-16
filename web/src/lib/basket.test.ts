@@ -82,6 +82,14 @@ describe('evaluate edge cases', () => {
     expect(e.vol).toBeNull()
   })
 
+  it('counts a holding by its own tag only: an untagged holding in the technology set is not technology-heavy', () => {
+    const untagged = holdings([{ key: 'AAA', ticker: 'AAA', value_eur: 100, group: null }])
+    const set = new Set(['AAA', 'CCC'])
+    expect(evaluate(untagged, [], p, set).tech).toBe(0)
+    expect(evaluate(untagged, [{ ticker: 'CCC', amountEur: 100 }], p, set).tech).toBeCloseTo(0.5, 12) // a new basket ticker counts through the set
+    expect(evaluate(untagged, [{ ticker: 'AAA', amountEur: 100 }], p, set).tech).toBe(0) // more money into an untagged holding stays untagged
+  })
+
   it('counts a basket ticker in the technology share through the tech set, and a tagged holding through its group', () => {
     const e = evaluate(h, [{ ticker: 'CCC', amountEur: 100 }], p, tech)
     expect(e.tech).toBeCloseTo((600 + 100) / 1100, 12) // AAA is tagged technology, CCC is in the set
@@ -136,8 +144,15 @@ describe('basket storage', () => {
     ).toEqual([])
   })
 
-  it('rejects a stored basket with a negative or non-numeric amount', () => {
-    expect(loadBasket({ getItem: () => JSON.stringify([{ ticker: 'AAA', amountEur: -1 }]) })).toEqual([])
-    expect(loadBasket({ getItem: () => JSON.stringify([{ ticker: 'AAA', amountEur: 'lots' }]) })).toEqual([])
+  it('keeps an item whose stored amount is blank, negative or not a number, with the amount set to zero', () => {
+    const stored = JSON.stringify([{ ticker: 'AAA', amountEur: null }, { ticker: 'BBB', amountEur: -1 }, { ticker: 'CCC', amountEur: 'lots' }, { ticker: 'DDD', amountEur: 250 }])
+    expect(loadBasket({ getItem: () => stored })).toEqual([
+      { ticker: 'AAA', amountEur: 0 }, { ticker: 'BBB', amountEur: 0 }, { ticker: 'CCC', amountEur: 0 }, { ticker: 'DDD', amountEur: 250 },
+    ])
+  })
+
+  it('still rejects a stored basket that is not a list of items', () => {
+    expect(loadBasket({ getItem: () => JSON.stringify({ ticker: 'AAA' }) })).toEqual([])
+    expect(loadBasket({ getItem: () => JSON.stringify([{ amountEur: 5 }]) })).toEqual([])
   })
 })

@@ -76,7 +76,7 @@ export function candidatesOf(data: Pick<Data, 'holdings' | 'leaderboard'>): Cand
       else out.set(r.ticker, { ticker: r.ticker, name: r.name, kind: 'share', sector: r.sector ?? null, country: r.country ?? null, origin: l.name, ret_1y: r.ret_1y, dd52: r.dd52, pe: r.pe, fwd_pe: r.fwd_pe, vol_1y: r.vol_1y })
     }
   for (const e of data.holdings.etfs)
-    if (!out.has(e.ticker)) out.set(e.ticker, { ticker: e.ticker, name: e.name, kind: 'ETF', sector: null, country: null, origin: e.list.replace(/_/g, ' '), ret_1y: e.ret_1y, dd52: e.dd52, pe: null, fwd_pe: null, vol_1y: e.vol_1y })
+    if (!out.has(e.ticker)) out.set(e.ticker, { ticker: e.ticker, name: e.name, kind: 'ETF', sector: null, country: null, origin: e.list_name, ret_1y: e.ret_1y, dd52: e.dd52, pe: null, fwd_pe: null, vol_1y: e.vol_1y })
   return [...out.values()]
 }
 

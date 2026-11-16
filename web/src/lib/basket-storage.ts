@@ -11,8 +11,9 @@ export function asBasket(x: unknown): BasketItem[] | null {
   for (const it of x) {
     const { ticker, amountEur } = (it ?? {}) as { ticker?: unknown; amountEur?: unknown }
     if (typeof ticker !== 'string' || !ticker || ticker.length > 20) return null
-    if (typeof amountEur !== 'number' || !Number.isFinite(amountEur) || amountEur < 0) return null
-    out.push({ ticker, amountEur })
+    // a blank (stored as null), negative or non-numeric amount keeps the item with zero, so one bad field never loses the basket
+    const ok = typeof amountEur === 'number' && Number.isFinite(amountEur) && amountEur >= 0
+    out.push({ ticker, amountEur: ok ? amountEur : 0 })
   }
   return out
 }

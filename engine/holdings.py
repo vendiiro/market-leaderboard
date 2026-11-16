@@ -172,7 +172,7 @@ def etf_rows(cfg_etf: dict[str, dict], prices: dict[str, tuple], currency: dict[
             close, volume = prices.get(t, (None, None))
             m = compute_metrics(close, volume) if close is not None else None
             w = windows(close) if m is not None else {}
-            rows.append({"ticker": t, "name": name, "list": key, "group": v.get("groups", {}).get(t),
+            rows.append({"ticker": t, "name": name, "list": key, "list_name": v.get("name", key), "group": v.get("groups", {}).get(t),
                          "currency": currency.get(t), "price": m["price"] if m else None,
                          "ret_1y": w.get("ret_1y"), "dd52": m["dd52"] if m else None, "vol_1y": w.get("vol_1y")})
     return rows
@@ -195,12 +195,16 @@ def evaluate_basket(positions: list[dict], basket: dict[str, float], cov: pd.Dat
     weights renormalised; volCovered is that part's share of total value."""
     values = {p["key"]: p["value_eur"] for p in positions if p["value_eur"] is not None}
     info = {p["key"]: p for p in positions}
+    new = set()                                          # basket tickers that are not holdings: tagged by the set
     for t, amount in basket.items():
         values[t] = values.get(t, 0.0) + amount
-        info.setdefault(t, {"ticker": t, "group": None})
+        if t not in info:
+            info[t] = {"ticker": t, "group": None}
+            new.add(t)
     total = sum(values.values())
     weights = {k: v / total for k, v in values.items()}
-    tech = sum(w for k, w in weights.items() if info[k].get("group") == "technology" or info[k].get("ticker") in tech_tickers)
+    # a holding counts by its own tag only (untagged = not technology-heavy); a new basket ticker by the technology set
+    tech = sum(w for k, w in weights.items() if info[k].get("group") == "technology" or (k in new and info[k]["ticker"] in tech_tickers))
     risky = [k for k in values if info[k].get("ticker") in cov.index]
     out = {"total": total, "weights": weights, "top3": sum(sorted(weights.values(), reverse=True)[:3]), "tech": tech,
            "vol": None, "volCovered": 0.0, "topRisk": None}

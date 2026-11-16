@@ -13,6 +13,7 @@ import csv
 import json
 import math
 import os
+import tomllib
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -38,6 +39,30 @@ NOTES = [
     "Headlines are Yahoo's text, shown as received.",
     "Portfolio values use Yahoo closes converted to EUR and can differ slightly from the broker's report; risk figures are estimates.",
 ]
+
+
+def load_history(path: Path | str) -> tuple[list[dict] | None, str | None]:
+    """(points, None) or (None, note): a bad history file never fails the build."""
+    try:
+        return history.read_nordnet_csv(path), None
+    except Exception as e:                                       # noqa: BLE001 - whatever is wrong with the file, the build goes on
+        note = str(e) if isinstance(e, ValueError) else f"Nordnet history file: could not be read ({type(e).__name__})"
+        print(f"warning: {note}")
+        return None, note
+
+
+def load_holdings(path: Path | str) -> tuple[holdings.Holdings | None, str | None]:
+    """(holdings, None); (None, None) when there is no file; (None, note) when the file cannot be read, so a typo in the
+    private file does not stop the nightly build."""
+    p = Path(path)
+    if not p.exists():
+        return None, None
+    try:
+        return holdings.read_holdings(p), None
+    except (ValueError, tomllib.TOMLDecodeError) as e:
+        note = f"config/portfolio.toml could not be read: {e}"
+        print(f"warning: {note}")
+        return None, note
 
 
 def live_inputs(root: Path = ROOT) -> dict:
@@ -67,8 +92,7 @@ def live_inputs(root: Path = ROOT) -> dict:
 
     # The owner's holdings and the ETF candidates that are not on a share list ("extras"): priced like any ticker, kept
     # out of the share views, added to the covariance matrix. An unverified ETF is skipped with a reason.
-    holdings_file = root / "config" / "portfolio.toml"
-    owned = holdings.read_holdings(holdings_file) if holdings_file.exists() else None
+    owned, holdings_note = load_holdings(root / "config" / "portfolio.toml")
     extra: dict[str, dict] = {}
     for key, v in etf_cfg.items():
         for t, name in v["tickers"].items():
@@ -90,13 +114,9 @@ def live_inputs(root: Path = ROOT) -> dict:
             | {f.get("financialCurrency") for f in fund.values()}) - {None}
     start = str(date.today() - timedelta(days=6 * 366))      # year-end P/Es need rates back to the oldest statement
 
-    points, history_note = None, None
+    points, history_note = None, holdings_note
     if owned and owned.history_csv:
-        try:
-            points = history.read_nordnet_csv(owned.history_csv)
-        except ValueError as e:                              # a bad history file never fails the build
-            history_note = str(e)
-            print(f"warning: {e}")
+        points, history_note = load_history(owned.history_csv)
     elif owned:
         history_note = "history_csv is not set in config/portfolio.toml"
     return {"cfg": cfg, "meta": meta, "prices": {t: prices[t] for t in priced if t in prices}, "fund": fund,
@@ -123,6 +143,10 @@ def compute(inp: dict, settings: Settings, asof: date | None = None, built_at: s
     live = {r["ticker"] for r in rows}
     owned = inp.get("holdings")
     held = {x.ticker for x in owned.holdings if x.ticker} if owned else set()
+    for x in (owned.holdings if owned else []):               # a holding with no usable prices is reported on the data page
+        if x.ticker and x.ticker not in inp["meta"] and not (x.ticker in prices and len(prices[x.ticker][0].dropna()) >= MIN_BARS):
+            failures.append({"ticker": x.ticker, "name": x.name, "lists": ["holdings"],
+                             "reason": inp["reasons"].get(x.ticker, "no price data tonight")})
     # Holdings and ETF candidates that are not on a watchlist ("extras") join the covariance matrix when they have prices.
     extra = {t: m for t, m in (inp.get("extra") or {}).items()
              if t not in inp["meta"] and t in prices and len(prices[t][0].dropna()) >= MIN_BARS}

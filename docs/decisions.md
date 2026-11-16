@@ -21,9 +21,11 @@ Calls made while building it, each open to the owner's change:
   is backward-looking and labelled so. Whether Nordnet sells each ETF is not checked here.
 - **Result of a hand-valued fund** is value minus `cost_eur_total` when that is given; the page flags the summed result as
   incomplete whenever any holding has none (an unpriced holding, or a fund without a cost).
-- **Yahoo listings of ETFs bought through Nordnet often differ** from the listing Nordnet prices (checked on four
-  holdings: the closest listing differed by about 3 %, the others by far more), so such holdings are typed in as funds with a manual value and are left
-  out of the volatility estimate until the exact Yahoo ticker is known. The four US shares matched the report to the cent.
+- **Yahoo listings of ETFs bought through a broker can differ** from the listing the broker prices (another exchange or share
+  class), so a holding whose Yahoo ticker is not certain can be typed in as a fund with a manual value and `cost_eur_total`;
+  it is then left out of the volatility estimate until the exact ticker is known.
+- **Holdings are not matched to Yahoo by name** (the names in the holdings file are the broker's, so a name check would raise
+  false alarms). A holding with no usable prices is shown as "no price tonight" and listed on the data page.
 - **Result and value differ slightly from the broker's report** because Yahoo's latest close can be a day later than the
   report date and the conversion rate is Yahoo's.
 

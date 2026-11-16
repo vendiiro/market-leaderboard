@@ -80,12 +80,30 @@ function HoldingSheet({ p, data, route, onClose }: { p: Position; data: Data; ro
   const grab = useRef<HTMLButtonElement>(null)
   const sheet = useRef<HTMLDivElement>(null)
   const start = useRef<number | null>(null)
+  const opener = useRef<Element | null>(typeof document === 'undefined' ? null : document.activeElement)
+  const close = useRef(onClose)
+  close.current = onClose // the effect below runs once; it always calls the latest onClose
   useEffect(() => {
+    const from = opener.current
     grab.current?.focus()
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') return close.current()
+      if (e.key !== 'Tab' || !sheet.current) return
+      // keep Tab inside the dialog: it is modal, so the page behind it must not take focus
+      const items = [...sheet.current.querySelectorAll<HTMLElement>('button, a[href], input, [tabindex]:not([tabindex="-1"])')]
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      const at = document.activeElement
+      if (e.shiftKey && (at === first || !sheet.current.contains(at))) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && (at === last || !sheet.current.contains(at))) { e.preventDefault(); first.focus() }
+    }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      if (from instanceof HTMLElement) from.focus() // back to the row that opened the sheet
+    }
+  }, [])
   const down = (e: PointerEvent) => { start.current = e.clientY }
   const move = (e: PointerEvent) => {
     if (start.current != null && sheet.current) sheet.current.style.transform = `translateY(${Math.max(0, e.clientY - start.current)}px)`

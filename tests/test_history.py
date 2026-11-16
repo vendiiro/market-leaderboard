@@ -67,3 +67,18 @@ def test_bad_files(tmp_path, make):
         p = write(tmp_path, [row.replace("-10,00%", "abc")])
     with pytest.raises(ValueError, match="history"):
         Hi.read_nordnet_csv(p)
+
+
+def test_bom_only_and_blank_files_are_history_errors(tmp_path):
+    for name, raw in (("bom", b"\xff\xfe"), ("blank", "\n\n\n".encode("utf-16"))):
+        p = tmp_path / f"{name}.csv"
+        p.write_bytes(raw)
+        with pytest.raises(ValueError, match="history"):
+            Hi.read_nordnet_csv(p)
+
+
+@pytest.mark.parametrize("bad", ["nan", "inf", "-inf"])
+def test_non_finite_numbers_are_history_errors(tmp_path, bad):
+    p = write(tmp_path, [f"2025-04-04\t1000,50\t-1,25%\t{bad}\t-12,50\t-111,00\t1111,00"])
+    with pytest.raises(ValueError, match="history"):
+        Hi.read_nordnet_csv(p)

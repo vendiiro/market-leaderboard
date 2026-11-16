@@ -76,6 +76,10 @@ export interface EtfRow {
   ticker: string;
   name: string;
   list: string;
+  /**
+   * Display name of the ETF list; a list chosen by past return says so in its name.
+   */
+  list_name: string;
   group: string | null;
   currency: string | null;
   price: number | null;

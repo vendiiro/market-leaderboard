@@ -65,6 +65,35 @@ test.describe('desktop additions', () => {
     await noBadText(page)
   })
 
+  test('ETF rows name their list and are not ranked by past return', async ({ page }) => {
+    await open(page)
+    await page.getByRole('button', { name: /^ETFs/ }).click()
+    const rows = page.locator('.pf-cands tbody tr')
+    await expect(rows.first()).toContainText('Demo Growth ETF') // alphabetical, whatever the returns are
+    await expect(rows.first()).toContainText('Core ETFs') // the list's display name is the label
+  })
+
+  test('each basket item shows its correlation to the portfolio, or why there is none', async ({ page }) => {
+    await open(page)
+    await page.getByRole('button', { name: /^Energy/ }).click()
+    await page.getByRole('button', { name: 'Add Demo Offshore to the basket' }).click()
+    await expect(page.locator('.basket-items .bi-corr')).toContainText(/correlation -?−?\d\.\d\d/)
+    await page.getByRole('button', { name: /^ETFs/ }).click()
+    await page.getByRole('button', { name: 'Add Demo Growth ETF to the basket' }).click()
+    await expect(page.locator('.basket-items li', { hasText: 'Demo Growth ETF' }).locator('.bi-corr')).toContainText('weekly returns')
+  })
+
+  test('a blank amount does not lose the basket on reload', async ({ page }) => {
+    await open(page)
+    await page.getByRole('button', { name: /^Energy/ }).click()
+    await page.getByRole('button', { name: 'Add Demo Offshore to the basket' }).click()
+    await page.getByRole('button', { name: 'Add Demo Petroleum to the basket' }).click()
+    await page.getByLabel('Amount in EUR for ENGA.OL').fill('')
+    await page.reload()
+    await expect(page.locator('.basket-items li')).toHaveCount(2)
+    await expect(page.getByLabel('Amount in EUR for ENGA.OL')).toHaveValue('0')
+  })
+
   test('the View menu hides the chart and the groups, and remembers it', async ({ page }) => {
     await open(page)
     await page.getByRole('button', { name: /View/ }).click()
@@ -117,6 +146,21 @@ test.describe('phone', () => {
     await page.getByRole('button', { name: /Demo Chips/ }).click()
     await page.getByRole('button', { name: 'Close details' }).click()
     await expect(sheet).toHaveCount(0)
+  })
+
+  test('the sheet keeps Tab inside and gives focus back to the row', async ({ page }) => {
+    await open(page)
+    const row = page.getByRole('button', { name: /Demo Chips/ })
+    await row.click()
+    const sheet = page.getByRole('dialog', { name: /Demo Chips: details/ })
+    await expect(sheet).toBeVisible()
+    for (let i = 0; i < 4; i++) {
+      await page.keyboard.press('Tab')
+      expect(await page.evaluate(() => !!document.activeElement?.closest('[role=dialog]'))).toBe(true)
+    }
+    await page.keyboard.press('Escape')
+    await expect(sheet).toHaveCount(0)
+    await expect(row).toBeFocused()
   })
 
   test('the additions tab fits the screen', async ({ page }) => {
