@@ -30,6 +30,7 @@ def main() -> int:
     cfg = read()
     lists = {k: list(v["tickers"]) for k, v in cfg.items()}
     names = {t: n for v in cfg.values() for t, n in v["tickers"].items()}
+    kinds = {t: v["kind"] for v in cfg.values() for t in v["tickers"]}      # "etf" lists accept ETF quote types
     member, tickers = membership(lists), all_tickers(lists)
     ccys = {exchange_for(t).currency for t in tickers if exchange_for(t)} | {"EUR"}
     rates = fetch_fx_to_usd(ccys)
@@ -38,7 +39,7 @@ def main() -> int:
     for t in tickers:
         info = yahoo_info(t)
         b = bars.get(t)
-        row = classify_row(t, names[t], info, b if b else ({} if info is not None else None), date.today(), rates=rates)
+        row = classify_row(t, names[t], info, b if b else ({} if info is not None else None), date.today(), rates=rates, kind=kinds[t])
         row.update(lists=";".join(member[t]), name=names[t], sector=(info or {}).get("sector") or "",
                    country=(info or {}).get("country") or "")
         rows.append({c: row.get(c, "") for c in COLUMNS})

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { checked, loadAll, type Data } from './data/load'
+import holdings from './fixtures/holdings.json'
 import leaderboard from './fixtures/leaderboard.json'
 import meta from './fixtures/meta.json'
 import movers from './fixtures/movers.json'
@@ -10,20 +11,21 @@ import { sortBy } from './lib/sort'
 import { treemap } from './lib/treemap'
 import { formatHash, parseHash, withCompany } from './router'
 
-const fixtures = { meta, leaderboard, movers, portfolio, research } as Record<keyof Data, unknown>
+const fixtures = { meta, leaderboard, movers, portfolio, research, holdings } as Record<keyof Data, unknown>
 
 describe('data loading', () => {
-  it('returns the five typed files from the fixtures', async () => {
+  it('returns the six typed files from the fixtures', async () => {
     const data = await loadAll(async (name) => fixtures[name])
     expect(data.meta.demo).toBe(true)
     expect(data.leaderboard.lists.map((l) => l.key)).toEqual(['us_big_tech', 'eu_defence', 'eu_energy', 'nordic_energy', 'fi_small'])
     expect(data.portfolio.cov.length).toBe(data.portfolio.risk_tickers.length)
     expect(data.research.shortlist.length).toBeGreaterThan(0)
+    expect(data.holdings.positions.length).toBeGreaterThan(0)
   })
 
   it('rejects a wrong or missing schema version with a readable message', async () => {
     await expect(loadAll(async (name) => (name === 'movers' ? { ...movers, schema_version: 1 } : fixtures[name]))).rejects.toThrow(
-      /movers\.json has schema version 1, this page needs 2/,
+      /movers\.json has schema version 1, this page needs 3/,
     )
     expect(() => checked('meta', {})).toThrow(/schema version missing/)
     expect(() => checked('meta', null)).toThrow(/schema version missing/)
@@ -74,8 +76,8 @@ describe('router', () => {
   })
 
   it('knows the other routes and rejects unknown ones', () => {
-    expect(parseHash('').view).toBe('candidates')
-    expect(parseHash('#/').view).toBe('candidates')
+    expect(parseHash('').view).toBe('portfolio')
+    expect(parseHash('#/').view).toBe('portfolio')
     expect(parseHash('#/screener?sector=Energy')).toEqual({ view: 'screener', params: { sector: 'Energy' } })
     expect(parseHash('#/list')).toEqual({ view: 'list', id: undefined, params: {} })
     expect(parseHash('#/data').view).toBe('data')
@@ -83,7 +85,9 @@ describe('router', () => {
     expect(parseHash('#/movers?x=1')).toEqual({ view: 'movers', params: { x: '1' } })
     expect(parseHash('#/list/a/b').view).toBe('notfound')
     expect(parseHash('#/nothing/here').view).toBe('notfound')
-    expect(formatHash({ view: 'candidates', params: { period: undefined } })).toBe('#/')
+    expect(formatHash({ view: 'candidates', params: { period: undefined } })).toBe('#/candidates')
+    expect(formatHash({ view: 'portfolio' })).toBe('#/')
+    expect(parseHash('#/candidates').view).toBe('candidates')
     expect(formatHash({ view: 'list' })).toBe('#/list')
   })
 })

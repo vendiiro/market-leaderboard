@@ -5,9 +5,17 @@ row (FINB.HE), a ticker without data (FIND.HE), a ticker on two lists (ENGA.OL),
 risk window (DEFC.PA), a pence-quoted line (DEFB.L, ENGC.L) and a row the dip rule flags (DEMD)."""
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import pandas as pd
 
+from .config import CONFIG_DIR
+from .holdings import read_holdings
+
+EXAMPLE_HOLDINGS = CONFIG_DIR / "portfolio.example.toml"
+# invented ETF candidates: ticker: (name, bars of history); the second lacks the full 104-week risk window
+ETFS = {"DEMETF.DE": ("Demo Index ETF", 800), "DEMETG.DE": ("Demo Growth ETF", 300)}
 END = "2026-11-10"          # a Tuesday
 BARS = 800
 SEED = 20261111
@@ -113,16 +121,35 @@ def inputs() -> dict:
                   "date": "2026-11-03", "days_old": 7}],
     }
 
+    # ---- portfolio page: invented ETF candidates, holdings (config/portfolio.example.toml) and a weekly history ----
+    # Drawn after everything above, so the share data of earlier builds does not change.
+    extra = {}
+    for t, (name, bars) in ETFS.items():
+        daily = 0.07 / 252 + 0.9 * market + rng.normal(0, 0.003, BARS)
+        close = pd.Series(np.round(30 * np.exp(np.cumsum(daily)), 4), index=days).iloc[-bars:]
+        prices[t] = (close, pd.Series(rng.integers(50_000, 90_000, len(close)).astype(float), index=close.index))
+        extra[t] = {"name": name, "lists": ["etf_core"], "currency": "EUR", "sector": None, "country": None}
+    extra["DEMX.HE"] = {"name": "Demo Delisted", "lists": ["holdings"], "currency": "EUR", "sector": None, "country": None}
+    weeks = pd.date_range("2026-06-26", "2026-11-06", freq="W-FRI")
+    points = []
+    for i, d in enumerate(weeks):
+        cum = round(0.006 * i + 0.03 * math.sin(i / 1.7), 4)
+        points.append({"date": str(d.date()), "value": round(1000 * (1 + cum) + 500, 2), "cum": cum, "net_deposits": 1000.0})
+
     member: dict[str, list[str]] = {}
     for key, (_, tickers) in LISTS.items():
         for t in tickers:
             member.setdefault(t, []).append(key)
     return {
-        "cfg": {k: {"name": name, "tickers": {t: STOCKS[t][0] for t in tickers}} for k, (name, tickers) in LISTS.items()},
+        "cfg": {k: {"name": name, "kind": "stock", "tickers": {t: STOCKS[t][0] for t in tickers}, "groups": {}}
+                for k, (name, tickers) in LISTS.items()}
+               | {"etf_core": {"name": "Core ETFs", "kind": "etf", "groups": {"DEMETF.DE": "technology"},
+                               "tickers": {t: n for t, (n, _) in ETFS.items()}}},
         "meta": {t: {"name": s[0], "lists": member[t], "currency": s[3], "sector": s[1], "country": s[2]}
                  for t, s in STOCKS.items()},
         "prices": prices, "fund": fund, "rates_usd": rates_usd, "fx": fx,
-        "reasons": {"FIND.HE": "Yahoo returned no rows for this ticker"},
+        "reasons": {"FIND.HE": "Yahoo returned no rows for this ticker", "DEMX.HE": "Yahoo returned no rows for this ticker"},
+        "extra": extra, "holdings": read_holdings(EXAMPLE_HOLDINGS), "history": points, "history_note": None,
         "statements": statements, "raw_closes": raw_closes, "indices": {"^GSPC": index, "^STOXX": index},
         "headlines": headlines,
     }

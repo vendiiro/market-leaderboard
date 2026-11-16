@@ -60,3 +60,7 @@ Yahoo access (`python -m engine build --demo`); only the live checks in Tasks 2,
   measures with a pre-registered test of the two price-based ones (`docs/backtests/`). Range of outcomes was
   removed by the owner. No new markets were added yet.
 - 2026-11-13: steadiness removed from the shortlist score (`docs/decisions.md`); plan and spec carry a note that the research workstation spec wins. 420 tests pass.
+- 2026-11-16: Portfolio page on branch `portfolio-page` (design and plan in `docs/superpowers/`): landing view with your own
+  holdings from the private `config/portfolio.toml`, sector cards, ETF and share candidates with correlation, a research
+  basket with before and after, phone tabs and a holding sheet. Schema version 3, six data files. ETF lists added and
+  verified. Not pushed yet.

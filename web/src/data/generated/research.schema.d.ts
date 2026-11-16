@@ -13,7 +13,7 @@ export type Rank = number | null;
  * Valuation facts, four measures and the candidate shortlist. Measures are ranks 0-100 within the universe (100 = best). The measures are not shown to work on these companies: see evidence. Sentences are fixed templates filled with facts; headlines are third-party text.
  */
 export interface Research {
-  schema_version: 2;
+  schema_version: 3;
   asof: string;
   /**
    * Tickers of tonight's candidates, best average rank first.

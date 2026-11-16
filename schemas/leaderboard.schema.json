@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "asof", "periods", "lists"],
   "properties": {
-    "schema_version": { "const": 2 },
+    "schema_version": { "const": 3 },
     "asof": { "$ref": "#/$defs/day" },
     "periods": { "type": "array", "items": { "$ref": "#/$defs/period" } },
     "lists": { "type": "array", "items": { "$ref": "#/$defs/watchlist" } }

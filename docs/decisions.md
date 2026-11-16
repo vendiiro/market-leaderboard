@@ -2,6 +2,39 @@
 
 Newest first. Each entry says what was checked, the numbers, and what follows for the code.
 
+## 2026-11-16: Portfolio page (design `docs/superpowers/specs/2026-11-15-portfolio-page-design.md`)
+
+Calls made while building it, each open to the owner's change:
+
+- **ETF lists are marked at list level** (`kind = "etf"` on a `[list]` in `config/watchlists.toml`), with an optional
+  per-entry `group` tag (`TICKER = { name = "...", group = "technology" }`). The spec said "a ticker with
+  `kind`"; every ticker belongs to a list, so the effect is the same. ETF lists never reach Candidates, Screener or
+  Watchlists.
+- **`holdings.json` is a sixth output file; schema version 3** for every file. Holdings and ETF candidates join the
+  covariance matrix of `portfolio.json` (weekly EUR returns, 104 weeks) when they have the full window; the others get a
+  stated reason.
+- **ETF lists checked 2026-11-16 against Yahoo** (all `ok` in `config/watchlists_verified.csv`): `etf_core` holds
+  SXR8.DE (S&P 500), EQQQ.DE (Nasdaq-100), IWDA.AS (MSCI World) and VWCE.DE (FTSE All-World); `etf_winners` holds the three
+  highest 3-year returns of a small pool of well-known UCITS ETFs that Yahoo could price in a supported currency:
+  VVSM.DE (+195 %), QDVE.DE (+98 %), ISPY.L (+98 %). The pool was not exhaustive and DFNS.L (+122 %) was left out because
+  it trades in USD on the London exchange, which the pence rule does not cover. The list is chosen by past return, so it
+  is backward-looking and labelled so. Whether Nordnet sells each ETF is not checked here.
+- **`etf_regions` (added 2026-11-16, all `ok` against Yahoo):** IMEU.AS (Europe), SXRT.DE (Euro Stoxx 50), IJPA.AS (Japan),
+  SXR1.DE (Asia Pacific ex-Japan), IS3N.DE (emerging markets), XCS6.DE (China). The MSCI India and China lines on London and
+  Amsterdam (NDIA.L, ICHN.AS) were left out: they trade in USD, which the exchange registry does not allow for those suffixes.
+- **Proxy tickers for broker products:** a holding the owner cannot match to an exact Yahoo listing may be tracked with a
+  general Yahoo ticker of the same index. Its quantity is then "proxy units" (report value divided by the proxy's close on the
+  report date), so the value matches the report on that date and follows the proxy afterwards. The cost stays the broker's.
+- **Result of a hand-valued fund** is value minus `cost_eur_total` when that is given; the page flags the summed result as
+  incomplete whenever any holding has none (an unpriced holding, or a fund without a cost).
+- **Yahoo listings of ETFs bought through a broker can differ** from the listing the broker prices (another exchange or share
+  class), so a holding whose Yahoo ticker is not certain can be typed in as a fund with a manual value and `cost_eur_total`;
+  it is then left out of the volatility estimate until the exact ticker is known.
+- **Holdings are not matched to Yahoo by name** (the names in the holdings file are the broker's, so a name check would raise
+  false alarms). A holding with no usable prices is shown as "no price tonight" and listed on the data page.
+- **Result and value differ slightly from the broker's report** because Yahoo's latest close can be a day later than the
+  report date and the conversion rate is Yahoo's.
+
 ## 2026-11-13: Steadiness removed from the shortlist score
 
 Pre-registered backtest (`docs/backtests/2026-11-12-measures-result.md`): the top third by steadiness did 18.8 points worse than the bottom third over 252 bars (90 % interval -27.6 to -11.1), "not supported", and the sign is the opposite of what the measure assumes. The owner chose to drop it from the score. `engine/research.py`: `SCORED = (value, quality, trend)`, a score needs 2 of 3 (was 3 of 4), the "why / what argues against" sentences use only those three. Steadiness is still computed and shown as a bar and a Screener column, labelled with the test result. Effect on the demo data: see `web/src/fixtures/research.json`; the live shortlist changes at the next nightly build.
