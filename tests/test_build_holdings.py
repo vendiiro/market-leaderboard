@@ -79,11 +79,27 @@ def test_no_holdings_file_writes_an_empty_holdings_json(tmp_path):
     assert h["positions"] == [] and h["totals"]["value_eur"] == 0.0 and h["history"] is None
 
 
+def assert_close(a, b, path="fixture"):
+    """Equal structure, numbers within 1e-9 (matrix products differ in the last digits between platforms)."""
+    if isinstance(b, dict):
+        assert isinstance(a, dict) and a.keys() == b.keys(), path
+        for k in b:
+            assert_close(a[k], b[k], f"{path}.{k}")
+    elif isinstance(b, list):
+        assert isinstance(a, list) and len(a) == len(b), path
+        for i, (x, y) in enumerate(zip(a, b)):
+            assert_close(x, y, f"{path}[{i}]")
+    elif isinstance(b, float):
+        assert a == pytest.approx(b, rel=1e-9, abs=1e-12), path
+    else:
+        assert a == b, path
+
+
 def test_basket_reference_fixture_is_current():
     """web/src/fixtures/basket_reference.json must equal reference_baskets(); regenerate with
     uv run python -m engine.holdings"""
     fixture = json.loads((ROOT / "web" / "src" / "fixtures" / "basket_reference.json").read_text(encoding="utf-8"))
-    assert fixture == json.loads(json.dumps(H.reference_baskets()))
+    assert_close(fixture, json.loads(json.dumps(H.reference_baskets())))
 
 
 def test_etf_and_holding_prices_do_not_change_the_share_research():
