@@ -73,6 +73,9 @@ The Portfolio view reads two private files that stay on your machine. This repos
    (all of those are ignored by git).
 3. Run `scripts\run_nightly.bat` (or `uv run python -m engine build`). Without `config/portfolio.toml` the page says so.
 
+`scripts\open_dashboard.bat lan` serves the data, holdings included, to every device on your network: use it only on a
+network you trust.
+
 Values are Yahoo closes converted to EUR and can differ slightly from the broker's report. Volatility and correlation are
 estimates from two years of weekly returns, only for holdings with a Yahoo ticker. Educational, not advice.
 
