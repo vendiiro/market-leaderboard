@@ -99,11 +99,11 @@ def main() -> int:
                 c = headlines(t, name, today, "discovery")
             except (OSError, ValueError, ParseError):
                 continue          # a name that cannot be fetched is simply not considered
-            if is_unusual(c["per_week"], c["capped"]) and c["upbeat_week"] >= 2:
+            if is_unusual(c["per_week"], c["capped"]) and c["upbeat_week"] >= 2 and c["upbeat_week"] > c["down_week"]:
                 found.append(c)
             time.sleep(a.pause)
         companies += sorted(found, key=lambda c: c["upbeat_week"], reverse=True)[: a.keep]
-    OUT.write_text(json.dumps({"schema_version": 3, "asof": today.isoformat(), "source": "Google News RSS, Hacker News", "companies": companies, "failed": failed}, ensure_ascii=False, indent=1), encoding="utf-8")
+    OUT.write_text(json.dumps({"schema_version": 4, "asof": today.isoformat(), "source": "Google News RSS, Hacker News", "companies": companies, "failed": failed}, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"news30: {len(companies)} ok, {len(failed)} failed -> {OUT.relative_to(ROOT)}")
     return 0
 

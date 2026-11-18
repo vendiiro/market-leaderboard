@@ -1,0 +1,25 @@
+{
+  "id": "news-tone-2026-11-18",
+  "written": "2026-11-18",
+  "written_before_any_result": true,
+  "question": "Do companies with more upbeat than downbeat headlines in a month do better in the next month, and does counting downbeat stories add anything over counting upbeat ones?",
+  "universe": "Every ticker in config/watchlists.toml as it is today (survivors only).",
+  "formation_months": "24 month-ends, 2023-11 to 2025-10.",
+  "headlines": "Google News RSS per calendar month (after: and before: operators), query: the company name or the ticker without its exchange suffix, plus 'stock'. A story counts only if its title names the company name's first word or the ticker. Tone comes from engine.news.tone with the word lists as committed with this spec; the lists are not changed after the run.",
+  "measures": {
+    "upbeat_share": "Upbeat stories divided by all stories counted in the month (upbeat only: ignores bad news).",
+    "balance": "engine.news.balance(upbeat, downbeat): (upbeat - downbeat) / (upbeat + downbeat). Uses bad news."
+  },
+  "eligibility": "A company counts in a month with at least 4 stories; for balance also at least 2 stories that are upbeat or downbeat.",
+  "outcome": "Price return (adjusted close, local currency) from the last trading day of the month to the last trading day of the next month.",
+  "statistic": "Per formation month: mean outcome of the top third minus the bottom third by the measure. Months with fewer than 12 eligible companies are skipped. Mean of the monthly differences.",
+  "interval": "90 % moving-block bootstrap with blocks of 3 months (engine.evidence.block_interval).",
+  "decision": "A measure is 'supported' only if the whole 90 % interval is above zero. If balance is supported and upbeat_share is not, bad news adds information. If neither is supported, the page says the tone has not been shown to matter. One run per measure; no tuning of word lists, thresholds, months or universe after seeing a result: a changed test needs a new dated spec.",
+  "limits": [
+    "Google's archive per month is a sample of stories, thinner for small and non-US companies and thinner for older months, so counts are not comparable across names or months in absolute terms.",
+    "Today's survivors only: companies that failed or were delisted are missing.",
+    "24 months and about 60 companies: few independent observations.",
+    "Tone is a keyword match on the headline and misses context and irony.",
+    "Headline dates are Google's publication dates; the outcome starts after the month ends, but a story's price effect may already be in the price."
+  ]
+}

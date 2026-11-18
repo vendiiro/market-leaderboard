@@ -1,5 +1,5 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "asof": "2026-11-18",
   "source": "Google News RSS, Hacker News (demo data)",
   "failed": [],
@@ -48,7 +48,10 @@
       ],
       "group": "holding",
       "upbeat": 2,
-      "upbeat_week": 2
+      "upbeat_week": 2,
+      "down": 1,
+      "down_week": 1,
+      "balance": 0.33
     },
     {
       "ticker": "BIGCO",
@@ -73,7 +76,10 @@
       ],
       "group": "holding",
       "upbeat": 1,
-      "upbeat_week": 1
+      "upbeat_week": 1,
+      "down": 0,
+      "down_week": 0,
+      "balance": 1.0
     },
     {
       "ticker": "QUIET",
@@ -90,7 +96,45 @@
       "items": [],
       "group": "holding",
       "upbeat": 0,
-      "upbeat_week": 0
+      "upbeat_week": 0,
+      "down": 0,
+      "down_week": 0,
+      "balance": null
+    },
+    {
+      "group": "holding",
+      "ticker": "SLOWCO",
+      "name": "SlowCo Ltd",
+      "asof": "2026-11-18",
+      "count": 9,
+      "upbeat": 1,
+      "upbeat_week": 0,
+      "down": 4,
+      "down_week": 3,
+      "balance": -0.6,
+      "capped": false,
+      "per_week": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "items": [
+        {
+          "title": "SlowCo cuts its outlook after weak orders",
+          "source": "Example Wire",
+          "url": "https://example.com/slow",
+          "date": "2026-11-16",
+          "tone": "downbeat"
+        },
+        {
+          "title": "SlowCo wins a small contract",
+          "source": "Demo Daily",
+          "url": "https://example.com/slow2",
+          "date": "2026-11-02",
+          "tone": "upbeat"
+        }
+      ]
     },
     {
       "group": "candidate",
@@ -122,7 +166,10 @@
         }
       ],
       "upbeat": 2,
-      "upbeat_week": 2
+      "upbeat_week": 2,
+      "down": 0,
+      "down_week": 0,
+      "balance": 1.0
     },
     {
       "group": "discovery",
@@ -154,7 +201,10 @@
           "date": "2026-11-15",
           "tone": "upbeat"
         }
-      ]
+      ],
+      "down": 1,
+      "down_week": 0,
+      "balance": 0.75
     }
   ]
 }

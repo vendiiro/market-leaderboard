@@ -6,7 +6,7 @@ export type { Company as NewsCompany, Item as NewsItem, News30 } from '../data/g
 
 export function isNews30(x: unknown): x is News30 {
   const n = x as Partial<News30> | null
-  return !!n && n.schema_version === 3 && Array.isArray(n.companies) && Array.isArray(n.failed)
+  return !!n && n.schema_version === 4 && Array.isArray(n.companies) && Array.isArray(n.failed)
 }
 
 export async function loadNews(): Promise<News30 | null> {
@@ -22,3 +22,9 @@ export async function loadNews(): Promise<News30 | null> {
 
 /** The count as shown: a full feed (100 items) is "100+" because the real number is not known. */
 export const countLabel = (c: { count: number; capped: boolean }) => (c.capped ? `${c.count}+` : String(c.count))
+
+/** The balance in words, so the number is never the only carrier. */
+export function balanceWord(b: number | null): string {
+  if (b == null) return 'no upbeat or downbeat story'
+  return b > 0.2 ? 'more upbeat than downbeat' : b < -0.2 ? 'more downbeat than upbeat' : 'about even'
+}

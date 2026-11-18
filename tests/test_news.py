@@ -2,7 +2,7 @@ from datetime import date
 
 import json
 
-from engine.news import feed_url, hn_url, is_unusual, merge_items, parse_hn, parse_rss, summarize_news, tone
+from engine.news import feed_url, hn_url, balance, is_unusual, merge_items, parse_hn, parse_rss, summarize_news, tone
 
 TODAY = date(2026, 11, 18)
 
@@ -117,3 +117,14 @@ def test_unusual_week_needs_a_jump_and_an_unfull_feed():
     assert not is_unusual([1, 2, 3, 9], capped=True)       # full feed: cannot tell
     assert not is_unusual([6, 6, 6, 7], capped=False)       # steady
     assert not is_unusual([0, 0, 0, 4], capped=False)       # too few stories
+
+
+def test_balance_and_downbeat_counts():
+    assert balance(3, 1) == 0.5 and balance(1, 3) == -0.5 and balance(0, 0) is None and balance(2, 0) == 1.0
+    items = [
+        {"title": "Acme shares plunge", "source": "A", "url": None, "date": "2026-11-17"},
+        {"title": "Acme wins new contract", "source": "A", "url": None, "date": "2026-11-16"},
+        {"title": "Acme faces lawsuit", "source": "A", "url": None, "date": "2026-10-25"},
+    ]
+    s = summarize_news(items, "ACME", "Acme Oy", TODAY)
+    assert (s["upbeat"], s["down"], s["down_week"], s["balance"]) == (1, 2, 1, -0.33)

@@ -4,7 +4,7 @@
  * Headlines from the last 30 days for the shares the owner holds, and tonight's research candidates, from Google News RSS and Hacker News (scripts/news30.py). Private (names the holdings) and git-ignored. News flow, not sentiment; headlines are third-party text.
  */
 export interface News30 {
-  schema_version: 3;
+  schema_version: 4;
   asof: string;
   source: string;
   companies: Company[];
@@ -30,6 +30,18 @@ export interface Company {
    * The same, within the last 7 days.
    */
   upbeat_week: number;
+  /**
+   * Stories whose headline matches a downbeat phrase and no upbeat one.
+   */
+  down: number;
+  /**
+   * The same, within the last 7 days.
+   */
+  down_week: number;
+  /**
+   * (upbeat - downbeat) / (upbeat + downbeat); null when neither kind exists.
+   */
+  balance: number | null;
   /**
    * The feed was full (100 items): counts and the weekly split lean to recent days.
    */

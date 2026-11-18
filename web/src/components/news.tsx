@@ -1,7 +1,7 @@
 // Headlines from the last 30 days: your holdings, tonight's research candidates and other names with an unusually upbeat week.
 // News flow only. The tone label is a keyword match on the headline, not tested as a predictor.
 import { useEffect, useState } from 'react'
-import { countLabel, loadNews, type NewsCompany, type News30 } from '../lib/news'
+import { balanceWord, countLabel, loadNews, type NewsCompany, type News30 } from '../lib/news'
 
 function Stories({ list, upbeatOnly }: { list: NewsCompany[]; upbeatOnly: boolean }) {
   return (
@@ -13,8 +13,8 @@ function Stories({ list, upbeatOnly }: { list: NewsCompany[]; upbeatOnly: boolea
             <details>
               <summary>
                 <b>{c.name}</b> <span className="muted small">{c.ticker}</span>{' '}
-                <span className="num">{c.upbeat} of {countLabel(c)} upbeat</span>
-                <span className="muted small"> · {c.upbeat_week} in the last 7 days · stories per week, oldest to newest: <span className="num">{c.per_week.join(' · ')}</span></span>
+                <span className="num">{c.upbeat} upbeat · {c.down} downbeat</span>
+                <span className="muted small"> of {countLabel(c)} stories: {balanceWord(c.balance)} · last 7 days {c.upbeat_week} up, {c.down_week} down · per week, oldest to newest: <span className="num">{c.per_week.join(' · ')}</span></span>
               </summary>
               {items.length === 0 ? (
                 <p className="muted small">{upbeatOnly ? 'No upbeat story among the newest ones. Switch to all stories to see the rest.' : 'No story from the last 30 days named this company.'}</p>

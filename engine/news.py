@@ -37,6 +37,11 @@ def tone(title: str) -> str:
     return "downbeat" if down and not up else "upbeat" if up and not down else "neutral"
 
 
+def balance(up: int, down: int) -> float | None:
+    """(upbeat - downbeat) / (upbeat + downbeat): +1 all upbeat, -1 all downbeat, None when neither kind exists."""
+    return round((up - down) / (up + down), 2) if up + down else None
+
+
 def is_unusual(per_week: list[int], capped: bool, min_recent: int = 5) -> bool:
     """More stories in the last 7 days than twice the weekly average of the three weeks before.
     A full feed (capped) cannot be judged: its weekly split leans to recent days."""
@@ -129,8 +134,11 @@ def summarize_news(items: list[dict], ticker: str, name: str, today: date, top: 
         weeks[WEEKS - 1 - min(age // 7, WEEKS - 1)] += 1
     toned = [{**i, "tone": tone(i["title"])} for i in items]
     upbeat = [i for i in toned if i["tone"] == "upbeat"]
+    down = [i for i in toned if i["tone"] == "downbeat"]
+    recent = lambda xs: sum(1 for i in xs if (today - date.fromisoformat(i["date"])).days < 7)  # noqa: E731
     # The newest `top` upbeat stories first, then the newest others: the page can show either view from one list.
     shown = upbeat[:top] + [i for i in toned if i["tone"] != "upbeat"][: max(0, top - len(upbeat[:top]))]
     return {"group": group, "ticker": ticker, "name": name, "asof": today.isoformat(), "count": len(items), "upbeat": len(upbeat),
-            "upbeat_week": sum(1 for i in upbeat if (today - date.fromisoformat(i["date"])).days < 7),
+            "upbeat_week": recent(upbeat),
+            "down": len(down), "down_week": recent(down), "balance": balance(len(upbeat), len(down)),
             "capped": raw_count >= FEED_CAP, "per_week": weeks, "items": shown}
