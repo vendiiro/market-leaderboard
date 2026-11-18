@@ -1,6 +1,8 @@
 from datetime import date
 
-from engine.news import feed_url, parse_rss, summarize_news
+import json
+
+from engine.news import feed_url, hn_url, merge_items, parse_hn, parse_rss, summarize_news
 
 TODAY = date(2026, 11, 18)
 
@@ -49,3 +51,41 @@ def test_feed_url_uses_name_and_ticker_base():
 def test_capped_flag_marks_a_full_feed():
     assert summarize_news([], "X", "X Oy", TODAY, raw_count=100)["capped"] is True
     assert summarize_news([], "X", "X Oy", TODAY, raw_count=40)["capped"] is False
+
+
+def _ts(day: str) -> int:
+    from datetime import datetime, timezone
+    return int(datetime.fromisoformat(day).replace(tzinfo=timezone.utc).timestamp()) + 3600
+
+
+HN = json.dumps({"hits": [
+    {"title": "Acme open-sources its router", "url": "https://example.com/router", "created_at_i": _ts("2026-11-15"), "objectID": "1"},
+    {"title": "Ask HN: anyone use Acme?", "url": None, "created_at_i": _ts("2026-11-10"), "objectID": "2"},
+    {"title": "Acme open-sources its router", "url": "https://example.com/dup", "created_at_i": _ts("2026-11-15"), "objectID": "3"},
+    {"title": "Acme from long ago", "url": "https://example.com/old", "created_at_i": _ts("2026-09-01"), "objectID": "4"},
+    {"title": "Something else", "url": "https://example.com/x", "created_at_i": _ts("2026-11-16"), "objectID": "5"},
+    {"title": "Acme bad link", "url": "javascript:alert(1)", "created_at_i": _ts("2026-11-12"), "objectID": "6"},
+]})
+
+
+def test_hn_window_dupes_links_and_terms():
+    items = parse_hn(HN, TODAY, terms=("acme",))
+    assert [i["title"] for i in items] == ["Acme open-sources its router", "Acme bad link", "Ask HN: anyone use Acme?"]
+    assert items[0]["source"] == "Hacker News" and items[0]["url"] == "https://example.com/router"
+    assert items[1]["url"] == "https://news.ycombinator.com/item?id=6"      # unsafe link replaced by the HN page
+    assert items[2]["url"] == "https://news.ycombinator.com/item?id=2"      # no own link: the HN page
+
+
+def test_hn_url_filters_to_the_window():
+    u = hn_url("Acme Corp", TODAY)
+    assert "query=Acme%20Corp" in u and "tags=story" in u and "created_at_i%3E" in u
+
+
+def test_merge_keeps_one_entry_per_headline_newest_first():
+    a = [{"title": "Same", "source": "A", "url": None, "date": "2026-11-10"}]
+    b = [{"title": "same", "source": "B", "url": None, "date": "2026-11-10"}, {"title": "New", "source": "B", "url": None, "date": "2026-11-16"}]
+    assert [i["title"] for i in merge_items(a, b)] == ["New", "Same"]
+
+
+def test_summary_carries_its_group():
+    assert summarize_news([], "X", "X Oy", TODAY, group="candidate")["group"] == "candidate"

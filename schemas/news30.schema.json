@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "News30",
-  "description": "Headlines from the last 30 days for the shares the owner holds, from Google News RSS (scripts/news30.py). Private (names the holdings) and git-ignored. News flow, not sentiment; headlines are third-party text.",
+  "description": "Headlines from the last 30 days for the shares the owner holds, and tonight's research candidates, from Google News RSS and Hacker News (scripts/news30.py). Private (names the holdings) and git-ignored. News flow, not sentiment; headlines are third-party text.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "asof", "source", "companies", "failed"],
   "properties": {
-    "schema_version": { "const": 1 },
+    "schema_version": { "const": 2 },
     "asof": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
     "source": { "type": "string" },
     "companies": { "type": "array", "items": { "$ref": "#/$defs/company" } },
@@ -33,8 +33,9 @@
     "company": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ticker", "name", "asof", "count", "capped", "per_week", "items"],
+      "required": ["group", "ticker", "name", "asof", "count", "capped", "per_week", "items"],
       "properties": {
+        "group": { "enum": ["holding", "candidate"], "description": "A share the owner holds, or one of tonight's research candidates." },
         "ticker": { "type": "string" },
         "name": { "type": "string" },
         "asof": { "type": "string" },

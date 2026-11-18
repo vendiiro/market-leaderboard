@@ -47,6 +47,10 @@ test.describe('portfolio headlines', () => {
     await news.getByText('Acme Corp').click()
     await expect(news.getByRole('link', { name: 'Acme opens a second plant in Oulu' })).toBeVisible()
     await expect(news).toContainText('does not say whether')
+    await expect(news.getByRole('heading', { name: 'Research candidates' })).toBeVisible()
+    await news.getByText('NewCo Oyj').click()
+    await expect(news.getByRole('link', { name: 'Show HN: NewCo publishes its sensor design' })).toBeVisible()
+    await expect(news).toContainText('not a recommendation')
   })
 })
 

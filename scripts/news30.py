@@ -1,8 +1,8 @@
-"""Last-30-days headlines for the shares you hold (config/portfolio.toml) or for given tickers.
+"""Last-30-days headlines for the shares you hold (config/portfolio.toml) and for tonight's research candidates.
 
-Writes web/public/data/news30.json (git-ignored: it names your holdings). Source: Google News RSS, no key needed.
-This is news flow (how many headlines, which ones), not sentiment. Usage:
-    uv run python scripts/news30.py [--tickers A,B] [--pause 1.0]"""
+Writes web/public/data/news30.json (git-ignored: it names your holdings). Sources: Google News RSS and the Hacker News
+search (Algolia), both keyless. This is news flow (how many headlines, which ones), not sentiment. Usage:
+    uv run python scripts/news30.py [--tickers A,B] [--no-candidates] [--limit 8] [--pause 1.0]"""
 from __future__ import annotations
 
 import argparse
@@ -17,7 +17,7 @@ from xml.etree.ElementTree import ParseError
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from engine.holdings import read_holdings  # noqa: E402
-from engine.news import feed_url, parse_rss, summarize_news  # noqa: E402
+from engine.news import feed_url, hn_url, merge_items, parse_hn, parse_rss, summarize_news  # noqa: E402
 
 OUT = ROOT / "web" / "public" / "data" / "news30.json"
 UA = "Mozilla/5.0 (compatible; market-leaderboard research tool)"
@@ -28,29 +28,57 @@ def fetch(url: str) -> str:
         return r.read().decode("utf-8", "replace")
 
 
+def headlines(ticker: str, name: str, today: date, group: str) -> dict:
+    """Google News plus Hacker News for one share. One source failing leaves the other; both failing raises."""
+    words = tuple(w for w in [ticker.split(".")[0], name.split()[0]] if len(w) >= 3)
+    lists, raw, errors = [], 0, []
+    try:
+        xml = fetch(feed_url(name, ticker))
+        lists.append(parse_rss(xml, today, terms=words))
+        raw = xml.count("<item>")
+    except (OSError, ParseError) as e:
+        errors.append(e)
+    try:
+        lists.append(parse_hn(fetch(hn_url(name.split()[0], today)), today, terms=words))
+    except (OSError, ValueError) as e:
+        errors.append(e)
+    if len(errors) == 2:
+        raise errors[0]
+    return summarize_news(merge_items(*lists), ticker, name, today, raw_count=raw, group=group)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tickers", help="comma list; default is every holding that has a Yahoo ticker")
+    ap.add_argument("--tickers", help="comma list instead of the holdings")
+    ap.add_argument("--no-candidates", action="store_true", help="skip tonight's research shortlist")
+    ap.add_argument("--limit", type=int, default=8, help="most candidates to fetch")
     ap.add_argument("--pause", type=float, default=1.0, help="seconds between requests")
     a = ap.parse_args()
     if a.tickers:
-        targets = [(t.strip(), t.strip()) for t in a.tickers.split(",") if t.strip()]
+        targets = [(t.strip(), t.strip(), "holding") for t in a.tickers.split(",") if t.strip()]
     else:
         held = read_holdings()
         if held is None:
             print("No config/portfolio.toml: pass --tickers.")
             return 1
-        targets = [(h.ticker, h.name) for h in held.holdings if h.ticker]
-    today, companies, failed = date.today(), [], []
-    for ticker, name in targets:
-        words = tuple(w for w in [ticker.split(".")[0], name.split()[0]] if len(w) >= 3)
+        targets = [(h.ticker, h.name, "holding") for h in held.holdings if h.ticker]
+    if not a.no_candidates and not a.tickers:
+        data_dir = ROOT / "web" / "public" / "data"
         try:
-            xml = fetch(feed_url(name, ticker))
-            companies.append(summarize_news(parse_rss(xml, today, terms=words), ticker, name, today, raw_count=xml.count("<item>")))
-        except (OSError, ParseError) as e:
+            research = json.loads((data_dir / "research.json").read_text(encoding="utf-8"))
+            names = {c["ticker"]: c["name"] for c in research["companies"]}
+            owned = {t for t, _, _ in targets}
+            targets += [(t, names.get(t, t), "candidate") for t in research["shortlist"] if t not in owned][: a.limit]
+        except (OSError, KeyError, ValueError):
+            print("research.json not readable: candidates skipped.")
+    today, companies, failed = date.today(), [], []
+    for ticker, name, group in targets:
+        try:
+            companies.append(headlines(ticker, name, today, group))
+        except (OSError, ValueError, ParseError) as e:
             failed.append({"ticker": ticker, "reason": type(e).__name__})
         time.sleep(a.pause)
-    OUT.write_text(json.dumps({"schema_version": 1, "asof": today.isoformat(), "source": "Google News RSS", "companies": companies, "failed": failed}, ensure_ascii=False, indent=1), encoding="utf-8")
+    OUT.write_text(json.dumps({"schema_version": 2, "asof": today.isoformat(), "source": "Google News RSS, Hacker News", "companies": companies, "failed": failed}, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"news30: {len(companies)} ok, {len(failed)} failed -> {OUT.relative_to(ROOT)}")
     return 0
 

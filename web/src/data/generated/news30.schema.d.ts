@@ -1,10 +1,10 @@
 /* Generated from schemas/ by npm run gen:types. Do not edit. */
 
 /**
- * Headlines from the last 30 days for the shares the owner holds, from Google News RSS (scripts/news30.py). Private (names the holdings) and git-ignored. News flow, not sentiment; headlines are third-party text.
+ * Headlines from the last 30 days for the shares the owner holds, and tonight's research candidates, from Google News RSS and Hacker News (scripts/news30.py). Private (names the holdings) and git-ignored. News flow, not sentiment; headlines are third-party text.
  */
 export interface News30 {
-  schema_version: 1;
+  schema_version: 2;
   asof: string;
   source: string;
   companies: Company[];
@@ -14,6 +14,10 @@ export interface News30 {
   }[];
 }
 export interface Company {
+  /**
+   * A share the owner holds, or one of tonight's research candidates.
+   */
+  group: "holding" | "candidate";
   ticker: string;
   name: string;
   asof: string;
