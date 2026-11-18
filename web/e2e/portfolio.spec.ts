@@ -37,6 +37,19 @@ for (const size of SIZES) {
   }
 }
 
+test.describe('portfolio headlines', () => {
+  test('shows the 30-day headlines with honest counts', async ({ page }) => {
+    await open(page)
+    const news = page.locator('section[aria-labelledby="news-h"]')
+    await expect(news.getByRole('heading', { name: 'Headlines, last 30 days' })).toBeVisible()
+    await expect(news).toContainText('100+ stories')
+    await expect(news).toContainText('0 stories')
+    await news.getByText('Acme Corp').click()
+    await expect(news.getByRole('link', { name: 'Acme opens a second plant in Oulu' })).toBeVisible()
+    await expect(news).toContainText('does not say whether')
+  })
+})
+
 test.describe('portfolio behaviour', () => {
   test.use({ viewport: { width: 1280, height: 900 } })
 

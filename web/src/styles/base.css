@@ -240,3 +240,6 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;color:var(--
 }
 .board.dense .name b{white-space:nowrap}
 .board.dense thead th{position:static}
+.newsflow ul.newslist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
+.newsflow summary{cursor:pointer;padding:6px 0}
+.newsflow ul.news{margin:4px 0 8px}

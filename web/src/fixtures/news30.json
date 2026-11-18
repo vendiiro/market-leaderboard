@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "asof": "2026-11-18",
+  "source": "Google News RSS (demo data)",
+  "failed": [],
+  "companies": [
+    {
+      "ticker": "ACME", "name": "Acme Corp", "asof": "2026-11-18", "count": 14, "capped": false, "per_week": [1, 3, 4, 6],
+      "items": [
+        { "title": "Acme opens a second plant in Oulu", "source": "Example Wire", "url": "https://example.com/acme-plant", "date": "2026-11-17" },
+        { "title": "Acme names a new finance chief", "source": "Demo Daily", "url": "https://example.com/acme-cfo", "date": "2026-11-14" },
+        { "title": "Acme reports quarterly figures", "source": "Example Wire", "url": null, "date": "2026-11-06" }
+      ]
+    },
+    {
+      "ticker": "BIGCO", "name": "BigCo Inc", "asof": "2026-11-18", "count": 100, "capped": true, "per_week": [0, 2, 18, 80],
+      "items": [{ "title": "BigCo launches a new product line", "source": "Demo Daily", "url": "https://example.com/bigco", "date": "2026-11-18" }]
+    },
+    { "ticker": "QUIET", "name": "Quiet Fund", "asof": "2026-11-18", "count": 0, "capped": false, "per_week": [0, 0, 0, 0], "items": [] }
+  ]
+}
