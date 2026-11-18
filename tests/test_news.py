@@ -2,7 +2,7 @@ from datetime import date
 
 import json
 
-from engine.news import feed_url, hn_url, merge_items, parse_hn, parse_rss, summarize_news
+from engine.news import feed_url, hn_url, is_unusual, merge_items, parse_hn, parse_rss, summarize_news, tone
 
 TODAY = date(2026, 11, 18)
 
@@ -89,3 +89,31 @@ def test_merge_keeps_one_entry_per_headline_newest_first():
 
 def test_summary_carries_its_group():
     assert summarize_news([], "X", "X Oy", TODAY, group="candidate")["group"] == "candidate"
+
+
+def test_tone_needs_an_upbeat_phrase_and_no_downbeat_one():
+    assert tone("Acme raises guidance after record revenue") == "upbeat"
+    assert tone("Acme to invest 2 billion in a new plant") == "upbeat"
+    assert tone("Acme shares plunge after profit warning") == "downbeat"
+    assert tone("Acme shares surge despite lawsuit") == "neutral"      # both kinds: left out of upbeat on purpose
+    assert tone("Acme names a new finance chief") == "neutral"
+    assert tone("Acmegrowthco annual meeting") == "neutral"            # whole words only
+
+
+def test_summary_counts_upbeat_and_lists_them_first():
+    items = [
+        {"title": "Acme shares plunge", "source": "A", "url": None, "date": "2026-11-17"},
+        {"title": "Acme wins new contract", "source": "A", "url": None, "date": "2026-11-16"},
+        {"title": "Acme CEO interview", "source": "A", "url": None, "date": "2026-11-15"},
+        {"title": "Acme record revenue", "source": "A", "url": None, "date": "2026-10-25"},
+    ]
+    s = summarize_news(items, "ACME", "Acme Oy", TODAY, top=3)
+    assert s["count"] == 4 and s["upbeat"] == 2 and s["upbeat_week"] == 1
+    assert [i["tone"] for i in s["items"]] == ["upbeat", "upbeat", "downbeat"]
+
+
+def test_unusual_week_needs_a_jump_and_an_unfull_feed():
+    assert is_unusual([1, 2, 3, 9], capped=False)
+    assert not is_unusual([1, 2, 3, 9], capped=True)       # full feed: cannot tell
+    assert not is_unusual([6, 6, 6, 7], capped=False)       # steady
+    assert not is_unusual([0, 0, 0, 4], capped=False)       # too few stories

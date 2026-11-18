@@ -6,7 +6,7 @@ export type { Company as NewsCompany, Item as NewsItem, News30 } from '../data/g
 
 export function isNews30(x: unknown): x is News30 {
   const n = x as Partial<News30> | null
-  return !!n && n.schema_version === 2 && Array.isArray(n.companies) && Array.isArray(n.failed)
+  return !!n && n.schema_version === 3 && Array.isArray(n.companies) && Array.isArray(n.failed)
 }
 
 export async function loadNews(): Promise<News30 | null> {

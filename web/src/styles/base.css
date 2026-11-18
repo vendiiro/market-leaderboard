@@ -243,3 +243,5 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;color:var(--
 .newsflow ul.newslist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
 .newsflow summary{cursor:pointer;padding:6px 0}
 .newsflow ul.news{margin:4px 0 8px}
+.newsflow h3{margin:18px 0 6px}
+.newsflow .newshead{display:grid;gap:10px;margin-bottom:4px}

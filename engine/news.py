@@ -5,6 +5,7 @@ Headlines are third-party text, trimmed and shown as received."""
 from __future__ import annotations
 
 import json
+import re
 import xml.etree.ElementTree as ET
 from datetime import date, datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
@@ -12,6 +13,35 @@ from urllib.parse import quote
 
 MAX_TITLE = 160
 WEEKS = 4
+
+
+# Tone is a keyword match on the headline. It is not tested as a predictor and misses irony and context.
+UPBEAT = re.compile(
+    r"\b(surge[sd]?|soar(s|ed|ing)?|jump(s|ed)?|rall(y|ies|ied)|record (revenue|profit|sales|earnings|high|quarter|order)|all-time high|"
+    r"beat(s)? (estimates|expectations|forecasts)|tops? (estimates|expectations)|raises? (guidance|outlook|forecast|dividend|target)|"
+    r"(upgrade[sd]?|outperform|overweight)|strong (demand|growth|results|outlook|earnings)|boost(s|ed)?|expan(d|ds|sion)|"
+    r"invest(s|ing|ment)?\b.*\b(billion|million|bn|mn)|(billion|million)\b.*\binvest|new (plant|factory|facility|contract|order|deal)|"
+    r"wins? (contract|order|deal)|contract win|partnership|buyback|share repurchase|dividend (hike|increase)|breakthrough|"
+    r"growth|gains?|climbs?|rises?|optimis(m|tic)|bullish|upbeat|profit (rises|jumps|grows))\b",
+    re.I)
+DOWNBEAT = re.compile(
+    r"\b(plunge[sd]?|slump(s|ed)?|tumble[sd]?|crash(es|ed)?|fall(s|en)?|drops?|sinks?|miss(es|ed)? (estimates|expectations)|"
+    r"cuts? (guidance|outlook|forecast|dividend|jobs)|downgrade[sd]?|underperform|warning|warns?|lawsuit|sued|probe|investigation|"
+    r"fraud|recall|layoffs?|job cuts|loss(es)?|declines?|weak(er|ness)?|bearish|short seller|default|bankrupt\w*|fine[sd]?)\b",
+    re.I)
+
+
+def tone(title: str) -> str:
+    """'upbeat' needs an upbeat phrase and no downbeat one; a headline with both is left 'neutral' on purpose."""
+    up, down = bool(UPBEAT.search(title)), bool(DOWNBEAT.search(title))
+    return "downbeat" if down and not up else "upbeat" if up and not down else "neutral"
+
+
+def is_unusual(per_week: list[int], capped: bool, min_recent: int = 5) -> bool:
+    """More stories in the last 7 days than twice the weekly average of the three weeks before.
+    A full feed (capped) cannot be judged: its weekly split leans to recent days."""
+    recent, base = per_week[-1], sum(per_week[:-1]) / 3
+    return not capped and recent >= min_recent and recent >= 2 * max(base, 1)
 
 
 def feed_url(name: str, ticker: str) -> str:
@@ -97,4 +127,10 @@ def summarize_news(items: list[dict], ticker: str, name: str, today: date, top: 
     for i in items:
         age = (today - date.fromisoformat(i["date"])).days
         weeks[WEEKS - 1 - min(age // 7, WEEKS - 1)] += 1
-    return {"group": group, "ticker": ticker, "name": name, "asof": today.isoformat(), "count": len(items), "capped": raw_count >= FEED_CAP, "per_week": weeks, "items": items[:top]}
+    toned = [{**i, "tone": tone(i["title"])} for i in items]
+    upbeat = [i for i in toned if i["tone"] == "upbeat"]
+    # The newest `top` upbeat stories first, then the newest others: the page can show either view from one list.
+    shown = upbeat[:top] + [i for i in toned if i["tone"] != "upbeat"][: max(0, top - len(upbeat[:top]))]
+    return {"group": group, "ticker": ticker, "name": name, "asof": today.isoformat(), "count": len(items), "upbeat": len(upbeat),
+            "upbeat_week": sum(1 for i in upbeat if (today - date.fromisoformat(i["date"])).days < 7),
+            "capped": raw_count >= FEED_CAP, "per_week": weeks, "items": shown}

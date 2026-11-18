@@ -4,7 +4,7 @@
  * Headlines from the last 30 days for the shares the owner holds, and tonight's research candidates, from Google News RSS and Hacker News (scripts/news30.py). Private (names the holdings) and git-ignored. News flow, not sentiment; headlines are third-party text.
  */
 export interface News30 {
-  schema_version: 2;
+  schema_version: 3;
   asof: string;
   source: string;
   companies: Company[];
@@ -15,13 +15,21 @@ export interface News30 {
 }
 export interface Company {
   /**
-   * A share the owner holds, or one of tonight's research candidates.
+   * A share the owner holds, one of tonight's research candidates, or another dashboard name with an unusually upbeat week.
    */
-  group: "holding" | "candidate";
+  group: "holding" | "candidate" | "discovery";
   ticker: string;
   name: string;
   asof: string;
   count: number;
+  /**
+   * Stories whose headline matches an upbeat phrase and no downbeat one. A keyword match, not tested as a predictor.
+   */
+  upbeat: number;
+  /**
+   * The same, within the last 7 days.
+   */
+  upbeat_week: number;
   /**
    * The feed was full (100 items): counts and the weekly split lean to recent days.
    */
@@ -39,5 +47,6 @@ export interface Item {
   title: string;
   source: string;
   url: string | null;
+  tone: "upbeat" | "downbeat" | "neutral";
   date: string;
 }
