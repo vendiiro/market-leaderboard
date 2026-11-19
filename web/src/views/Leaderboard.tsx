@@ -1,11 +1,12 @@
 import { Fragment, useState } from 'react'
 import { asPeriod, Flag, InfoTip, Pct, PeriodPicker, PERIODS, RankChange, Sparkline, State, useMediaQuery } from '../components/bits'
+import { CompanyLink, num } from '../components/research'
 import type { Data, Period, Row } from '../data/load'
 import { DASH, pct } from '../lib/format'
 import { sortBy, type Dir } from '../lib/sort'
 import { formatHash, replaceRoute, type Route } from '../router'
 
-type SortKey = 'rank' | 'name' | `ret_${Period}` | 'dd52' | 'vol_1y' | 'quality' | 'flag'
+type SortKey = 'rank' | 'name' | `ret_${Period}` | 'dd52' | 'vol_1y' | 'pe' | 'fwd_pe' | 'quality' | 'flag'
 
 const quality = (r: Row) => (r.q_scored ? r.q_passed / r.q_scored : null)
 
@@ -19,7 +20,7 @@ function sortValue(r: Row, key: SortKey, period: Period): number | string | null
   }
 }
 
-const SORT_KEYS: SortKey[] = ['rank', 'name', ...PERIODS.map((p) => `ret_${p.key}` as const), 'dd52', 'vol_1y', 'quality', 'flag']
+const SORT_KEYS: SortKey[] = ['rank', 'name', ...PERIODS.map((p) => `ret_${p.key}` as const), 'dd52', 'vol_1y', 'pe', 'fwd_pe', 'quality', 'flag']
 
 export default function Leaderboard({ data, route }: { data: Data; route: Route }) {
   const phone = useMediaQuery('(max-width: 640px)')
@@ -53,7 +54,7 @@ export default function Leaderboard({ data, route }: { data: Data; route: Route 
     </th>
   )
   const selLabel = PERIODS.find((p) => p.key === period)!.label
-  const columns = phone ? 5 : 14
+  const columns = phone ? 5 : 16
 
   return (
     <>
@@ -92,6 +93,8 @@ export default function Leaderboard({ data, route }: { data: Data; route: Route 
                 <InfoTip label="From high"><p>How far the last close is below the highest close of the past 52 weeks.</p></InfoTip>)}
               {th('vol_1y', 'Vol 1y', 'wide',
                 <InfoTip label="Vol 1y"><p>Volatility: how much the daily returns varied over the past year, scaled to a year. In the stock's own currency.</p></InfoTip>)}
+              {th('pe', 'P/E', 'wide')}
+              {th('fwd_pe', 'Fwd P/E', 'wide')}
               {th('quality', 'Checks', 'wide',
                 <InfoTip label="Checks">
                   <p>How many of the simple fundamentals checks the company passes, out of those that had data (profitability, debt, cash flow, growth, size).</p>
@@ -106,7 +109,7 @@ export default function Leaderboard({ data, route }: { data: Data; route: Route 
               const isOpen = phone && open === r.ticker
               const name = (
                 <>
-                  <b>{r.name}</b>
+                  <b>{phone ? r.name : <CompanyLink c={r} route={route} />}</b>
                   <span>{r.ticker}{r.stale && r.stale_reason ? ` · ${r.stale_reason}` : ''}</span>
                 </>
               )
@@ -126,6 +129,8 @@ export default function Leaderboard({ data, route }: { data: Data; route: Route 
                     ))}
                     <td className="wide"><Pct value={r.dd52} /></td>
                     <td className="wide num">{pct(r.vol_1y, 0, false)}</td>
+                    <td className="wide num">{num(r.pe)}</td>
+                    <td className="wide num">{num(r.fwd_pe)}</td>
                     <td className="wide num">{r.q_scored ? `${r.q_passed}/${r.q_scored}` : DASH}</td>
                     <td className="wide">{r.dip && <Flag reasons={r.dip_reasons} />}</td>
                   </tr>
@@ -139,6 +144,8 @@ export default function Leaderboard({ data, route }: { data: Data; route: Route 
                           <div><dt>From 52-week high</dt><dd><Pct value={r.dd52} /></dd></div>
                           <div><dt>Volatility 1y</dt><dd className="num">{pct(r.vol_1y, 0, false)}</dd></div>
                           <div><dt>Checks passed</dt><dd className="num">{r.q_scored ? `${r.q_passed} of ${r.q_scored}` : DASH}</dd></div>
+                          <div><dt>P/E · forward</dt><dd className="num">{num(r.pe)} · {num(r.fwd_pe)}</dd></div>
+                          <div><dt>Research</dt><dd><CompanyLink c={r} route={route}>Open the full picture</CompanyLink></dd></div>
                           <div><dt>Last price day</dt><dd className="num">{r.last_bar}</dd></div>
                           {r.dip && <div><dt>Flag (untested screen rule)</dt><dd><Flag reasons={r.dip_reasons} /></dd></div>}
                         </dl>

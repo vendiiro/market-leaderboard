@@ -45,7 +45,7 @@ def name_score(csv_name: str, yahoo_name: str | None) -> float:
 
 def classify_row(ticker: str, csv_name: str, info: dict | None, bars: dict | None, today: date, *,
                  rates: dict[str, float], min_cap_eur: float | None = None, min_bars: int = 250,
-                 max_stale: int = 4, name_threshold: float = 0.6) -> dict:
+                 max_stale: int = 4, name_threshold: float = 0.6, kind: str = "stock") -> dict:
     """Pure: build one output row from fetched info and bar summary.
 
     rates: USD per 1 unit of each currency (fx.fetch_fx_to_usd); market cap is reported in EUR.
@@ -70,9 +70,10 @@ def classify_row(ticker: str, csv_name: str, info: dict | None, bars: dict | Non
         row.update(yahoo_long_name=info.get("longName") or info.get("shortName") or "",
                    quote_type=info.get("quoteType") or "", exchange=info.get("exchange") or "",
                    currency=info.get("currency") or "")
-        if row["quote_type"] != "EQUITY":
+        accepted = ("ETF", "MUTUALFUND") if kind == "etf" else ("EQUITY",)
+        if row["quote_type"] not in accepted:
             flags.append("not_equity")
-            notes.append(f"quoteType={row['quote_type'] or 'missing'}")
+            notes.append(f"quoteType={row['quote_type'] or 'missing'}, expected {' or '.join(accepted)}")
         if row["yahoo_long_name"]:
             sc = name_score(csv_name, row["yahoo_long_name"])
             row["name_score"] = sc

@@ -57,6 +57,47 @@ name = "Nordic energy"
 "ORSTED.CO" = "Ørsted"
 "VAR.OL" = "Vår Energi"
 
+[ai_chain]
+name = "AI supply chain"
+[ai_chain.tickers]
+TSM = "Taiwan Semiconductor Manufacturing"
+"ASML.AS" = "ASML Holding"
+MU = "Micron Technology"
+ANET = "Arista Networks"
+VRT = "Vertiv Holdings"
+SNPS = "Synopsys"
+
+[etf_core]
+name = "Core ETFs"
+kind = "etf"
+[etf_core.tickers]
+"SXR8.DE" = "iShares Core S&P 500 UCITS ETF USD (Acc)"
+"EQQQ.DE" = { name = "Invesco EQQQ NASDAQ-100 UCITS ETF", group = "technology" }
+"IWDA.AS" = "iShares Core MSCI World UCITS ETF USD (Acc)"
+"VWCE.DE" = "Vanguard FTSE All-World UCITS ETF USD Accumulation"
+
+# Broad ETFs for other markets (euro-listed or priced in euros, so the currency rule needs no exception).
+[etf_regions]
+name = "Other regions (ETFs)"
+kind = "etf"
+[etf_regions.tickers]
+"IMEU.AS" = "iShares Core MSCI Europe UCITS ETF EUR (Dist)"
+"SXRT.DE" = "iShares VII PLC - iShares Core EURO STOXX 50 ETF EUR Acc"
+"IJPA.AS" = "iShares Core MSCI Japan IMI UCITS ETF USD (Acc)"
+"SXR1.DE" = "iShares VII PLC - iShares Core MSCI Pac ex-Jpn ETF USD Acc"
+"IS3N.DE" = "iShares Core MSCI EM IMI UCITS ETF USD (Acc)"
+"XCS6.DE" = "Xtrackers MSCI China UCITS ETF 1C"
+
+# Chosen by past return (highest 3-year return among a small pool of well-known UCITS ETFs looked up on 2026-11-16).
+# Backward-looking by construction: the page labels these rows and never uses them to rank or suggest.
+[etf_winners]
+name = "Recent winners (chosen by past return)"
+kind = "etf"
+[etf_winners.tickers]
+"VVSM.DE" = { name = "VanEck Semiconductor UCITS ETF", group = "technology" }
+"QDVE.DE" = { name = "iShares S&P 500 Information Technology Sector UCITS ETF USD (Acc)", group = "technology" }
+"ISPY.L" = { name = "L&G Cyber Security UCITS ETF", group = "technology" }
+
 [fi_small]
 name = "Finnish smaller companies"
 [fi_small.tickers]

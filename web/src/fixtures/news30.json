@@ -1,0 +1,210 @@
+{
+  "schema_version": 4,
+  "asof": "2026-11-18",
+  "source": "Google News RSS, Hacker News (demo data)",
+  "failed": [],
+  "companies": [
+    {
+      "ticker": "ACME",
+      "name": "Acme Corp",
+      "asof": "2026-11-18",
+      "count": 15,
+      "capped": false,
+      "per_week": [
+        1,
+        3,
+        4,
+        6
+      ],
+      "items": [
+        {
+          "title": "Acme opens a second plant in Oulu",
+          "source": "Example Wire",
+          "url": "https://example.com/acme-plant",
+          "date": "2026-11-17",
+          "tone": "upbeat"
+        },
+        {
+          "title": "Acme names a new finance chief",
+          "source": "Demo Daily",
+          "url": "https://example.com/acme-cfo",
+          "date": "2026-11-14",
+          "tone": "upbeat"
+        },
+        {
+          "title": "Acme reports quarterly figures",
+          "source": "Example Wire",
+          "url": null,
+          "date": "2026-11-06",
+          "tone": "neutral"
+        },
+        {
+          "title": "Acme shares fall after a production delay",
+          "source": "Demo Daily",
+          "url": "https://example.com/acme-fall",
+          "date": "2026-11-05",
+          "tone": "downbeat"
+        }
+      ],
+      "group": "holding",
+      "upbeat": 2,
+      "upbeat_week": 2,
+      "down": 1,
+      "down_week": 1,
+      "balance": 0.33
+    },
+    {
+      "ticker": "BIGCO",
+      "name": "BigCo Inc",
+      "asof": "2026-11-18",
+      "count": 100,
+      "capped": true,
+      "per_week": [
+        0,
+        2,
+        18,
+        80
+      ],
+      "items": [
+        {
+          "title": "BigCo launches a new product line",
+          "source": "Demo Daily",
+          "url": "https://example.com/bigco",
+          "date": "2026-11-18",
+          "tone": "upbeat"
+        }
+      ],
+      "group": "holding",
+      "upbeat": 1,
+      "upbeat_week": 1,
+      "down": 0,
+      "down_week": 0,
+      "balance": 1.0
+    },
+    {
+      "ticker": "QUIET",
+      "name": "Quiet Fund",
+      "asof": "2026-11-18",
+      "count": 0,
+      "capped": false,
+      "per_week": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "items": [],
+      "group": "holding",
+      "upbeat": 0,
+      "upbeat_week": 0,
+      "down": 0,
+      "down_week": 0,
+      "balance": null
+    },
+    {
+      "group": "holding",
+      "ticker": "SLOWCO",
+      "name": "SlowCo Ltd",
+      "asof": "2026-11-18",
+      "count": 9,
+      "upbeat": 1,
+      "upbeat_week": 0,
+      "down": 4,
+      "down_week": 3,
+      "balance": -0.6,
+      "capped": false,
+      "per_week": [
+        1,
+        2,
+        2,
+        4
+      ],
+      "items": [
+        {
+          "title": "SlowCo cuts its outlook after weak orders",
+          "source": "Example Wire",
+          "url": "https://example.com/slow",
+          "date": "2026-11-16",
+          "tone": "downbeat"
+        },
+        {
+          "title": "SlowCo wins a small contract",
+          "source": "Demo Daily",
+          "url": "https://example.com/slow2",
+          "date": "2026-11-02",
+          "tone": "upbeat"
+        }
+      ]
+    },
+    {
+      "group": "candidate",
+      "ticker": "NEWCO",
+      "name": "NewCo Oyj",
+      "asof": "2026-11-18",
+      "count": 6,
+      "capped": false,
+      "per_week": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "items": [
+        {
+          "title": "NewCo wins a grid contract",
+          "source": "Example Wire",
+          "url": "https://example.com/newco",
+          "date": "2026-11-16",
+          "tone": "upbeat"
+        },
+        {
+          "title": "Show HN: NewCo publishes its sensor design",
+          "source": "Hacker News",
+          "url": "https://news.ycombinator.com/item?id=1",
+          "date": "2026-11-12",
+          "tone": "upbeat"
+        }
+      ],
+      "upbeat": 2,
+      "upbeat_week": 2,
+      "down": 0,
+      "down_week": 0,
+      "balance": 1.0
+    },
+    {
+      "group": "discovery",
+      "ticker": "SPARK",
+      "name": "Spark Energy",
+      "asof": "2026-11-18",
+      "count": 12,
+      "upbeat": 7,
+      "upbeat_week": 6,
+      "capped": false,
+      "per_week": [
+        1,
+        2,
+        1,
+        8
+      ],
+      "items": [
+        {
+          "title": "Spark Energy raises its outlook after record orders",
+          "source": "Example Wire",
+          "url": "https://example.com/spark",
+          "date": "2026-11-17",
+          "tone": "upbeat"
+        },
+        {
+          "title": "Spark Energy to invest 40 million in a new plant",
+          "source": "Demo Daily",
+          "url": "https://example.com/spark2",
+          "date": "2026-11-15",
+          "tone": "upbeat"
+        }
+      ],
+      "down": 1,
+      "down_week": 0,
+      "balance": 0.75
+    }
+  ]
+}

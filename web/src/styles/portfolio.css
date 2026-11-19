@@ -1,0 +1,85 @@
+/* Portfolio view (2026-11-15). Colours and fonts come from tokens.css only. */
+.sechead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px}
+.sechead h2{font-size:1.05rem}
+.pf-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+.pf-side{display:grid;gap:18px;min-width:0}
+.pf-kpis dd.small{margin-top:0;font-size:.72rem;font-weight:400}
+.pf-kpis dd.num{white-space:nowrap}
+.pf-table .rowbtn{min-height:36px}
+.pf-table .rowbtn b{display:block}
+.pf-table .rowbtn span{font-size:.8rem;color:var(--ink-2)}
+.pf-table th.name{max-width:260px}
+.tag{display:inline-block;border:1px solid var(--line-strong);border-radius:4px;padding:0 5px;font-size:.7rem;line-height:1.4;color:var(--ink-2)}
+.wbar{display:inline-block;width:46px;height:8px;background:var(--sunken);border-radius:4px;margin-right:6px;vertical-align:middle;overflow:hidden}
+.wbar i{display:block;height:100%;background:var(--bar);border-radius:4px}
+.cmd{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.cmd [role=status]{position:absolute;margin-top:76px}
+.cmd input{font:400 .9rem var(--f-data);color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px;min-height:40px;width:260px;min-width:0}
+.cmd span[aria-hidden]{font:600 1.1rem var(--f-data);color:var(--accent)}
+.chartbox{padding:10px 12px}
+.linechart{width:100%;height:auto;display:block}
+.linechart .line{stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.linechart .zero{stroke:var(--line-strong);stroke-dasharray:4 4}
+.linechart .lowdot{fill:var(--down)} .linechart .highdot{fill:var(--up)} .linechart .nowdot{fill:var(--accent)}
+.linechart .chartlabel{font:400 12.5px var(--f-data);fill:var(--ink-2)}
+.pf-cap{margin:6px 0 0}
+.tallscroll{max-height:260px;overflow-y:auto}
+.pf-groups{margin-top:0}
+.detail dl div{min-width:0}
+@media (max-width:900px){
+  .pf-grid{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .pf-table .rowbtn{min-height:44px}
+  .pf-table td,.pf-table th{padding:8px 6px}
+  .wbar{width:30px}
+  .cmd{width:100%} .cmd input{flex:1;width:auto}
+}
+
+/* ---- additions, basket, view options, phone sections and the holding sheet ---- */
+.headtools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.viewopts{position:relative}
+.opts{position:absolute;right:0;top:calc(100% + 6px);z-index:8;width:min(280px,86vw);background:var(--surface);border:1px solid var(--line-strong);border-radius:12px;padding:8px 12px;box-shadow:0 8px 24px rgb(0 0 0 / .18);display:grid}
+.opts label{display:flex;align-items:center;gap:10px;min-height:44px}
+.opts input{width:20px;height:20px;accent-color:var(--accent)}
+.pf-adds{margin:22px 0 8px}
+.pf-adds-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+.pf-cands{display:grid;gap:10px;min-width:0}
+.pf-basket{position:sticky;top:64px;min-width:0}
+.gaps{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.gaps button{display:grid;gap:2px;text-align:left;border:1px solid var(--line-strong);background:var(--surface);border-radius:10px;padding:8px 10px;min-height:44px;cursor:pointer}
+.gaps button b{font-weight:600}
+.gaps button span{font-size:.76rem;color:var(--ink-2)}
+.gaps button .zero{color:var(--serious);font-weight:600}
+.gaps button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.basket-items{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:10px}
+.bi-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.bi-amount{display:grid;grid-template-columns:minmax(0,1fr) 6.5em auto;gap:8px;align-items:center}
+.bi-amount input[type="range"]{width:100%;min-height:32px;accent-color:var(--accent)}
+.bi-amount input[type="number"]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:8px 8px;min-height:40px;text-align:right;width:100%}
+.emptybasket{padding:16px 8px}
+.pf-ba{margin-top:12px}
+.pf-ba th,.pf-ba td{padding:7px 8px}
+.badge.count{margin-left:6px;cursor:default;background:var(--accent);color:var(--surface);border-color:transparent;padding:0 7px}
+.pf-tabs{display:flex;position:sticky;top:45px;z-index:4;width:100%;margin-bottom:12px}
+.scrim{position:fixed;inset:0;z-index:19;background:rgb(20 24 33 / .45)}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:20;max-height:80vh;overflow:auto;background:var(--surface);border-top:1px solid var(--line-strong);border-radius:18px 18px 0 0;padding:6px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -8px 28px rgb(0 0 0 / .25);touch-action:pan-y}
+.grab{display:block;margin:4px auto 10px;width:56px;height:20px;border:0;background:none;padding:0;position:relative;cursor:grab;touch-action:none}
+.grab::after{content:"";position:absolute;left:6px;right:6px;top:7px;height:6px;border-radius:3px;background:var(--line-strong)}
+.sheetbody dl{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin:10px 0}
+.sheetbody dt{font-size:.74rem;color:var(--ink-2)} .sheetbody dd{margin:0}
+@media (max-width:900px){
+  .pf-adds-grid{grid-template-columns:1fr}
+  .pf-basket{position:static}
+}
+@media (max-width:640px){
+  .gaps{display:flex;overflow-x:auto;padding-bottom:4px}
+  .gaps button{flex:none;width:190px}
+  .headtools{width:100%;justify-content:space-between}
+  .headtools .cmd{flex:1}
+  .btn.small{min-height:44px}
+  .bi-amount{grid-template-columns:minmax(0,1fr) 5.5em auto}
+}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:sheetin .22s ease-out}@keyframes sheetin{from{transform:translateY(100%)}}}
+
+.btn.small{white-space:nowrap}

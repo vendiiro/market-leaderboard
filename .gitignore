@@ -13,3 +13,8 @@ test-results/
 playwright-report/
 .ruff_cache/
 *.tsbuildinfo
+.superpowers/
+
+# Private holdings and history (repo is public)
+/config/portfolio.toml
+/config/*.private.*

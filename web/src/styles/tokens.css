@@ -1,8 +1,10 @@
-/* Copied from dip-dashboard src/web/tokens.css at commit f14d55c. Colours and fonts come from here only. */
+/* Copied from dip-dashboard src/web/tokens.css at commit f14d55c. Colours and fonts come from here only.
+   Changed in market-leaderboard: the light background, surface, sunken and line colours are a warm paper tone
+   (owner's choice, 2026-11-12). */
 /* Layout: one scanning column. Header, summary tiles, filters, candidate table, context charts, definitions.
    The fonts above are optional: offline the page falls back to system fonts and stays readable. */
 :root{
-  --bg:#f6f7f9; --surface:#ffffff; --sunken:#eef0f4; --line:#dde1e8; --line-strong:#c4cad4;
+  --bg:#f7f4ee; --surface:#fffdf9; --sunken:#f2eee6; --line:#e2dccf; --line-strong:#cfc7b6;
   --ink:#141821; --ink-2:#4a5263; --ink-3:#5d6576;
   --accent:#4a3fb5; --accent-soft:#e9e7f8;
   --up:#2366c9; --down:#c3372f; --down-soft:#f8e3e1; --neutral-bar:#b9c0cc;
@@ -26,5 +28,5 @@
 
 /* Added in market-leaderboard (not in the dip-dashboard source). Bar fill and the two poles of the correlation
    heatmap; each pair passed the dataviz palette check (CVD separation, lightness, chroma) on its own surface. */
-:root{--bar:#4a3fb5; --corr-pos:#4a3fb5; --corr-neg:#008f80}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bar:#8577e0; --corr-pos:#8577e0; --corr-neg:#1fa391}}
+:root{--bar:#4a3fb5; --corr-pos:#4a3fb5; --corr-neg:#008f80; --risk-less:#008f80; --risk-more:#c2571a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bar:#8577e0; --corr-pos:#8577e0; --corr-neg:#1fa391; --risk-less:#1fa391; --risk-more:#d06c33}}
