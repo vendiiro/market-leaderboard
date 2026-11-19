@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { NewsFlow } from '../components/news'
 import { BasketPanel, CandidateTable, GapCards, newItem } from '../components/additions'
 import { State, useMediaQuery } from '../components/bits'
 import { CommandField, DEFAULT_VIEW, GroupBars, HistoryChart, HoldingsTable, KeyStrip, ViewOptions, type ViewOptionsState } from '../components/portfolio'
@@ -82,6 +83,7 @@ export default function Portfolio({ data, route }: { data: Data; route: Route })
               {view.groups && <GroupBars data={data} />}
             </div>
           </div>
+          <NewsFlow />
         </>
       )}
       {(show('additions') || show('basket')) && (

@@ -1,0 +1,124 @@
+{
+ "clusters": [
+  {
+   "engagement_total": 14,
+   "sources": [
+    "hackernews"
+   ],
+   "summary": "Works fine for me just googling “nvda” in the US. Google stock is also hidden Works fine in Sweden.",
+   "title": "Google search hides Nvidia stock graph"
+  },
+  {
+   "engagement_total": 0,
+   "sources": [
+    "grounding"
+   ],
+   "summary": "Find the latest NVIDIA Corporation (NVDA) stock quote, history, news and other vital information to help you with your stock trading and investing.",
+   "title": "NVIDIA Corporation (NVDA) Stock Price, News, Quote & History - Yahoo ..."
+  },
+  {
+   "engagement_total": 0,
+   "sources": [
+    "grounding"
+   ],
+   "summary": "Track the NVDA stock price with the live chart. Read Nvidia news and explore price history, market cap, price targets, trading ideas, and forecasts.",
+   "title": "Nvidia Stock Price Chart — NASDAQ:NVDA — TradingView"
+  },
+  {
+   "engagement_total": 0,
+   "sources": [
+    "grounding"
+   ],
+   "summary": "Stock forecasts and analyst price target predictions for NVIDIA Corporation (NVDA) stock, with detailed revenue and earnings estimates.",
+   "title": "NVIDIA (NVDA) Stock Forecast & Analyst Price Targets"
+  },
+  {
+   "engagement_total": 0,
+   "sources": [
+    "grounding"
+   ],
+   "summary": "Zoom 1m 3m 6m YTD 1y All From To NASD:NVDA",
+   "title": "NVIDIA Corporation - Stock Quote & Chart"
+  },
+  {
+   "engagement_total": 0,
+   "sources": [
+    "grounding"
+   ],
+   "summary": "A detailed overview of NVIDIA Corporation (NVDA) stock, including real-time price, chart, key statistics, news, and more.",
+   "title": "NVIDIA (NVDA) Stock Price & Overview"
+  }
+ ],
+ "freshness_verdicts": [],
+ "generated_at": "2026-11-18T15:26:59.611788Z",
+ "query": "NVDA NVIDIA stock",
+ "results": [
+  {
+   "cluster": 0,
+   "engagement": {
+    "comments": 3,
+    "points": 14
+   },
+   "published_at": "2026-11-13",
+   "relevance_score": 0.4042,
+   "source": "hackernews",
+   "summary": "Works fine for me just googling “nvda” in the US. Google stock is also hidden Works fine in Sweden.",
+   "title": "Google search hides Nvidia stock graph",
+   "url": "https://news.ycombinator.com/item?id=50478730"
+  },
+  {
+   "cluster": 1,
+   "engagement": {},
+   "relevance_score": 0.2822,
+   "source": "grounding",
+   "summary": "Find the latest NVIDIA Corporation (NVDA) stock quote, history, news and other vital information to help you with your stock trading and investing.",
+   "title": "NVIDIA Corporation (NVDA) Stock Price, News, Quote & History - Yahoo ...",
+   "url": "https://finance.yahoo.com/quote/NVDA/"
+  },
+  {
+   "cluster": 4,
+   "engagement": {},
+   "relevance_score": 0.2821,
+   "source": "grounding",
+   "summary": "Zoom 1m 3m 6m YTD 1y All From To NASD:NVDA",
+   "title": "NVIDIA Corporation - Stock Quote & Chart",
+   "url": "https://investor.nvidia.com/stock-info/stock-quote-and-chart/default.aspx"
+  },
+  {
+   "cluster": 5,
+   "engagement": {},
+   "relevance_score": 0.2819,
+   "source": "grounding",
+   "summary": "A detailed overview of NVIDIA Corporation (NVDA) stock, including real-time price, chart, key statistics, news, and more.",
+   "title": "NVIDIA (NVDA) Stock Price & Overview",
+   "url": "https://stockanalysis.com/stocks/nvda/"
+  },
+  {
+   "cluster": 2,
+   "engagement": {},
+   "relevance_score": 0.2818,
+   "source": "grounding",
+   "summary": "Track the NVDA stock price with the live chart. Read Nvidia news and explore price history, market cap, price targets, trading ideas, and forecasts.",
+   "title": "Nvidia Stock Price Chart — NASDAQ:NVDA — TradingView",
+   "url": "https://www.tradingview.com/symbols/NASDAQ-NVDA/"
+  },
+  {
+   "cluster": 3,
+   "engagement": {},
+   "relevance_score": 0.2817,
+   "source": "grounding",
+   "summary": "Stock forecasts and analyst price target predictions for NVIDIA Corporation (NVDA) stock, with detailed revenue and earnings estimates.",
+   "title": "NVIDIA (NVDA) Stock Forecast & Analyst Price Targets",
+   "url": "https://stockanalysis.com/stocks/nvda/forecast/"
+  }
+ ],
+ "schema_version": "1.4",
+ "source_status": {
+  "grounding": "ok",
+  "hackernews": "ok",
+  "reddit": "no-results",
+  "yahoo_finance": "skipped-unconfigured"
+ },
+ "usage": null,
+ "window_days": 30
+}

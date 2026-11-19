@@ -37,6 +37,33 @@ for (const size of SIZES) {
   }
 }
 
+test.describe('portfolio headlines', () => {
+  test('shows upbeat counts, hides downbeat stories until asked, and lists discovered names', async ({ page }) => {
+    await open(page)
+    const news = page.locator('section[aria-labelledby="news-h"]')
+    await expect(news.getByRole('heading', { name: 'Headlines, last 30 days' })).toBeVisible()
+    await expect(news).toContainText('of 100+ stories')
+    await expect(news).toContainText('0 upbeat · 0 downbeat')
+    await expect(news).toContainText('no upbeat or downbeat story')
+    await expect(news).toContainText('more downbeat than upbeat')
+    await expect(news).toContainText('it is weak evidence')
+    await news.getByText('Acme Corp').click()
+    await expect(news.getByRole('link', { name: 'Acme opens a second plant in Oulu' })).toBeVisible()
+    await expect(news.getByRole('link', { name: 'Acme shares fall after a production delay' })).toHaveCount(0)
+    await news.getByRole('button', { name: 'All stories' }).click()
+    await expect(news.getByRole('link', { name: 'Acme shares fall after a production delay' })).toBeVisible()
+    await news.getByRole('button', { name: 'Upbeat only' }).click()
+    await expect(news.getByRole('heading', { name: 'Research candidates' })).toBeVisible()
+    await news.getByText('NewCo Oyj').click()
+    await expect(news.getByRole('link', { name: 'Show HN: NewCo publishes its sensor design' })).toBeVisible()
+    await expect(news).toContainText('not a recommendation')
+    await expect(news.getByRole('heading', { name: 'Unusually upbeat this week' })).toBeVisible()
+    await news.locator('summary', { hasText: 'Spark Energy' }).click()
+    await expect(news.getByRole('link', { name: 'Spark Energy raises its outlook after record orders' })).toBeVisible()
+    await expect(news).toContainText('not a reason to act')
+  })
+})
+
 test.describe('portfolio behaviour', () => {
   test.use({ viewport: { width: 1280, height: 900 } })
 
