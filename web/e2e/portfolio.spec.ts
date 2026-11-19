@@ -46,7 +46,7 @@ test.describe('portfolio headlines', () => {
     await expect(news).toContainText('0 upbeat · 0 downbeat')
     await expect(news).toContainText('no upbeat or downbeat story')
     await expect(news).toContainText('more downbeat than upbeat')
-    await expect(news).toContainText('not tested as a predictor')
+    await expect(news).toContainText('it is weak evidence')
     await news.getByText('Acme Corp').click()
     await expect(news.getByRole('link', { name: 'Acme opens a second plant in Oulu' })).toBeVisible()
     await expect(news.getByRole('link', { name: 'Acme shares fall after a production delay' })).toHaveCount(0)

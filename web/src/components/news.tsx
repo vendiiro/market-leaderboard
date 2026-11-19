@@ -59,8 +59,8 @@ export function NewsFlow() {
             <div className="newshead">
               <p className="muted small">
                 As of {news.asof} ({news.source}). Each story is marked upbeat when its headline holds an upbeat phrase (record, raises outlook,
-                invests, new contract, upgrade) and no downbeat one. That is a keyword match: it is not tested as a predictor, it misses context,
-                and promotional sites write upbeat headlines too. Not advice.
+                invests, new contract, upgrade) and no downbeat one. That is a keyword match and it misses context. A first test on this dashboard’s names (24 months) found a small gap in
+                next-month returns for a higher upbeat share and none that is reliable once bad news is counted; it is weak evidence. Not advice.
               </p>
               <div className="seg" role="group" aria-label="Which stories to list">
                 <button type="button" aria-pressed={upbeatOnly} onClick={() => setUpbeatOnly(true)}>Upbeat only</button>

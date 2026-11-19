@@ -59,7 +59,7 @@ def main() -> int:
     import yfinance as yf
 
     CACHE.mkdir(parents=True, exist_ok=True)
-    pause = 0.7
+    pause = 1.5   # slower than the first run, which Google rate-limited; not a test parameter
     tickers = all_tickers(load_watchlists())
     research = json.loads((ROOT / "web" / "public" / "data" / "research.json").read_text(encoding="utf-8"))
     names = {c["ticker"]: c["name"] for c in research["companies"]}
