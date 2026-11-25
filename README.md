@@ -15,6 +15,15 @@ A Python engine (`engine/`) pulls daily prices from Yahoo Finance and writes fou
 (`web/`) reads them. Design: `docs/spec.md`. Plan: `docs/plan.md`. Checked facts and decisions: `docs/decisions.md`.
 Data code is adapted from [dip-dashboard](https://github.com/vendiiro/dip-dashboard).
 
+## What this project shows
+
+- A full data pipeline built and tested end to end: a Python engine pulls and checks Yahoo data, writes schema-validated JSON, and a static React page reads it.
+- Honest finance: the page states its limits (survivorship, non-point-in-time fundamentals, own-currency returns) and never gives investment advice.
+- Testing across layers: offline engine tests on synthetic data, formula tests in TypeScript against Python reference values, and browser tests.
+- Rule-based list building: the Finnish small-cap list is rebuilt by rule, and every candidate is logged with the reason it was kept or dropped.
+
+License: MIT, see `LICENSE`.
+
 ## Views
 
 - **Overview:** one card per watchlist (average return per period, highest and lowest name, flags) and the state
