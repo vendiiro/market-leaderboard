@@ -1,9 +1,10 @@
 import pandas as pd
 import pytest
 
-from engine.watchlists import LIST_KEYS, all_tickers, build_fi_smallcaps, fi_smallcap_rows, load_watchlists, membership, read
+from engine.watchlists import all_tickers, build_fi_smallcaps, fi_smallcap_rows, load_watchlists, membership, read
 from synth import flat
 
+LIST_KEYS = ("us_big_tech", "eu_defence", "eu_energy", "nordic_energy", "fi_small")
 GOOD = "\n".join(f'[{k}]\nname = "{k} list"\n[{k}.tickers]\n"AAA{i}.HE" = "Company {i}"\n' for i, k in enumerate(LIST_KEYS))
 
 
@@ -13,22 +14,22 @@ def write(tmp_path, text):
     return p
 
 
-def test_real_file_loads_the_five_lists():
-    lists = load_watchlists()
-    assert tuple(lists) == LIST_KEYS and all(lists[k] for k in LIST_KEYS if k != "fi_small")
-    assert all(read()[k]["name"] for k in LIST_KEYS)
+def test_real_file_loads_with_names_and_tickers():
+    cfg = read()
+    assert set(LIST_KEYS) <= set(cfg) and all(v["name"] and v["tickers"] for v in cfg.values())
 
 
-def test_toml_loads_the_five_keys_in_order(tmp_path):
+def test_lists_come_from_the_file_in_file_order(tmp_path):
     lists = load_watchlists(write(tmp_path, GOOD))
     assert tuple(lists) == LIST_KEYS and lists["us_big_tech"] == ["AAA0.HE"]
 
 
-def test_unknown_or_missing_list_and_bad_entries_are_errors(tmp_path):
-    with pytest.raises(ValueError, match="unknown list"):
-        load_watchlists(write(tmp_path, GOOD + '[crypto]\nname = "x"\n[crypto.tickers]\n'))
-    with pytest.raises(ValueError, match="missing list"):
-        load_watchlists(write(tmp_path, GOOD[:GOOD.index("[fi_small]")]))
+def test_a_new_list_needs_no_code_change_and_bad_entries_are_errors(tmp_path):
+    more = load_watchlists(write(tmp_path, GOOD + '[nordic_large]\nname = "Nordic large"\n[nordic_large.tickers]\n"NOVO-B.CO" = "Novo Nordisk"\n'))
+    assert list(more)[-1] == "nordic_large" and more["nordic_large"] == ["NOVO-B.CO"]
+    assert list(load_watchlists(write(tmp_path, GOOD[:GOOD.index("[fi_small]")]))) == list(LIST_KEYS[:4])
+    with pytest.raises(ValueError, match="no lists"):
+        load_watchlists(write(tmp_path, "# empty\n"))
     with pytest.raises(ValueError, match="name"):
         load_watchlists(write(tmp_path, GOOD.replace('name = "eu_energy list"\n', "")))
     with pytest.raises(ValueError, match="company name"):

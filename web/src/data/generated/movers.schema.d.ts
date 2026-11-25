@@ -6,7 +6,7 @@ export type Day = string;
  * Largest 1-day moves across all watchlists (each ticker once, stale rows never listed) and the rows the dip rule flags. The dip rule is an untested screen rule.
  */
 export interface Movers {
-  schema_version: 1;
+  schema_version: 2;
   asof: Day;
   gainers: Mover[];
   losers: Mover[];

@@ -130,7 +130,7 @@ test.describe('movers and page states', () => {
 
   test('every view can be reached and used with the keyboard alone', async ({ page }) => {
     await open(page, '#/')
-    for (const name of ['Leaderboards', 'Mix', 'Movers', 'Overview']) {
+    for (const name of ['Screener', 'Watchlists', 'Mix', 'Movers', 'Candidates']) {
       await page.getByRole('link', { name, exact: true }).focus()
       await page.keyboard.press('Enter')
       await expect(page.getByRole('link', { name, exact: true })).toHaveAttribute('aria-current', 'page')

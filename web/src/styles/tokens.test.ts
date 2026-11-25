@@ -30,6 +30,7 @@ const PAIRS: [string, string, number][] = [
   ['accent', 'surface', 4.5], ['accent', 'accent-soft', 4.5], ['accent', 'bg', 4.5],
   ['warn', 'warn-bg', 4.5], ['crit', 'crit-bg', 4.5], ['demo-ink', 'demo-bg', 4.5],
   ['bar', 'sunken', 3], ['surface', 'accent', 4.5],
+  ['good', 'good-bg', 4.5], ['serious', 'serious-bg', 4.5], ['ink-2', 'accent-soft', 4.5], ['ink', 'neutral-bar', 4.5],
 ]
 
 describe.each([['light', light], ['dark', dark]] as const)('%s theme', (_name, t) => {
@@ -41,5 +42,9 @@ describe.each([['light', light], ['dark', dark]] as const)('%s theme', (_name, t
 
   it('heatmap cells keep readable text at the strongest tint (50 %)', () => {
     for (const pole of ['corr-pos', 'corr-neg']) expect(contrast(t.ink, mix(t[pole], t.surface, 0.5))).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('mix map tiles keep readable text at the strongest tint (40 %)', () => {
+    for (const pole of ['risk-less', 'risk-more']) expect(contrast(t.ink, mix(t[pole], t['neutral-bar'], 0.4))).toBeGreaterThanOrEqual(4.5)
   })
 })

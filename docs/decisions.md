@@ -2,6 +2,10 @@
 
 Newest first. Each entry says what was checked, the numbers, and what follows for the code.
 
+## 2026-11-13: Steadiness removed from the shortlist score
+
+Pre-registered backtest (`docs/backtests/2026-11-12-measures-result.md`): the top third by steadiness did 18.8 points worse than the bottom third over 252 bars (90 % interval -27.6 to -11.1), "not supported", and the sign is the opposite of what the measure assumes. The owner chose to drop it from the score. `engine/research.py`: `SCORED = (value, quality, trend)`, a score needs 2 of 3 (was 3 of 4), the "why / what argues against" sentences use only those three. Steadiness is still computed and shown as a bar and a Screener column, labelled with the test result. Effect on the demo data: see `web/src/fixtures/research.json`; the live shortlist changes at the next nightly build.
+
 ## 2026-11-11: Size check of the quality score lowered from 20B to 1B USD
 
 The copied quality score has a size check, "market cap at least 20B USD", made for dip-dashboard's universe of

@@ -1,0 +1,18 @@
+{
+ "value": {
+  "status": "untested",
+  "text": "Not tested: free data has today's fundamentals only, not what was known at past dates."
+ },
+ "quality": {
+  "status": "untested",
+  "text": "Not tested: free data has today's fundamentals only, not what was known at past dates."
+ },
+ "trend": {
+  "status": "not supported",
+  "text": "Tested on these companies' own price history (279 month-ends, 2002-09 to 2025-11): the third ranked highest by long-term trend returned +4.4% compared with the lowest third over the following 12 months, with a 90% interval of −2.6% to +11.6%. The interval includes zero: no reliable difference. The companies are today's survivors: volatile companies that did well are among them and those that failed are not, which flatters the past and works against steadier companies in this test."
+ },
+ "steady": {
+  "status": "not supported",
+  "text": "Tested on these companies' own price history (279 month-ends, 2002-09 to 2025-11): the third ranked highest by steadiness returned −18.8% compared with the lowest third over the following 12 months, with a 90% interval of −27.6% to −11.1%. The whole interval is below zero: on these companies the highest third did worse, the opposite of what the measure assumes. The companies are today's survivors: volatile companies that did well are among them and those that failed are not, which flatters the past and works against steadier companies in this test."
+ }
+}

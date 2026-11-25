@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Research",
+  "description": "Valuation facts, four measures and the candidate shortlist. Measures are ranks 0-100 within the universe (100 = best). The measures are not shown to work on these companies: see evidence. Sentences are fixed templates filled with facts; headlines are third-party text.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "asof", "shortlist", "gate_passed", "labels", "evidence", "companies"],
+  "properties": {
+    "schema_version": { "const": 2 },
+    "asof": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "shortlist": { "description": "Tickers of tonight's candidates, best average rank first.", "type": "array", "items": { "type": "string" } },
+    "gate_passed": { "type": "integer" },
+    "labels": { "$ref": "#/$defs/byMeasureText" },
+    "evidence": {
+      "description": "Per measure: what a pre-registered test on this universe found, or absent when untested.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "text"],
+        "properties": { "status": { "enum": ["supported", "not supported", "untested"] }, "text": { "type": "string" } }
+      }
+    },
+    "companies": { "type": "array", "items": { "$ref": "#/$defs/company" } }
+  },
+  "$defs": {
+    "num": { "type": ["number", "null"] },
+    "text": { "type": ["string", "null"] },
+    "rank": { "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
+    "texts": { "type": "array", "items": { "type": "string" } },
+    "byMeasureText": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "quality", "trend", "steady"],
+      "properties": { "value": { "type": "string" }, "quality": { "type": "string" }, "trend": { "type": "string" }, "steady": { "type": "string" } }
+    },
+    "headline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "source", "url", "date", "days_old"],
+      "properties": {
+        "title": { "type": "string" },
+        "source": { "type": "string" },
+        "url": { "$ref": "#/$defs/text" },
+        "date": { "type": "string" },
+        "days_old": { "type": ["integer", "null"] }
+      }
+    },
+    "company": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ticker", "name", "lists", "sector", "country", "currency", "last_bar", "stale", "price", "ret_1d", "ret_1y", "dd52",
+                   "vol_1y", "spark", "pe", "fwd_pe", "ev_ebitda", "pb", "margin", "op_margin", "roe", "debt_equity", "revenue_growth",
+                   "earnings_growth", "own_pes", "own_mid", "vs_own", "inconsistent", "momentum", "big_days", "report_currency",
+                   "vs_sector", "sector_mid", "sector_marks", "gate", "measures", "place", "valuation", "why", "against", "caveats",
+                   "events", "headlines"],
+      "properties": {
+        "ticker": { "type": "string" },
+        "name": { "type": "string" },
+        "lists": { "$ref": "#/$defs/texts" },
+        "sector": { "$ref": "#/$defs/text" },
+        "country": { "$ref": "#/$defs/text" },
+        "currency": { "$ref": "#/$defs/text" },
+        "last_bar": { "type": "string" },
+        "stale": { "type": "boolean" },
+        "price": { "$ref": "#/$defs/num" },
+        "ret_1d": { "$ref": "#/$defs/num" },
+        "ret_1y": { "$ref": "#/$defs/num" },
+        "dd52": { "$ref": "#/$defs/num" },
+        "vol_1y": { "$ref": "#/$defs/num" },
+        "spark": { "type": "array", "items": { "type": "number" } },
+        "pe": { "$ref": "#/$defs/num" },
+        "fwd_pe": { "$ref": "#/$defs/num" },
+        "ev_ebitda": { "$ref": "#/$defs/num" },
+        "pb": { "$ref": "#/$defs/num" },
+        "margin": { "$ref": "#/$defs/num" },
+        "op_margin": { "$ref": "#/$defs/num" },
+        "roe": { "$ref": "#/$defs/num" },
+        "debt_equity": { "$ref": "#/$defs/num" },
+        "revenue_growth": { "$ref": "#/$defs/num" },
+        "earnings_growth": { "$ref": "#/$defs/num" },
+        "own_pes": {
+          "description": "P/E at each past fiscal year-end, newest first, in the trading currency.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["year", "pe"],
+            "properties": { "year": { "type": "integer" }, "pe": { "type": "number" } }
+          }
+        },
+        "own_mid": { "$ref": "#/$defs/num" },
+        "vs_own": { "description": "P/E now divided by the middle of own_pes, minus 1.", "$ref": "#/$defs/num" },
+        "inconsistent": { "description": "Figures that failed a consistency check and are left out of the measures.", "$ref": "#/$defs/texts" },
+        "momentum": { "$ref": "#/$defs/num" },
+        "big_days": { "type": ["integer", "null"] },
+        "report_currency": { "$ref": "#/$defs/text" },
+        "vs_sector": { "$ref": "#/$defs/num" },
+        "sector_mid": { "$ref": "#/$defs/num" },
+        "sector_marks": { "description": "Forward P/E of the comparable companies, ascending.", "type": "array", "items": { "type": "number" } },
+        "gate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "profit_years", "years"],
+          "properties": { "status": { "enum": ["pass", "fail", "short"] }, "profit_years": { "type": "integer" }, "years": { "type": "integer" } }
+        },
+        "measures": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "quality", "trend", "steady"],
+          "properties": { "value": { "$ref": "#/$defs/rank" }, "quality": { "$ref": "#/$defs/rank" }, "trend": { "$ref": "#/$defs/rank" }, "steady": { "$ref": "#/$defs/rank" } }
+        },
+        "place": { "description": "Position on tonight's shortlist, or null.", "type": ["integer", "null"] },
+        "valuation": { "enum": ["low for it", "typical", "high for it", "no data"] },
+        "why": { "$ref": "#/$defs/texts" },
+        "against": { "$ref": "#/$defs/texts" },
+        "caveats": { "$ref": "#/$defs/texts" },
+        "events": { "$ref": "#/$defs/texts" },
+        "headlines": { "type": "array", "items": { "$ref": "#/$defs/headline" } }
+      }
+    }
+  }
+}

@@ -72,6 +72,47 @@ def inputs() -> dict:
     fund["FINC.HE"] = {"marketCap": 9e8, "currency": "EUR"}           # thin fundamentals: no score
     del fund["ENGB.MC"]                                               # no fundamentals at all
 
+    # ---- research view: statements, valuation ratios, region indices, headlines ----
+    index = pd.Series(np.round(100 * np.exp(np.cumsum(0.6 * market)), 4), index=days)
+    statements, raw_closes = {}, {t: p[0] for t, p in prices.items()}
+    for i, (t, s) in enumerate(STOCKS.items()):
+        close = prices[t][0] if t in prices else None
+        ccy = s[3]
+        report = "USD" if t == "ENGA.OL" else "GBP" if ccy == "GBp" else ccy      # ENGA.OL reports in dollars, trades in kroner
+        eps, income = {}, {}
+        for y in (2025, 2024, 2023, 2022):
+            day = pd.Timestamp(f"{y}-12-31")
+            before = close[close.index <= day] if close is not None else []
+            px = float(before.iloc[-1]) if len(before) else 40.0
+            pe_y = (10 + 3 * (i % 6)) * (1 + 0.15 * ((i + y) % 3 - 1))
+            e = px / pe_y * (0.125 * 2 ** (y - 2022) if t == "DEMA" else 1)      # DEMA: profit per share grows 8-fold
+            if report == "GBP":
+                e /= 100                                                          # pence price, pounds per share
+            elif report != ccy:
+                e *= float(fx[ccy][fx[ccy].index <= day].iloc[-1] / fx[report][fx[report].index <= day].iloc[-1]) if len(before) else 0.09
+            eps[f"{y}-12-31"] = round(e, 4)
+            income[f"{y}-12-31"] = round(e * 1e8)
+        if t == "NRDA.HE":                                                        # two loss years: fails the gate
+            income |= {"2025-12-31": -3e7, "2024-12-31": -1e7}
+            eps |= {"2025-12-31": -0.3, "2024-12-31": -0.1}
+        if t == "FINC.HE":                                                        # two years on record: not enough history
+            eps, income = dict(list(eps.items())[:2]), dict(list(income.items())[:2])
+        statements[t] = {"eps": eps, "net_income": income}
+        if t in fund and close is not None:
+            trade_eps = eps["2025-12-31"] * (100 if report == "GBP" else 1)
+            if report not in (ccy, "GBP"):
+                trade_eps = float(close[close.index <= pd.Timestamp("2025-12-31")].iloc[-1]) / ((10 + 3 * (i % 6)) * (1 + 0.15 * ((i + 2025) % 3 - 1)))
+            pe = float(close.iloc[-1]) / trade_eps if trade_eps > 0 else None
+            fund[t] |= {"trailingPE": pe, "forwardPE": None if pe is None else pe * {"DEMA": 0.5, "FINA.HE": 3.0}.get(t, 0.85),
+                        "enterpriseToEbitda": 6.0 + 1.5 * (i % 7), "priceToBook": 1.2 + 0.8 * (i % 5),
+                        "operatingMargins": 0.04 + 0.03 * (i % 6), "earningsGrowth": -0.1 + 0.06 * (i % 7), "financialCurrency": report}
+    headlines = {
+        "DEMD": [{"title": "Demo Search shares fall after its quarterly report", "source": "Demo Wire",
+                  "url": "https://example.com/demo-search", "date": END, "days_old": 0}],
+        "DEMA": [{"title": "Demo Chips opens a second plant", "source": "Demo Wire", "url": None,
+                  "date": "2026-11-03", "days_old": 7}],
+    }
+
     member: dict[str, list[str]] = {}
     for key, (_, tickers) in LISTS.items():
         for t in tickers:
@@ -82,4 +123,6 @@ def inputs() -> dict:
                  for t, s in STOCKS.items()},
         "prices": prices, "fund": fund, "rates_usd": rates_usd, "fx": fx,
         "reasons": {"FIND.HE": "Yahoo returned no rows for this ticker"},
+        "statements": statements, "raw_closes": raw_closes, "indices": {"^GSPC": index, "^STOXX": index},
+        "headlines": headlines,
     }

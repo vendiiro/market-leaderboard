@@ -4,23 +4,26 @@ import leaderboard from './fixtures/leaderboard.json'
 import meta from './fixtures/meta.json'
 import movers from './fixtures/movers.json'
 import portfolio from './fixtures/portfolio.json'
+import research from './fixtures/research.json'
 import { direction, pct, rankChange, weekdaysBetween } from './lib/format'
 import { sortBy } from './lib/sort'
-import { formatHash, parseHash } from './router'
+import { treemap } from './lib/treemap'
+import { formatHash, parseHash, withCompany } from './router'
 
-const fixtures = { meta, leaderboard, movers, portfolio } as Record<keyof Data, unknown>
+const fixtures = { meta, leaderboard, movers, portfolio, research } as Record<keyof Data, unknown>
 
 describe('data loading', () => {
-  it('returns the four typed files from the fixtures', async () => {
+  it('returns the five typed files from the fixtures', async () => {
     const data = await loadAll(async (name) => fixtures[name])
     expect(data.meta.demo).toBe(true)
     expect(data.leaderboard.lists.map((l) => l.key)).toEqual(['us_big_tech', 'eu_defence', 'eu_energy', 'nordic_energy', 'fi_small'])
     expect(data.portfolio.cov.length).toBe(data.portfolio.risk_tickers.length)
+    expect(data.research.shortlist.length).toBeGreaterThan(0)
   })
 
   it('rejects a wrong or missing schema version with a readable message', async () => {
-    await expect(loadAll(async (name) => (name === 'movers' ? { ...movers, schema_version: 2 } : fixtures[name]))).rejects.toThrow(
-      /movers\.json has schema version 2, this page needs 1/,
+    await expect(loadAll(async (name) => (name === 'movers' ? { ...movers, schema_version: 1 } : fixtures[name]))).rejects.toThrow(
+      /movers\.json has schema version 1, this page needs 2/,
     )
     expect(() => checked('meta', {})).toThrow(/schema version missing/)
     expect(() => checked('meta', null)).toThrow(/schema version missing/)
@@ -71,12 +74,47 @@ describe('router', () => {
   })
 
   it('knows the other routes and rejects unknown ones', () => {
-    expect(parseHash('').view).toBe('overview')
-    expect(parseHash('#/').view).toBe('overview')
+    expect(parseHash('').view).toBe('candidates')
+    expect(parseHash('#/').view).toBe('candidates')
+    expect(parseHash('#/screener?sector=Energy')).toEqual({ view: 'screener', params: { sector: 'Energy' } })
+    expect(parseHash('#/list')).toEqual({ view: 'list', id: undefined, params: {} })
+    expect(parseHash('#/data').view).toBe('data')
     expect(parseHash('#/mix').view).toBe('mix')
     expect(parseHash('#/movers?x=1')).toEqual({ view: 'movers', params: { x: '1' } })
-    expect(parseHash('#/list').view).toBe('notfound')
+    expect(parseHash('#/list/a/b').view).toBe('notfound')
     expect(parseHash('#/nothing/here').view).toBe('notfound')
-    expect(formatHash({ view: 'overview', params: { period: undefined } })).toBe('#/')
+    expect(formatHash({ view: 'candidates', params: { period: undefined } })).toBe('#/')
+    expect(formatHash({ view: 'list' })).toBe('#/list')
+  })
+})
+
+describe('research panel address', () => {
+  it('opens and closes a company on any view and keeps the other view state', () => {
+    const route = parseHash('#/screener?sector=Energy&sort=pe:asc')
+    expect(withCompany(route, 'EQNR.OL')).toBe('#/screener?sector=Energy&sort=pe:asc&c=EQNR.OL')
+    expect(withCompany(parseHash('#/list/eu_energy?c=EQNR.OL'), undefined)).toBe('#/list/eu_energy')
+    expect(withCompany(parseHash('#/'), 'NVDA')).toBe('#/?c=NVDA')
+  })
+})
+
+describe('treemap', () => {
+  const area = (r: { w: number; h: number }) => r.w * r.h
+  it('gives every item an area in proportion to its value, inside the box, without overlap', () => {
+    const items = [{ key: 'A', value: 40 }, { key: 'B', value: 30 }, { key: 'C', value: 20 }, { key: 'D', value: 10 }, { key: 'Z', value: 0 }]
+    const rects = treemap(items, 0, 0, 100, 50)
+    expect(rects.map((r) => r.key).sort()).toEqual(['A', 'B', 'C', 'D'])
+    for (const r of rects) {
+      expect(area(r)).toBeCloseTo((items.find((i) => i.key === r.key)!.value / 100) * 5000, 6)
+      expect(r.x).toBeGreaterThanOrEqual(0)
+      expect(r.x + r.w).toBeLessThanOrEqual(100 + 1e-9)
+      expect(r.y + r.h).toBeLessThanOrEqual(50 + 1e-9)
+    }
+    for (const a of rects) for (const b of rects) {
+      if (a.key < b.key) expect(a.x + a.w <= b.x + 1e-9 || b.x + b.w <= a.x + 1e-9 || a.y + a.h <= b.y + 1e-9 || b.y + b.h <= a.y + 1e-9).toBe(true)
+    }
+  })
+  it('handles one item and none', () => {
+    expect(treemap([{ key: 'A', value: 3 }])).toEqual([{ key: 'A', x: 0, y: 0, w: 100, h: 100 }])
+    expect(treemap([])).toEqual([])
   })
 })

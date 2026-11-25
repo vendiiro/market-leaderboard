@@ -25,11 +25,11 @@ def out(tmp_path):
     return tmp_path
 
 
-def test_demo_build_writes_four_files_that_match_their_schemas(out):
+def test_demo_build_writes_five_files_that_match_their_schemas(out):
     payloads = {stem: read(out, stem) for stem in B.FILES}
     B.validate(payloads)                                              # raises on a mismatch
-    assert sorted(p.name for p in out.iterdir()) == ["leaderboard.json", "meta.json", "movers.json", "portfolio.json"]
-    assert all(p["schema_version"] == 1 and p["asof"] == demo.END for p in payloads.values())
+    assert sorted(p.name for p in out.iterdir()) == ["leaderboard.json", "meta.json", "movers.json", "portfolio.json", "research.json"]
+    assert all(p["schema_version"] == 2 and p["asof"] == demo.END for p in payloads.values())
 
 
 def test_validation_names_the_place_that_is_wrong(out):

@@ -1,20 +1,23 @@
-// Loads the four JSON files the engine writes. Types are generated from schemas/ (npm run gen:types).
+// Loads the five JSON files the engine writes. Types are generated from schemas/ (npm run gen:types).
 import type { Leaderboard } from './generated/leaderboard.schema'
 import type { Meta } from './generated/meta.schema'
 import type { Movers } from './generated/movers.schema'
 import type { Portfolio } from './generated/portfolio.schema'
+import type { Research } from './generated/research.schema'
 
 export type { Leaderboard, Period, Row, Watchlist } from './generated/leaderboard.schema'
 export type { Meta } from './generated/meta.schema'
 export type { Movers } from './generated/movers.schema'
 export type { Portfolio } from './generated/portfolio.schema'
+export type { Company, Research } from './generated/research.schema'
 
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 export interface Data {
   meta: Meta
   leaderboard: Leaderboard
   movers: Movers
   portfolio: Portfolio
+  research: Research
 }
 export type ReadJson = (name: keyof Data) => Promise<unknown>
 
@@ -41,7 +44,7 @@ const fromFixtures: ReadJson = async (name) => (await import(`../fixtures/${name
 
 export async function loadAll(read?: ReadJson): Promise<Data> {
   const source = read ?? (import.meta.env?.VITE_FIXTURES === '1' ? fromFixtures : fromServer)
-  const names = ['meta', 'leaderboard', 'movers', 'portfolio'] as const
+  const names = ['meta', 'leaderboard', 'movers', 'portfolio', 'research'] as const
   let payloads: unknown[]
   try {
     payloads = await Promise.all(names.map(source))
@@ -49,11 +52,12 @@ export async function loadAll(read?: ReadJson): Promise<Data> {
     if (read || source === fromFixtures || !import.meta.env?.DEV) throw e
     payloads = await Promise.all(names.map(fromFixtures)) // dev server without live data
   }
-  const [meta, leaderboard, movers, portfolio] = payloads
+  const [meta, leaderboard, movers, portfolio, research] = payloads
   return {
     meta: checked<Meta>('meta', meta),
     leaderboard: checked<Leaderboard>('leaderboard', leaderboard),
     movers: checked<Movers>('movers', movers),
     portfolio: checked<Portfolio>('portfolio', portfolio),
+    research: checked<Research>('research', research),
   }
 }

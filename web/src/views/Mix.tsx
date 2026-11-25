@@ -4,6 +4,7 @@ import type { Data, Portfolio } from '../data/load'
 import { pct } from '../lib/format'
 import { analyse, type Analysis, type ExposureKey } from '../lib/mix'
 import { EMPTY, fromFile, load, save, toFile, type Mix, type Saved } from '../lib/storage'
+import { treemap } from '../lib/treemap'
 
 const GROUPS: { key: ExposureKey; label: string }[] = [
   { key: 'sector', label: 'Sector' },
@@ -67,6 +68,34 @@ function Heatmap({ tickers, portfolio }: { tickers: string[]; portfolio: Portfol
   )
 }
 
+/** Map of the mix: tile area = weight, colour = share of risk minus weight (cool = less risk than its weight,
+ *  grey = equal, warm = more). Each tile prints both numbers, so the colour is never the only carrier. */
+function MixMap({ risk }: { risk: NonNullable<Analysis['risk']> }) {
+  const rects = treemap(risk.tickers.map((t) => ({ key: t, value: risk.weights[t] })))
+  return (
+    <>
+      <div className="map" role="img" aria-label={`Map of the mix: ${risk.tickers.map((t) => `${t} weight ${pct(risk.weights[t], 0, false)}, share of risk ${pct(risk.contribution[t], 0, false)}`).join('; ')}`}>
+        {rects.map((r) => {
+          const diff = risk.contribution[r.key] - risk.weights[r.key]
+          const tint = Math.round(Math.min(1, Math.abs(diff) / 0.1) * 40)
+          return (
+            <div key={r.key} className="maptile" style={{ left: `${r.x}%`, top: `${r.y}%`, width: `${r.w}%`, height: `${r.h}%` }}>
+              <div style={{ background: `color-mix(in srgb, var(${diff < 0 ? '--risk-less' : '--risk-more'}) ${tint}%, var(--neutral-bar))` }}>
+                <b>{r.key}</b>
+                <span className="num">{pct(risk.weights[r.key], 0, false)} · risk {pct(risk.contribution[r.key], 0, false)}</span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <p className="legend small">
+        Tile size = weight. Colour: <span className="key less" /> less risk than its weight <span className="key ref" /> about equal{' '}
+        <span className="key more" /> more risk than its weight
+      </p>
+    </>
+  )
+}
+
 function Result({ a, data }: { a: Analysis; data: Data }) {
   const listName = new Map(data.leaderboard.lists.map((l) => [l.key, l.name]))
   const top = a.risk ? Object.entries(a.risk.contribution).sort((x, y) => y[1] - x[1])[0] : null
@@ -125,6 +154,8 @@ function Result({ a, data }: { a: Analysis; data: Data }) {
 
       {a.risk && (
         <>
+          <h3>Map of the mix</h3>
+          <MixMap risk={a.risk} />
           <h3>Weight and share of risk</h3>
           <p className="legend small"><span className="key ref" /> Weight <span className="key" /> Share of risk</p>
           <Bars second rows={sorted(a.risk.contribution).map(([t, v]) => ({ label: t, value: v, other: a.risk!.weights[t] }))} />
@@ -194,12 +225,17 @@ function Editor({ mix, onChange, data }: { mix: Mix; onChange: (m: Mix) => void;
       {mix.items.length > 0 && (
         <table className="weights">
           <thead>
-            <tr><th scope="col" className="l">Company</th><th scope="col">Weight</th><th scope="col">Share</th><td /></tr>
+            <tr><th scope="col" className="l">Company</th><td /><th scope="col">Weight</th><th scope="col">Share</th><td /></tr>
           </thead>
           <tbody>
             {mix.items.map((it, i) => (
               <tr key={it.ticker}>
                 <th scope="row" className="l name"><b>{nameOf.get(it.ticker) ?? it.ticker}</b><span>{it.ticker}</span></th>
+                <td className="slidercell">
+                  <input type="range" min={0} max={100} step={1} value={Number.isFinite(it.weight) ? Math.min(100, it.weight) : 0}
+                    aria-label={`Weight slider for ${nameOf.get(it.ticker) ?? it.ticker}`}
+                    onChange={(e) => set(mix.items.map((x, j) => (j === i ? { ...x, weight: e.target.valueAsNumber } : x)))} />
+                </td>
                 <td>
                   <input type="number" min={0} step={1} inputMode="decimal" value={Number.isFinite(it.weight) ? it.weight : ''}
                     aria-label={`Weight of ${nameOf.get(it.ticker) ?? it.ticker}`}

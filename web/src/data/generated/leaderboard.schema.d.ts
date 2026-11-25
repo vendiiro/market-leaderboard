@@ -9,7 +9,7 @@ export type Text = string | null;
  * One table per watchlist. Returns and vol_1y are in each stock's own currency. The dip flag and quality score are untested screen rules.
  */
 export interface Leaderboard {
-  schema_version: 1;
+  schema_version: 2;
   asof: Day;
   periods: Period[];
   lists: Watchlist[];
@@ -62,6 +62,8 @@ export interface Row {
   q_score: number | null;
   q_passed: number;
   q_scored: number;
+  pe: Num;
+  fwd_pe: Num;
   dip: boolean;
   dip_reasons: string[];
   spark: number[];

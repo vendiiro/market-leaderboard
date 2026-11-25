@@ -6,7 +6,7 @@ export type Matrix = number[][];
  * Inputs for the mix view. cov and corr are square matrices in the order of risk_tickers: annualised covariance and correlation of weekly EUR returns over one shared window. Estimates, not forecasts.
  */
 export interface Portfolio {
-  schema_version: 1;
+  schema_version: 2;
   asof: string;
   window: {
     start: string | null;
