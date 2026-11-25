@@ -5,9 +5,17 @@ row (FINB.HE), a ticker without data (FIND.HE), a ticker on two lists (ENGA.OL),
 risk window (DEFC.PA), a pence-quoted line (DEFB.L, ENGC.L) and a row the dip rule flags (DEMD)."""
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import pandas as pd
 
+from .config import CONFIG_DIR
+from .holdings import read_holdings
+
+EXAMPLE_HOLDINGS = CONFIG_DIR / "portfolio.example.toml"
+# invented ETF candidates: ticker: (name, bars of history); the second lacks the full 104-week risk window
+ETFS = {"DEMETF.DE": ("Demo Index ETF", 800), "DEMETG.DE": ("Demo Growth ETF", 300)}
 END = "2026-11-10"          # a Tuesday
 BARS = 800
 SEED = 20261111
@@ -72,14 +80,76 @@ def inputs() -> dict:
     fund["FINC.HE"] = {"marketCap": 9e8, "currency": "EUR"}           # thin fundamentals: no score
     del fund["ENGB.MC"]                                               # no fundamentals at all
 
+    # ---- research view: statements, valuation ratios, region indices, headlines ----
+    index = pd.Series(np.round(100 * np.exp(np.cumsum(0.6 * market)), 4), index=days)
+    statements, raw_closes = {}, {t: p[0] for t, p in prices.items()}
+    for i, (t, s) in enumerate(STOCKS.items()):
+        close = prices[t][0] if t in prices else None
+        ccy = s[3]
+        report = "USD" if t == "ENGA.OL" else "GBP" if ccy == "GBp" else ccy      # ENGA.OL reports in dollars, trades in kroner
+        eps, income = {}, {}
+        for y in (2025, 2024, 2023, 2022):
+            day = pd.Timestamp(f"{y}-12-31")
+            before = close[close.index <= day] if close is not None else []
+            px = float(before.iloc[-1]) if len(before) else 40.0
+            pe_y = (10 + 3 * (i % 6)) * (1 + 0.15 * ((i + y) % 3 - 1))
+            e = px / pe_y * (0.125 * 2 ** (y - 2022) if t == "DEMA" else 1)      # DEMA: profit per share grows 8-fold
+            if report == "GBP":
+                e /= 100                                                          # pence price, pounds per share
+            elif report != ccy:
+                e *= float(fx[ccy][fx[ccy].index <= day].iloc[-1] / fx[report][fx[report].index <= day].iloc[-1]) if len(before) else 0.09
+            eps[f"{y}-12-31"] = round(e, 4)
+            income[f"{y}-12-31"] = round(e * 1e8)
+        if t == "NRDA.HE":                                                        # two loss years: fails the gate
+            income |= {"2025-12-31": -3e7, "2024-12-31": -1e7}
+            eps |= {"2025-12-31": -0.3, "2024-12-31": -0.1}
+        if t == "FINC.HE":                                                        # two years on record: not enough history
+            eps, income = dict(list(eps.items())[:2]), dict(list(income.items())[:2])
+        statements[t] = {"eps": eps, "net_income": income}
+        if t in fund and close is not None:
+            trade_eps = eps["2025-12-31"] * (100 if report == "GBP" else 1)
+            if report not in (ccy, "GBP"):
+                trade_eps = float(close[close.index <= pd.Timestamp("2025-12-31")].iloc[-1]) / ((10 + 3 * (i % 6)) * (1 + 0.15 * ((i + 2025) % 3 - 1)))
+            pe = float(close.iloc[-1]) / trade_eps if trade_eps > 0 else None
+            fund[t] |= {"trailingPE": pe, "forwardPE": None if pe is None else pe * {"DEMA": 0.5, "FINA.HE": 3.0}.get(t, 0.85),
+                        "enterpriseToEbitda": 6.0 + 1.5 * (i % 7), "priceToBook": 1.2 + 0.8 * (i % 5),
+                        "operatingMargins": 0.04 + 0.03 * (i % 6), "earningsGrowth": -0.1 + 0.06 * (i % 7), "financialCurrency": report}
+    headlines = {
+        "DEMD": [{"title": "Demo Search shares fall after its quarterly report", "source": "Demo Wire",
+                  "url": "https://example.com/demo-search", "date": END, "days_old": 0}],
+        "DEMA": [{"title": "Demo Chips opens a second plant", "source": "Demo Wire", "url": None,
+                  "date": "2026-11-03", "days_old": 7}],
+    }
+
+    # ---- portfolio page: invented ETF candidates, holdings (config/portfolio.example.toml) and a weekly history ----
+    # Drawn after everything above, so the share data of earlier builds does not change.
+    extra = {}
+    for t, (name, bars) in ETFS.items():
+        daily = 0.07 / 252 + 0.9 * market + rng.normal(0, 0.003, BARS)
+        close = pd.Series(np.round(30 * np.exp(np.cumsum(daily)), 4), index=days).iloc[-bars:]
+        prices[t] = (close, pd.Series(rng.integers(50_000, 90_000, len(close)).astype(float), index=close.index))
+        extra[t] = {"name": name, "lists": ["etf_core"], "currency": "EUR", "sector": None, "country": None}
+    extra["DEMX.HE"] = {"name": "Demo Delisted", "lists": ["holdings"], "currency": "EUR", "sector": None, "country": None}
+    weeks = pd.date_range("2026-06-26", "2026-11-06", freq="W-FRI")
+    points = []
+    for i, d in enumerate(weeks):
+        cum = round(0.006 * i + 0.03 * math.sin(i / 1.7), 4)
+        points.append({"date": str(d.date()), "value": round(1000 * (1 + cum) + 500, 2), "cum": cum, "net_deposits": 1000.0})
+
     member: dict[str, list[str]] = {}
     for key, (_, tickers) in LISTS.items():
         for t in tickers:
             member.setdefault(t, []).append(key)
     return {
-        "cfg": {k: {"name": name, "tickers": {t: STOCKS[t][0] for t in tickers}} for k, (name, tickers) in LISTS.items()},
+        "cfg": {k: {"name": name, "kind": "stock", "tickers": {t: STOCKS[t][0] for t in tickers}, "groups": {}}
+                for k, (name, tickers) in LISTS.items()}
+               | {"etf_core": {"name": "Core ETFs", "kind": "etf", "groups": {"DEMETF.DE": "technology"},
+                               "tickers": {t: n for t, (n, _) in ETFS.items()}}},
         "meta": {t: {"name": s[0], "lists": member[t], "currency": s[3], "sector": s[1], "country": s[2]}
                  for t, s in STOCKS.items()},
         "prices": prices, "fund": fund, "rates_usd": rates_usd, "fx": fx,
-        "reasons": {"FIND.HE": "Yahoo returned no rows for this ticker"},
+        "reasons": {"FIND.HE": "Yahoo returned no rows for this ticker", "DEMX.HE": "Yahoo returned no rows for this ticker"},
+        "extra": extra, "holdings": read_holdings(EXAMPLE_HOLDINGS), "history": points, "history_note": None,
+        "statements": statements, "raw_closes": raw_closes, "indices": {"^GSPC": index, "^STOXX": index},
+        "headlines": headlines,
     }

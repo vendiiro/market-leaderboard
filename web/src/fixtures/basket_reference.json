@@ -1,0 +1,149 @@
+{
+ "tickers": [
+  "AAA",
+  "BBB",
+  "CCC"
+ ],
+ "cov": [
+  [
+   0.09,
+   0.03,
+   0.015
+  ],
+  [
+   0.03,
+   0.04000000000000001,
+   -0.005000000000000001
+  ],
+  [
+   0.015,
+   -0.005000000000000001,
+   0.0625
+  ]
+ ],
+ "positions": [
+  {
+   "key": "AAA",
+   "ticker": "AAA",
+   "value_eur": 600.0,
+   "group": "technology",
+   "has_risk": true
+  },
+  {
+   "key": "BBB",
+   "ticker": "BBB",
+   "value_eur": 300.0,
+   "group": null,
+   "has_risk": true
+  },
+  {
+   "key": "fund:F",
+   "ticker": null,
+   "value_eur": 100.0,
+   "group": null,
+   "has_risk": false
+  }
+ ],
+ "tech_tickers": [
+  "CCC"
+ ],
+ "baskets": [
+  {
+   "items": [],
+   "expected": {
+    "total": 1000.0,
+    "weights": {
+     "AAA": 0.6,
+     "BBB": 0.3,
+     "fund:F": 0.1
+    },
+    "top3": 0.9999999999999999,
+    "tech": 0.6,
+    "vol": 0.2403700850309326,
+    "volCovered": 0.9,
+    "topRisk": {
+     "key": "AAA",
+     "share": 0.8076923076923076
+    }
+   }
+  },
+  {
+   "items": [
+    {
+     "ticker": "CCC",
+     "amountEur": 100.0
+    }
+   ],
+   "expected": {
+    "total": 1100.0,
+    "weights": {
+     "AAA": 0.5454545454545454,
+     "BBB": 0.2727272727272727,
+     "fund:F": 0.09090909090909091,
+     "CCC": 0.09090909090909091
+    },
+    "top3": 0.9090909090909091,
+    "tech": 0.6363636363636364,
+    "vol": 0.22118996360594664,
+    "volCovered": 0.9090909090909091,
+    "topRisk": {
+     "key": "AAA",
+     "share": 0.7910066428206438
+    }
+   }
+  },
+  {
+   "items": [
+    {
+     "ticker": "BBB",
+     "amountEur": 200.0
+    }
+   ],
+   "expected": {
+    "total": 1200.0,
+    "weights": {
+     "AAA": 0.5,
+     "BBB": 0.4166666666666667,
+     "fund:F": 0.08333333333333333
+    },
+    "top3": 1.0,
+    "tech": 0.5,
+    "vol": 0.22342192231717284,
+    "volCovered": 0.9166666666666666,
+    "topRisk": {
+     "key": "AAA",
+     "share": 0.6854304635761589
+    }
+   }
+  },
+  {
+   "items": [
+    {
+     "ticker": "CCC",
+     "amountEur": 50.0
+    },
+    {
+     "ticker": "AAA",
+     "amountEur": 50.0
+    }
+   ],
+   "expected": {
+    "total": 1100.0,
+    "weights": {
+     "AAA": 0.5909090909090909,
+     "BBB": 0.2727272727272727,
+     "fund:F": 0.09090909090909091,
+     "CCC": 0.045454545454545456
+    },
+    "top3": 0.9545454545454546,
+    "tech": 0.6363636363636364,
+    "vol": 0.23303701422735404,
+    "volCovered": 0.9090909090909091,
+    "topRisk": {
+     "key": "AAA",
+     "share": 0.8168949246173323
+    }
+   }
+  }
+ ]
+}

@@ -30,12 +30,22 @@ License: MIT, see `LICENSE`.
 
 ## Views
 
-- **Overview:** one card per watchlist (average return per period, highest and lowest name, flags) and the state
-  of tonight's data.
-- **Leaderboards:** one table per watchlist, ranked by the period you pick (1d, 1w, 1m, YTD, 1y), with the rank
+- **Portfolio** (landing page): your own holdings (value, result, weights, a history chart from the broker's weekly
+  export), sector cards that show where the dashboard's lists cover ground your portfolio does not, a candidate
+  table of shares and ETFs with correlation to your portfolio, and a research basket: add amounts of new money and
+  see how weights, concentration and volatility would change. Current holdings stay as they are. On a phone it
+  has three tabs (Holdings, Additions, Basket) and a bottom sheet for a holding's details. The **View** button
+  chooses what is shown.
+- **Candidates:** tonight's shortlist as cards, each with its P/E against its own past, the case
+  for a closer look and what argues against it. Picked by four measures; what has been tested is on the page.
+- **Screener:** every company once in a dense sortable table with valuation figures and filters.
+- **Research panel:** click any company name: measures, reasons for and against, caveats, cheap-or-expensive
+  strips, the usual numbers each with a plain guide, recent headlines.
+- **Watchlists:** one card per list, and one table per watchlist, ranked by the period you pick (1d, 1w, 1m, YTD, 1y), with the rank
   change since the previous close. Every column sorts. On a phone a row expands to show the rest.
 - **Mix:** build a test mix (saved in the browser only) and see exposure by sector, country, currency and
-  watchlist, mix volatility, each company's share of risk and how the companies move together. Compare two mixes.
+  watchlist, a map of the mix (tile size = weight, colour = more or less risk than its weight), mix volatility,
+  each company's share of risk and how the companies move together. Compare two mixes.
 - **Movers:** largest one-day gains and falls across all lists, and the dip flags with their reasons.
 
 ## Set up (once)
@@ -62,6 +72,29 @@ Run the data build every night after the US close:
 powershell -ExecutionPolicy Bypass -File scripts\install_task.ps1
 ```
 
+## Your portfolio
+
+The Portfolio view reads two private files that stay on your machine. This repository is public, so
+`config/portfolio.toml` is listed in `.gitignore`; never commit it.
+
+1. Copy `config/portfolio.example.toml` to `config/portfolio.toml` and put your holdings in it (the comments in the
+   example explain each key). A fund without a Yahoo ticker takes a hand-typed `value_eur`; give it
+   `cost_eur_total` as well to get a result.
+2. Optional history: set `history_csv` to the broker's "daily development" export (Nordnet: UTF-16, tab-separated). It
+   gives the chart, the return since the first deposit and the largest fall. Without it those items are hidden.
+   The export holds your account values: keep it outside this folder, under `data/`, or name it `*.private.csv` in `config/`
+   (all of those are ignored by git).
+3. Run `scripts\run_nightly.bat` (or `uv run python -m engine build`). Without `config/portfolio.toml` the page says so.
+
+`scripts\open_dashboard.bat lan` serves the data, holdings included, to every device on your network: use it only on a
+network you trust.
+
+Values are Yahoo closes converted to EUR and can differ slightly from the broker's report. Volatility and correlation are
+estimates from two years of weekly returns, only for holdings with a Yahoo ticker. Educational, not advice.
+
+ETF candidates live in lists marked `kind = "etf"` in `config/watchlists.toml`. After adding a ticker run
+`uv run python scripts/verify_watchlists.py`.
+
 The page must be opened through `open_dashboard.bat`: opening `web\dist\index.html` as a file does not work.
 After changing code under `web/`, run `npm --prefix web run build` again; the nightly run only refreshes data.
 
@@ -70,6 +103,12 @@ Without network, or to try the page: `uv run python -m engine build --demo` writ
 ## Watchlists
 
 `config/watchlists.toml` holds the lists as `"TICKER" = "company name"`.
+
+- **Add a company:** one line under a list, then run the verification below. Sector, country and currency come
+  from Yahoo.
+- **Add a list:** a new `[key]` block with `name = "..."` and a `[key.tickers]` table. No code change.
+- **Add a market:** one line in the exchange table in `engine/exchanges.py` (suffix, name, time zone, currency).
+  Verification rejects a ticker whose suffix is not in the table and says so.
 
 - Check every ticker against Yahoo: `uv run python scripts/verify_watchlists.py`. It writes
   `config/watchlists_verified.csv` (status, sector, country, currency). The build only uses tickers whose status
@@ -88,6 +127,12 @@ Without network, or to try the page: `uv run python -m engine build --demo` writ
   over the last 104 complete weeks; a company with a shorter history has no risk numbers. They are estimates from
   past data, not forecasts.
 - The dip flag and the checks are untested screen rules (the dip-dashboard backtest did not support them).
+- The four candidate measures are not shown to work on these companies. Trend and steadiness were tested on their
+  price history (`docs/backtests/`): trend showed no reliable difference, and steadier companies returned less.
+  Value and business quality cannot be tested with free data. Steadiness is kept as a description of how a share
+  behaves, not as a predictor.
+- A P/E below a company's own past can come from profit growth or from a data error; the panel's caveats say
+  which applies where a rule can tell.
 - The Finnish list is built from the Finnish Wikipedia list of Helsinki-listed companies, matched to Yahoo
   tickers by name search and Wikidata; a company that neither finds is missing (see `config/fi_candidates.csv`).
 

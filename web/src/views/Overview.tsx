@@ -5,17 +5,16 @@ import { formatHash, replaceRoute, type Route } from '../router'
 export default function Overview({ data, route }: { data: Data; route: Route }) {
   const period = asPeriod(route.params.period)
   const label = PERIODS.find((p) => p.key === period)!.label
-  const { meta } = data
   const nameOf = new Map(data.leaderboard.lists.flatMap((l) => l.rows.map((r) => [r.ticker, r] as const)))
 
   return (
     <>
       <div className="pagehead">
         <div>
-          <h1>Overview</h1>
+          <h1>Watchlists</h1>
           <p className="muted small">Average return of each watchlist: every company counts the same, each in its own currency.</p>
         </div>
-        <PeriodPicker value={period} onChange={(p) => replaceRoute({ view: 'overview', params: { period: p } })} />
+        <PeriodPicker value={period} onChange={(p) => replaceRoute({ view: 'list', params: { period: p } })} />
       </div>
 
       <div className="grid">
@@ -52,21 +51,6 @@ export default function Overview({ data, route }: { data: Data; route: Route }) 
           )
         })}
       </div>
-
-      <section className="card panel" aria-labelledby="data-state">
-        <h2 id="data-state">Tonight's data</h2>
-        <p>
-          Data as of {meta.asof}: {meta.usable} of {meta.tickers} companies have prices.
-        </p>
-        {meta.failures.length > 0 && (
-          <>
-            <h3>No data tonight</h3>
-            <ul>{meta.failures.map((f) => <li key={f.ticker}>{f.name} ({f.ticker}): {f.reason}</li>)}</ul>
-          </>
-        )}
-        <h3 style={{ marginTop: 12 }}>What to keep in mind</h3>
-        <ul className="muted">{meta.notes.map((n) => <li key={n}>{n}</li>)}</ul>
-      </section>
     </>
   )
 }

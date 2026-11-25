@@ -1,5 +1,7 @@
 # Market Leaderboard Dashboard Implementation Plan
 
+> **Status 2026-11-13:** this plan covers version 1 (sessions 1-4, done and merged). Version 2 (Candidates, Screener, research panel, Mix map; branch `session-5`) is specified in `docs/superpowers/specs/2026-11-12-research-workstation-design.md`, which wins over this plan and `docs/spec.md` where they differ (landing page, navigation, lists read from `config/watchlists.toml`, shortlist = mean of value, quality and trend). Task steps below are kept as history.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** A local dashboard that ranks five watchlists (US big tech, EU defence, EU energy, Nordic energy, Finnish 0.3-5B EUR small caps) like a leaderboard, opens on an overview page, shows daily movers and labelled dip alerts, and lets the owner build test mixes to see exposure, EUR volatility and risk contribution.

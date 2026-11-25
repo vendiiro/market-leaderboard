@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "News30",
+  "description": "Headlines from the last 30 days for the shares the owner holds, and tonight's research candidates, from Google News RSS and Hacker News (scripts/news30.py). Private (names the holdings) and git-ignored. News flow, not sentiment; headlines are third-party text.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "asof", "source", "companies", "failed"],
+  "properties": {
+    "schema_version": { "const": 4 },
+    "asof": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "source": { "type": "string" },
+    "companies": { "type": "array", "items": { "$ref": "#/$defs/company" } },
+    "failed": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["ticker", "reason"],
+        "properties": { "ticker": { "type": "string" }, "reason": { "type": "string" } }
+      }
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "source", "url", "date", "tone"],
+      "properties": {
+        "title": { "type": "string" },
+        "source": { "type": "string" },
+        "url": { "type": ["string", "null"] },
+        "tone": { "enum": ["upbeat", "downbeat", "neutral"] },
+        "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+      }
+    },
+    "company": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["group", "ticker", "name", "asof", "count", "upbeat", "upbeat_week", "down", "down_week", "balance", "capped", "per_week", "items"],
+      "properties": {
+        "group": { "enum": ["holding", "candidate", "discovery"], "description": "A share the owner holds, one of tonight's research candidates, or another dashboard name with an unusually upbeat week." },
+        "ticker": { "type": "string" },
+        "name": { "type": "string" },
+        "asof": { "type": "string" },
+        "count": { "type": "integer", "minimum": 0 },
+        "upbeat": { "type": "integer", "minimum": 0, "description": "Stories whose headline matches an upbeat phrase and no downbeat one. A keyword match, not tested as a predictor." },
+        "upbeat_week": { "type": "integer", "minimum": 0, "description": "The same, within the last 7 days." },
+        "down": { "type": "integer", "minimum": 0, "description": "Stories whose headline matches a downbeat phrase and no upbeat one." },
+        "down_week": { "type": "integer", "minimum": 0, "description": "The same, within the last 7 days." },
+        "balance": { "type": ["number", "null"], "minimum": -1, "maximum": 1, "description": "(upbeat - downbeat) / (upbeat + downbeat); null when neither kind exists." },
+        "capped": { "type": "boolean", "description": "The feed was full (100 items): counts and the weekly split lean to recent days." },
+        "per_week": { "description": "Headlines per week, oldest week first; the last entry is the most recent 7 days.", "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "integer", "minimum": 0 } },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/item" } }
+      }
+    }
+  }
+}

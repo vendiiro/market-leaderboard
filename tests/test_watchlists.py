@@ -1,9 +1,10 @@
 import pandas as pd
 import pytest
 
-from engine.watchlists import LIST_KEYS, all_tickers, build_fi_smallcaps, fi_smallcap_rows, load_watchlists, membership, read
+from engine.watchlists import all_tickers, build_fi_smallcaps, fi_smallcap_rows, load_watchlists, membership, read
 from synth import flat
 
+LIST_KEYS = ("us_big_tech", "eu_defence", "eu_energy", "nordic_energy", "fi_small")
 GOOD = "\n".join(f'[{k}]\nname = "{k} list"\n[{k}.tickers]\n"AAA{i}.HE" = "Company {i}"\n' for i, k in enumerate(LIST_KEYS))
 
 
@@ -13,22 +14,22 @@ def write(tmp_path, text):
     return p
 
 
-def test_real_file_loads_the_five_lists():
-    lists = load_watchlists()
-    assert tuple(lists) == LIST_KEYS and all(lists[k] for k in LIST_KEYS if k != "fi_small")
-    assert all(read()[k]["name"] for k in LIST_KEYS)
+def test_real_file_loads_with_names_and_tickers():
+    cfg = read()
+    assert set(LIST_KEYS) <= set(cfg) and all(v["name"] and v["tickers"] for v in cfg.values())
 
 
-def test_toml_loads_the_five_keys_in_order(tmp_path):
+def test_lists_come_from_the_file_in_file_order(tmp_path):
     lists = load_watchlists(write(tmp_path, GOOD))
     assert tuple(lists) == LIST_KEYS and lists["us_big_tech"] == ["AAA0.HE"]
 
 
-def test_unknown_or_missing_list_and_bad_entries_are_errors(tmp_path):
-    with pytest.raises(ValueError, match="unknown list"):
-        load_watchlists(write(tmp_path, GOOD + '[crypto]\nname = "x"\n[crypto.tickers]\n'))
-    with pytest.raises(ValueError, match="missing list"):
-        load_watchlists(write(tmp_path, GOOD[:GOOD.index("[fi_small]")]))
+def test_a_new_list_needs_no_code_change_and_bad_entries_are_errors(tmp_path):
+    more = load_watchlists(write(tmp_path, GOOD + '[nordic_large]\nname = "Nordic large"\n[nordic_large.tickers]\n"NOVO-B.CO" = "Novo Nordisk"\n'))
+    assert list(more)[-1] == "nordic_large" and more["nordic_large"] == ["NOVO-B.CO"]
+    assert list(load_watchlists(write(tmp_path, GOOD[:GOOD.index("[fi_small]")]))) == list(LIST_KEYS[:4])
+    with pytest.raises(ValueError, match="no lists"):
+        load_watchlists(write(tmp_path, "# empty\n"))
     with pytest.raises(ValueError, match="name"):
         load_watchlists(write(tmp_path, GOOD.replace('name = "eu_energy list"\n', "")))
     with pytest.raises(ValueError, match="company name"):
@@ -131,3 +132,44 @@ def test_wikidata_rows_become_yahoo_tickers_and_ended_listings_are_skipped():
             {"itemLabel": {"value": "Gone"}, "ticker": {"value": "GONE"}, "end": {"value": "2020-01-01"}},
             {"itemLabel": {"value": "Spaced"}, "ticker": {"value": "ab c"}}, {"itemLabel": {"value": "No ticker"}}]
     assert _script().wikidata_lines(rows) == {"HUH1V.HE": "Huhtamäki", "AB-C.HE": "Spaced"}
+
+
+# ---- ETF lists and entry groups (portfolio page) ------------------------------------------------------------
+
+MIXED = """
+[a]
+name = "Shares"
+[a.tickers]
+X = "Plain"
+Y = { name = "Tagged", group = "technology" }
+
+[b]
+name = "Funds"
+kind = "etf"
+[b.tickers]
+"ZZ.DE" = { name = "Index fund", group = "technology" }
+"WW.DE" = "Other fund"
+"""
+
+
+def test_read_defaults_kind_to_stock_and_accepts_inline_tables(tmp_path):
+    cfg = read(write(tmp_path, MIXED))
+    assert cfg["a"]["kind"] == "stock" and cfg["b"]["kind"] == "etf"
+    assert cfg["a"]["tickers"] == {"X": "Plain", "Y": "Tagged"} and cfg["a"]["groups"] == {"Y": "technology"}
+    assert cfg["b"]["groups"] == {"ZZ.DE": "technology"}
+
+
+def test_read_rejects_unknown_kind(tmp_path):
+    with pytest.raises(ValueError, match="kind"):
+        read(write(tmp_path, '[a]\nname = "A"\nkind = "bond"\n[a.tickers]\nX = "Plain"\n'))
+
+
+def test_inline_table_needs_a_name(tmp_path):
+    with pytest.raises(ValueError, match="needs a company name"):
+        read(write(tmp_path, '[a]\nname = "A"\n[a.tickers]\nX = { group = "technology" }\n'))
+
+
+def test_split_by_kind(tmp_path):
+    from engine.watchlists import split_by_kind
+    stock, etf = split_by_kind(read(write(tmp_path, MIXED)))
+    assert list(stock) == ["a"] and list(etf) == ["b"]

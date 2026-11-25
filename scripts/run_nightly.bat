@@ -41,6 +41,11 @@ goto run
 
 :finish
 if not "%RC%"=="0" exit /b %RC%
+REM Headlines for your holdings and tonight's candidates (Google News, Hacker News). Optional: a failure here is only logged
+REM and never changes the exit code, because the build above already succeeded.
+echo %date% %time% ==== headlines >> output\nightly.log
+"%PY%" scripts\news30.py --discover >> output\nightly.log 2>&1
+if errorlevel 1 echo %date% %time% ==== headlines failed, the page shows the previous file or none >> output\nightly.log
 if not exist web\dist\index.html goto nodist
 if not exist web\dist\data mkdir web\dist\data
 copy /y web\public\data\*.json web\dist\data\ >nul
