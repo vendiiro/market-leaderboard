@@ -15,6 +15,10 @@ A Python engine (`engine/`) pulls daily prices from Yahoo Finance and writes fou
 (`web/`) reads them. Design: `docs/spec.md`. Plan: `docs/plan.md`. Checked facts and decisions: `docs/decisions.md`.
 Data code is adapted from [dip-dashboard](https://github.com/vendiiro/dip-dashboard).
 
+![Overview page, demo data](docs/screenshots/overview.png)
+
+Screenshot uses invented demo data (`uv run python -m engine build --demo`).
+
 ## What this project shows
 
 - A full data pipeline built and tested end to end: a Python engine pulls and checks Yahoo data, writes schema-validated JSON, and a static React page reads it.
